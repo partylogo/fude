@@ -50,7 +50,7 @@ struct FestivalSelectionView: View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             SectionHeader(
                 title: "已選擇的節慶 (\(viewModel.selectedFestivals.count))",
-                icon: "✅"
+                icon: ""
             )
             
             LazyVStack(spacing: Spacing.sm) {
@@ -71,7 +71,7 @@ struct FestivalSelectionView: View {
     /// 其他節慶區塊
     private var otherFestivalsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            SectionHeader(title: "其他節慶", icon: "📅")
+            SectionHeader(title: "其他節慶", icon: "")
             
             LazyVStack(spacing: Spacing.sm) {
                 ForEach(unselectedFestivals, id: \.id) { festival in

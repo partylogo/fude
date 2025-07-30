@@ -50,7 +50,7 @@ struct DeitySelectionView: View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             SectionHeader(
                 title: "已選擇的神明 (\(viewModel.selectedDeities.count))",
-                icon: "✅"
+                icon: ""
             )
             
             LazyVStack(spacing: Spacing.sm) {
@@ -71,7 +71,7 @@ struct DeitySelectionView: View {
     /// 其他神明區塊
     private var otherDeitiesSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            SectionHeader(title: "其他神明", icon: "📅")
+            SectionHeader(title: "其他神明", icon: "")
             
             LazyVStack(spacing: Spacing.sm) {
                 ForEach(unselectedDeities, id: \.id) { deity in

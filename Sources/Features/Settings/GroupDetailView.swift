@@ -97,7 +97,7 @@ struct GroupDetailView: View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             SectionHeader(
                 title: "已選擇的神明 (\(selectedDeities.count))",
-                icon: "👸"
+                icon: ""
             )
             
             LazyVStack(spacing: Spacing.sm) {
@@ -113,7 +113,7 @@ struct GroupDetailView: View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             SectionHeader(
                 title: "已選擇的節慶 (\(selectedFestivals.count))",
-                icon: "🏮"
+                icon: ""
             )
             
             LazyVStack(spacing: Spacing.sm) {
