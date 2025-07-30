@@ -149,16 +149,10 @@ struct EventCard: View {
             // 事件標題和倒數
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    // 事件類型 + 標題
-                    HStack(spacing: Spacing.sm) {
-                        Image(systemName: viewModel.eventIcon(event))
-                            .font(.callout)
-                            .foregroundColor(viewModel.eventColor(event))
-                        
-                        Text(event.title)
-                            .font(.cardTitle)
-                            .foregroundColor(.textPrimary)
-                    }
+                    // 事件標題
+                    Text(event.title)
+                        .font(.cardTitle)
+                        .foregroundColor(.textPrimary)
                     
                     // 事件描述
                     Text(event.description)

@@ -77,7 +77,7 @@ struct NotificationSettingsView: View {
     /// 通知時間設定區塊
     private var timeSettingsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            SectionHeader(title: "通知時間設定", icon: "⏰")
+            SectionHeader(title: "通知時間設定", icon: "")
             
             SettingsCard {
                 VStack(spacing: 0) {
@@ -115,7 +115,7 @@ struct NotificationSettingsView: View {
     /// 通知類型區塊
     private var notificationTypesSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            SectionHeader(title: "通知類型", icon: "🔔")
+            SectionHeader(title: "通知類型", icon: "")
             
             SettingsCard {
                 VStack(spacing: 0) {
@@ -246,13 +246,15 @@ struct SectionHeader: View {
     
     var body: some View {
         HStack(spacing: Spacing.sm) {
-            ZStack {
-                Circle()
-                    .fill(Color.primaryColor)
-                    .frame(width: 26, height: 26)
-                
-                Text(icon)
-                    .font(.system(size: 13))
+            if !icon.isEmpty {
+                ZStack {
+                    Circle()
+                        .fill(Color.primaryColor)
+                        .frame(width: 26, height: 26)
+                    
+                    Text(icon)
+                        .font(.system(size: 13))
+                }
             }
             
             Text(title)
