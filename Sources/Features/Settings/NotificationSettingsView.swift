@@ -14,6 +14,7 @@ struct NotificationSettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
     @State private var showingTimePicker = false
     @State private var tempTime = Date()
+    @State private var showingAdvanceDaysPicker = false
     
     var body: some View {
         NavigationStack {
@@ -37,6 +38,24 @@ struct NotificationSettingsView: View {
         }
         .sheet(isPresented: $showingTimePicker) {
             timePickerSheet
+        }
+        .confirmationDialog("選擇提前通知天數", isPresented: $showingAdvanceDaysPicker, titleVisibility: .visible) {
+            Button("當天通知") {
+                viewModel.updateAdvanceDays(0)
+            }
+            Button("1天前") {
+                viewModel.updateAdvanceDays(1)
+            }
+            Button("2天前") {
+                viewModel.updateAdvanceDays(2)
+            }
+            Button("3天前") {
+                viewModel.updateAdvanceDays(3)
+            }
+            Button("7天前") {
+                viewModel.updateAdvanceDays(7)
+            }
+            Button("取消", role: .cancel) { }
         }
     }
     
@@ -71,8 +90,7 @@ struct NotificationSettingsView: View {
                         }
                     )
                     .onTapGesture {
-                        // TODO: 實作提前天數選擇器
-                        print("選擇提前天數")
+                        showingAdvanceDaysPicker = true
                     }
                     
                     Divider()

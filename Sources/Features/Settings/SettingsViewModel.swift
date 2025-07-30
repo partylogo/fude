@@ -173,7 +173,11 @@ extension SettingsViewModel {
     
     /// 格式化提前天數顯示
     var formattedAdvanceDays: String {
-        return "\(notificationSettings.advanceDays)天前"
+        if notificationSettings.advanceDays == 0 {
+            return "當天通知"
+        } else {
+            return "\(notificationSettings.advanceDays)天前"
+        }
     }
     
     /// 檢查是否訂閱了簡少年推薦
