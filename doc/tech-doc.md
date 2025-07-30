@@ -1895,7 +1895,12 @@ async function getCacheHitRate() {
   - [x] `/api/lunar` 農曆轉換 API 
   - [x] EventsService & LunarCalendarService 業務邏輯層
   - [x] 完整單元測試與整合測試覆蓋
-- [ ] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)（本地測試）- **進行中**
+- [x] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)（本地測試）- **63 個測試通過**
+  - [x] `/api/groups` 群組列表 API
+  - [x] `/api/groups/:id` 群組詳細 API  
+  - [x] `/api/groups/:id/items` 群組事件 API（依類型分組）
+  - [x] GroupsService 業務邏輯層與 ID 驗證
+  - [x] 完整單元測試與整合測試覆蓋
 - [ ] 建立 React Admin 專案結構（連接本地環境）
 - [ ] 實作 events CRUD 與農曆轉換器（本地測試）
 - [ ] 建立 groups 管理介面（本地測試）
