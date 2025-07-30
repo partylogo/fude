@@ -9,7 +9,7 @@
 | 版本                | 預估週期       | 重點功能                                        | 交付物                                                                      |
 | ----------------- | ---------- | ------------------------------------------- | ------------------------------------------------------------------------ |
 | **Version 1.0 (通知 app 雛形)** | Week 0‑2   | 首頁、近期重要日子、基礎通知設定、資料使用 mock data | • iOS IPA (基礎版)<br>• Mock 資料系統                                              |
-| **Version 1.1 (通知 app 完整版)** | Week 3‑4   | 新增 Onboarding 流程、資料使用後台資料、後台管理系統（民俗日期管理） | • iOS IPA<br>• Vercel Functions + Supabase schema v1<br>• React Admin v1 |
+| **Version 1.1 (通知 app 完整版)** | Week 3‑4   | 新增 Onboarding 流程、資料使用後台資料、後台管理系統（民俗日期管理）<br>**開發流程**：本地測試 → 雲端部署 | • iOS IPA<br>• 本地開發環境 (Docker Supabase + Vercel Dev)<br>• Vercel Functions + Supabase schema v1<br>• React Admin v1 |
 | **Version 2.0 (新增相關活動)**   | Week 5‑6   | 首頁新增「近期相關活動」Section、後台新增相關活動管理功能            | • 活動資料表 & API<br>• 首頁 UI 更新                                              |
 | **Version 2.1 (新增附近廟宇)**   | Week 7‑8  | 首頁新增查看附近廟宇功能、附近相關廟宇詳細頁、廟宇資料庫建置、後台新增相關廟宇管理功能     | • temple schema & geo index<br>• 附近廟宇頁面          |
 | **Version 2.2 (地圖整合)**   | Week 9‑10 | 加入廟宇詳細頁、加入神明詳細頁、地圖整合功能（複製地址、開啟 Google 地圖）                         | • MapKit + Google Maps Deep‑Link<br>• 詳細頁面完成                                                                    |
@@ -1886,23 +1886,32 @@ async function getCacheHitRate() {
 
 ## Version 1.1 (通知 app 完整版) - Week 3-4
 
-### Phase 2: 後端整合與認證系統 (Week 3-4)
-- [ ] 建立 Supabase 專案並執行 schema migration
-- [ ] 設定 Vercel 專案與環境變數
+### Phase 2A: 本地開發環境建置與測試 (Week 3)
+- [ ] 設定本地 Supabase (Docker) 環境
+- [ ] 建立本地資料庫 schema migration
+- [ ] 設定本地 Vercel dev server 環境
+- [ ] 實作 `/api/events` GET endpoint 與農曆轉換（本地測試）
+- [ ] 實作通知設定 API (`/api/user/settings`)（本地測試）
+- [ ] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)（本地測試）
+- [ ] 建立 React Admin 專案結構（連接本地環境）
+- [ ] 實作 events CRUD 與農曆轉換器（本地測試）
+- [ ] 建立 groups 管理介面（本地測試）
+- [ ] **本地環境完整測試**：確認所有 API 和後台功能正常
+
+### Phase 2B: 雲端部署與 iOS 整合 (Week 4)
+- [ ] 建立雲端 Supabase 專案並執行 schema migration
+- [ ] 設定雲端 Vercel 專案與環境變數
+- [ ] 部署 API 到 Vercel 雲端環境
+- [ ] 部署 React Admin 到雲端環境
 - [ ] 整合 Google Sign-In SDK 與 Firebase FCM
-- [ ] 實作 `/api/auth/google` endpoint
+- [ ] 實作 `/api/auth/google` endpoint（雲端）
 - [ ] 建立 iOS GoogleSignInManager
 - [ ] 實作 Onboarding 流程（登入 + 權限請求）
-- [ ] 實作 `/api/events` GET endpoint 與農曆轉換
-- [ ] 實作通知設定 API (`/api/user/settings`)
-- [ ] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)
 - [ ] 建立 iOS GroupDetailView（簡少年老師推薦詳細頁）
-- [ ] 實作推播排程系統
-- [ ] 建立 React Admin 專案結構
-- [ ] 實作 events CRUD 與農曆轉換器
-- [ ] 建立 groups 管理介面
+- [ ] 實作推播排程系統（雲端）
+- [ ] **雲端環境完整測試**：確認 iOS App 與雲端後台整合
 
-> **Version 1.1 完成標準**：完成後端整合，iOS App 可正常登入、設定通知並收到推播。對應UI mockup的頁面1、4、5、6、7完成。
+> **Version 1.1 完成標準**：完成雲端後端整合，iOS App 可正常登入、設定通知並收到推播。對應UI mockup的頁面1、4、5、6、7完成。**開發流程**：本地測試 → 雲端部署。
 
 ---
 
@@ -1988,15 +1997,54 @@ async function getCacheHitRate() {
 - **iOS Deployment Target**: 16.0
 
 #### 本地開發指令
-```bash
-# 後端開發
-pnpm install
-pnpm dev              # 啟動 Vercel dev server
-supabase start        # 啟動本地 Supabase
-supabase db reset     # 重置資料庫
 
+##### Phase 2A: 本地環境設置
+```bash
+# 1. 安裝必要工具
+npm install -g supabase
+docker --version     # 確認 Docker 已安裝
+
+# 2. 設置本地 Supabase
+supabase init        # 初始化 Supabase 專案
+supabase start       # 啟動本地 Supabase (Docker)
+supabase status      # 確認服務狀態
+
+# 3. 建立資料庫結構
+supabase db reset    # 執行 migrations
+supabase db seed     # 載入測試資料
+
+# 4. 後端 API 開發
+pnpm install
+pnpm dev            # 啟動 Vercel dev server (連接本地 Supabase)
+
+# 5. React Admin 本地測試
+cd admin
+pnpm install
+pnpm dev            # 啟動後台管理系統 (連接本地環境)
+```
+
+##### Phase 2B: 雲端部署
+```bash
+# 1. 建立雲端 Supabase 專案
+supabase projects create folklore-app
+supabase link --project-ref <your-project-ref>
+
+# 2. 部署資料庫到雲端
+supabase db push     # 推送 schema 到雲端
+
+# 3. 部署到 Vercel
+vercel deploy        # 部署 API (連接雲端 Supabase)
+vercel deploy --prod # 部署到正式環境
+
+# 4. 部署 React Admin
+cd admin
+vercel deploy --prod # 部署後台管理系統
+```
+
+##### iOS 開發
+```bash
 # iOS 開發
-xcodegen generate     # 生成 Xcode project（如使用 XcodeGen）
+xcodegen generate     # 生成 Xcode project
 open FolkloreApp.xcworkspace
 
 # 測試
@@ -2004,8 +2052,20 @@ pnpm test            # 後端測試
 xcodebuild test      # iOS 測試
 ```
 
+##### 環境切換
+```bash
+# 切換到本地環境
+export SUPABASE_URL="http://localhost:54321"
+export SUPABASE_ANON_KEY="<local-anon-key>"
+
+# 切換到雲端環境  
+export SUPABASE_URL="https://xxx.supabase.co"
+export SUPABASE_ANON_KEY="<production-anon-key>"
+```
+
 ---
 
-> **文件版本**: v2.1  
-> **最後更新**: 2024-12-19  
-> **適用版本**: Version 1.0 - 2.2
+> **文件版本**: v2.2  
+> **最後更新**: 2024-12-30  
+> **適用版本**: Version 1.0 - 2.2  
+> **Version 1.1 開發流程**: 本地測試 → 雲端部署
