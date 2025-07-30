@@ -105,16 +105,15 @@
 - 基礎通知設定
 - 資料使用 mock data
 
-### 3.2 MVP Version 1.1 (通知 app 雛形)
+### 3.2 MVP Version 1.1 (通知 app 完整版)
 **功能範圍：**
-- 新增 Onboarding 流程
-- 資料使用後台資料
+- 資料使用後台資料(預計使用 Supabase 但也同時考量與建立本地可測試的方式)
 - 後台管理系統（民俗日期管理）
 
-### 3.3 MVP Version 2.0 
+### 3.3 MVP Version 2.0 (新增用戶系統與活動)
 **功能範圍：**
-- 首頁
-- 新增"近期相關活動" Section
+- 新增 Onboarding 流程
+- 首頁新增"近期相關活動" Section
 - 後台新增相關活動管理功能
 
 ### 3.4 MVP Version 2.1

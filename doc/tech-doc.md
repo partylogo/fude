@@ -9,8 +9,8 @@
 | 版本                | 預估週期       | 重點功能                                        | 交付物                                                                      |
 | ----------------- | ---------- | ------------------------------------------- | ------------------------------------------------------------------------ |
 | **Version 1.0 (通知 app 雛形)** | Week 0‑2   | 首頁、近期重要日子、基礎通知設定、資料使用 mock data | • iOS IPA (基礎版)<br>• Mock 資料系統                                              |
-| **Version 1.1 (通知 app 完整版)** | Week 3‑4   | 新增 Onboarding 流程、資料使用後台資料、後台管理系統（民俗日期管理）<br>**開發流程**：本地測試 → 雲端部署 | • iOS IPA<br>• 本地開發環境 (Docker Supabase + Vercel Dev)<br>• Vercel Functions + Supabase schema v1<br>• React Admin v1 |
-| **Version 2.0 (新增相關活動)**   | Week 5‑6   | 首頁新增「近期相關活動」Section、後台新增相關活動管理功能            | • 活動資料表 & API<br>• 首頁 UI 更新                                              |
+| **Version 1.1 (通知 app 完整版)** | Week 3‑4   | 資料使用後台資料、後台管理系統（民俗日期管理）<br>**開發流程**：本地測試 → 雲端部署 | • iOS IPA<br>• 本地開發環境 (Docker Supabase + Vercel Dev)<br>• Vercel Functions + Supabase schema v1<br>• React Admin v1 |
+| **Version 2.0 (新增用戶系統與活動)**   | Week 5‑6   | 新增 Onboarding 流程、首頁新增「近期相關活動」Section、後台新增相關活動管理功能            | • 用戶認證系統 (Google OAuth + Firebase FCM)<br>• 活動資料表 & API<br>• iOS Onboarding 流程<br>• 首頁 UI 更新                                              |
 | **Version 2.1 (新增附近廟宇)**   | Week 7‑8  | 首頁新增查看附近廟宇功能、附近相關廟宇詳細頁、廟宇資料庫建置、後台新增相關廟宇管理功能     | • temple schema & geo index<br>• 附近廟宇頁面          |
 | **Version 2.2 (地圖整合)**   | Week 9‑10 | 加入廟宇詳細頁、加入神明詳細頁、地圖整合功能（複製地址、開啟 Google 地圖）                         | • MapKit + Google Maps Deep‑Link<br>• 詳細頁面完成                                                                    |
 
@@ -1888,36 +1888,41 @@ async function getCacheHitRate() {
 
 ### Phase 2A: 本地開發環境建置與測試 (Week 3)
 - [ ] 設定本地 Supabase (Docker) 環境
-- [ ] 建立本地資料庫 schema migration
+- [ ] 建立本地資料庫 schema migration（基礎資料表：events, groups, group_items）
 - [ ] 設定本地 Vercel dev server 環境
 - [ ] 實作 `/api/events` GET endpoint 與農曆轉換（本地測試）
-- [ ] 實作通知設定 API (`/api/user/settings`)（本地測試）
 - [ ] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)（本地測試）
 - [ ] 建立 React Admin 專案結構（連接本地環境）
 - [ ] 實作 events CRUD 與農曆轉換器（本地測試）
 - [ ] 建立 groups 管理介面（本地測試）
 - [ ] **本地環境完整測試**：確認所有 API 和後台功能正常
 
-### Phase 2B: 雲端部署與 iOS 整合 (Week 4)
+### Phase 2B: 雲端部署與後端 API 建置 (Week 4)
 - [ ] 建立雲端 Supabase 專案並執行 schema migration
 - [ ] 設定雲端 Vercel 專案與環境變數
 - [ ] 部署 API 到 Vercel 雲端環境
 - [ ] 部署 React Admin 到雲端環境
-- [ ] 整合 Google Sign-In SDK 與 Firebase FCM
-- [ ] 實作 `/api/auth/google` endpoint（雲端）
-- [ ] 建立 iOS GoogleSignInManager
-- [ ] 實作 Onboarding 流程（登入 + 權限請求）
+- [ ] 修改 iOS App 連接雲端 API（移除 mock data）
 - [ ] 建立 iOS GroupDetailView（簡少年老師推薦詳細頁）
-- [ ] 實作推播排程系統（雲端）
-- [ ] **雲端環境完整測試**：確認 iOS App 與雲端後台整合
+- [ ] **雲端環境完整測試**：確認 iOS App 與雲端後台資料同步
 
-> **Version 1.1 完成標準**：完成雲端後端整合，iOS App 可正常登入、設定通知並收到推播。對應UI mockup的頁面1、4、5、6、7完成。**開發流程**：本地測試 → 雲端部署。
+> **Version 1.1 完成標準**：完成雲端後端 API 整合，iOS App 可正常顯示雲端資料、設定通知（但無用戶登入）。對應UI mockup的頁面1、4、5、6、7完成。**開發流程**：本地測試 → 雲端部署。
 
 ---
 
-## Version 2.0 (新增相關活動) - Week 5-6
+## Version 2.0 (新增用戶系統與活動) - Week 5-6
 
-### Phase 3: 活動模組 (Week 5-6)
+### Phase 3A: 用戶認證與 Onboarding 系統 (Week 5)
+- [ ] 建立用戶相關資料表 schema migration（users, devices, notification_settings, user_event_subscriptions, user_group_subscriptions）
+- [ ] 整合 Google Sign-In SDK 與 Firebase FCM
+- [ ] 實作 `/api/auth/google` endpoint
+- [ ] 實作通知設定 API (`/api/user/settings`)
+- [ ] 建立 iOS GoogleSignInManager
+- [ ] 實作 Onboarding 流程（登入 + 權限請求）
+- [ ] 實作推播排程系統
+- [ ] 建立 iOS 用戶認證流程 UI 測試
+
+### Phase 3B: 活動模組與整合 (Week 6)
 - [ ] 建立 activities 資料表與 API
 - [ ] 實作 `/api/activities?event_id=` endpoint
 - [ ] 建立 Activity 資料模型（iOS）
@@ -1925,10 +1930,10 @@ async function getCacheHitRate() {
 - [ ] 建立 ActivityCardView 元件
 - [ ] 更新 HomeViewModel 包含活動資料
 - [ ] 建立 React Admin activities CRUD 頁面
-- [ ] 活動 API 單元測試
-- [ ] iOS 活動顯示 UI 測試
+- [ ] 整合用戶系統與活動推播
+- [ ] 完整 E2E 測試（登入 → 設定通知 → 收到推播）
 
-> **Version 2.0 完成標準**：首頁正確顯示相關活動，後台可管理活動資料。首頁功能完整（對應UI mockup頁面1完整版）。
+> **Version 2.0 完成標準**：完成用戶認證系統，iOS App 可正常登入、設定通知並收到推播。首頁正確顯示相關活動，後台可管理活動資料。對應UI mockup的頁面1、4、5、6、7完成並支援用戶系統。
 
 ---
 
@@ -2065,7 +2070,8 @@ export SUPABASE_ANON_KEY="<production-anon-key>"
 
 ---
 
-> **文件版本**: v2.2  
+> **文件版本**: v2.3  
 > **最後更新**: 2024-12-30  
 > **適用版本**: Version 1.0 - 2.2  
-> **Version 1.1 開發流程**: 本地測試 → 雲端部署
+> **Version 1.1 開發流程**: 本地測試 → 雲端部署  
+> **重要更新**: Onboarding 流程調整到 Version 2.0
