@@ -83,6 +83,21 @@ extension Color {
     static let borderColor = charcoalBorder
 }
 
+// MARK: - UIColor Extensions for UIKit Compatibility
+extension UIColor {
+    /// 主要色彩 - UIColor 版本
+    static let primaryColor = UIColor(red: 0.616, green: 0.310, blue: 0.290, alpha: 1.0)
+    
+    /// 次要色彩 - UIColor 版本
+    static let secondaryColor = UIColor(red: 0.290, green: 0.271, blue: 0.247, alpha: 1.0)
+    
+    /// 表面色彩 - UIColor 版本
+    static let surfaceColor = UIColor.white
+    
+    /// 次要文字色彩 - UIColor 版本
+    static let textSecondary = UIColor(red: 0.184, green: 0.168, blue: 0.153, alpha: 0.6)
+}
+
 // MARK: - Color Preview Support
 #if DEBUG
 struct Colors_Previews: PreviewProvider {

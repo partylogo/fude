@@ -28,16 +28,16 @@ struct ContentView: View {
             // 自定義 Tab Bar 外觀
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor(Color.surfaceColor)
+            appearance.backgroundColor = UIColor.surfaceColor
             
             // 設定選中和未選中的顏色
-            appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.primaryColor)
+            appearance.stackedLayoutAppearance.selected.iconColor = UIColor.primaryColor
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                .foregroundColor: UIColor(Color.primaryColor)
+                .foregroundColor: UIColor.primaryColor
             ]
-            appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.textSecondary)
+            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.textSecondary
             appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                .foregroundColor: UIColor(Color.textSecondary)
+                .foregroundColor: UIColor.textSecondary
             ]
             
             UITabBar.appearance().standardAppearance = appearance
