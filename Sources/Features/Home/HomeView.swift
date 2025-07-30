@@ -189,15 +189,7 @@ struct EventCard: View {
                 
                 Spacer()
                 
-                // Version 2.1 才實作 "查看附近廟宇" 功能
-                if event.type == .deity {
-                    Button("查看附近廟宇") {
-                        // TODO: Version 2.1 實作
-                    }
-                    .font(.caption)
-                    .foregroundColor(.primaryColor)
-                    .disabled(true) // Version 1.0 先禁用
-                }
+                // Version 1.0: 移除查看附近廟宇功能，Version 2.1 再實作
             }
         }
         .padding(Spacing.cardPadding)

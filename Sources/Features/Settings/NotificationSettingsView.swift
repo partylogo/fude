@@ -48,11 +48,8 @@ struct NotificationSettingsView: View {
             SettingsRow(
                 title: "啟用所有通知",
                 trailing: {
-                    Toggle("", isOn: .constant(viewModel.notificationSettings.enableAll))
+                    Toggle("", isOn: $viewModel.notificationSettings.enableAll)
                         .toggleStyle(CustomToggleStyle())
-                        .onTapGesture {
-                            viewModel.toggleAllNotifications()
-                        }
                 }
             )
         }
@@ -73,6 +70,10 @@ struct NotificationSettingsView: View {
                                 .foregroundColor(.primaryColor)
                         }
                     )
+                    .onTapGesture {
+                        // TODO: 實作提前天數選擇器
+                        print("選擇提前天數")
+                    }
                     
                     Divider()
                         .padding(.leading, Spacing.screenPadding)
@@ -104,11 +105,8 @@ struct NotificationSettingsView: View {
                     SettingsRow(
                         title: "初一十五提醒",
                         trailing: {
-                            Toggle("", isOn: .constant(viewModel.notificationSettings.newmoonEnabled))
+                            Toggle("", isOn: $viewModel.notificationSettings.newmoonEnabled)
                                 .toggleStyle(CustomToggleStyle())
-                                .onTapGesture {
-                                    viewModel.toggleNewMoonEnabled()
-                                }
                         }
                     )
                     
@@ -118,11 +116,8 @@ struct NotificationSettingsView: View {
                     SettingsRow(
                         title: "初二十六提醒",
                         trailing: {
-                            Toggle("", isOn: .constant(viewModel.notificationSettings.customEnabled))
+                            Toggle("", isOn: $viewModel.notificationSettings.fullmoonEnabled)
                                 .toggleStyle(CustomToggleStyle())
-                                .onTapGesture {
-                                    viewModel.toggleSecondSixteenthEnabled()
-                                }
                         }
                     )
                     
@@ -132,20 +127,22 @@ struct NotificationSettingsView: View {
                     SettingsRow(
                         title: "簡少年老師 2025 拜拜推薦",
                         trailing: {
-                            Toggle("", isOn: .constant(viewModel.isSubscribedToTeacherRecommendations))
-                                .toggleStyle(CustomToggleStyle())
-                                .onTapGesture {
+                            Toggle("", isOn: Binding(
+                                get: { viewModel.isSubscribedToTeacherRecommendations },
+                                set: { _ in 
                                     if let group = viewModel.teacherRecommendations {
                                         viewModel.toggleGroupSubscription(groupId: group.id)
                                     }
                                 }
+                            ))
+                            .toggleStyle(CustomToggleStyle())
                         }
                     )
                     
                     // 簡少年推薦詳細
                     if viewModel.isSubscribedToTeacherRecommendations {
                         if let group = viewModel.teacherRecommendations {
-                            NavigationLink(destination: GroupDetailView(group: group)) {
+                            NavigationLink(destination: GroupDetailView(group: group).environmentObject(viewModel)) {
                                 SettingsSubRow(
                                     title: "✓ 已選擇 \(viewModel.selectedRecommendationsCount) 項推薦"
                                 )
@@ -159,25 +156,22 @@ struct NotificationSettingsView: View {
                     SettingsRow(
                         title: "自定提醒",
                         trailing: {
-                            Toggle("", isOn: .constant(viewModel.notificationSettings.customEnabled))
+                            Toggle("", isOn: $viewModel.notificationSettings.customEnabled)
                                 .toggleStyle(CustomToggleStyle())
-                                .onTapGesture {
-                                    viewModel.toggleCustomEnabled()
-                                }
                         }
                     )
                     
                     // 自定提醒子項目
                     if viewModel.notificationSettings.customEnabled {
                         // 已選擇節慶
-                        NavigationLink(destination: FestivalSelectionView()) {
+                        NavigationLink(destination: FestivalSelectionView().environmentObject(viewModel)) {
                             SettingsSubRow(
                                 title: "✓ 已選擇 \(viewModel.selectedFestivals.count) 個節慶"
                             )
                         }
                         
                         // 已選擇神明
-                        NavigationLink(destination: DeitySelectionView()) {
+                        NavigationLink(destination: DeitySelectionView().environmentObject(viewModel)) {
                             SettingsSubRow(
                                 title: "✓ 已選擇 \(viewModel.selectedDeities.count) 位神明"
                             )
