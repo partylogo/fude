@@ -90,8 +90,8 @@ extension Event {
             description: "海上女神媽祖的誕辰，祈求平安順利",
             lunarDate: LunarDate(month: 3, day: 23, isLeap: false),
             solarDate: [
-                Calendar.current.date(from: DateComponents(year: 2024, month: 4, day: 20))!,
-                Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 8))!
+                Calendar.current.date(byAdding: .day, value: 3, to: Date())!,
+                Calendar.current.date(byAdding: .day, value: 368, to: Date())!
             ],
             coverUrl: nil,
             deityRole: "海上平安、航海保護",
@@ -105,8 +105,8 @@ extension Event {
             description: "關公生日，祈求事業順利、正氣護身",
             lunarDate: LunarDate(month: 6, day: 24, isLeap: false),
             solarDate: [
-                Calendar.current.date(from: DateComponents(year: 2024, month: 7, day: 30))!,
-                Calendar.current.date(from: DateComponents(year: 2025, month: 7, day: 19))!
+                Calendar.current.date(byAdding: .day, value: 7, to: Date())!,
+                Calendar.current.date(byAdding: .day, value: 372, to: Date())!
             ],
             coverUrl: nil,
             deityRole: "武財神、正義之神",
@@ -151,8 +151,8 @@ extension Event {
             description: "春節，最重要的傳統節日",
             lunarDate: LunarDate(month: 1, day: 1, isLeap: false),
             solarDate: [
-                Calendar.current.date(from: DateComponents(year: 2024, month: 2, day: 10))!,
-                Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 29))!
+                Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+                Calendar.current.date(byAdding: .day, value: 366, to: Date())!
             ],
             coverUrl: nil,
             deityRole: nil,
@@ -166,8 +166,8 @@ extension Event {
             description: "上元節，觀燈祈福的節日",
             lunarDate: LunarDate(month: 1, day: 15, isLeap: false),
             solarDate: [
-                Calendar.current.date(from: DateComponents(year: 2024, month: 2, day: 24))!,
-                Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 12))!
+                Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
+                Calendar.current.date(byAdding: .day, value: 370, to: Date())!
             ],
             coverUrl: nil,
             deityRole: nil,
@@ -181,8 +181,8 @@ extension Event {
             description: "慎終追遠，掃墓祭祖的重要節日",
             lunarDate: nil,
             solarDate: [
-                Calendar.current.date(from: DateComponents(year: 2024, month: 4, day: 4))!,
-                Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 5))!
+                Calendar.current.date(byAdding: .day, value: 10, to: Date())!,
+                Calendar.current.date(byAdding: .day, value: 375, to: Date())!
             ],
             coverUrl: nil,
             deityRole: nil,
