@@ -1876,7 +1876,7 @@ async function getCacheHitRate() {
 - [x] 建立選擇頁面（DeitySelectionView、FestivalSelectionView）
 - [x] 建立 TabView 底部導航系統
 - [x] 建立 GroupDetailView (簡少年推薦詳細頁面)
-- [x] 撰寫單元測試（iOS ViewModels）- 基礎測試完成
+- [x] 撰寫單元測試（iOS ViewModels）- **28個測試全部通過**
 - [x] Git 專案管理建立 (project.yml, .gitignore, README.md)
 - [ ] 部署到 TestFlight 進行內測
 
