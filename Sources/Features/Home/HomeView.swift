@@ -153,7 +153,7 @@ struct EventCard: View {
                     HStack(spacing: Spacing.sm) {
                         Image(systemName: viewModel.eventIcon(event))
                             .font(.callout)
-                            .foregroundColor(Color(viewModel.eventColor(event)))
+                            .foregroundColor(viewModel.eventColor(event))
                         
                         Text(event.title)
                             .font(.cardTitle)

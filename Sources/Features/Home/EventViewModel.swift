@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 /// 首頁事件 ViewModel
 @MainActor
@@ -117,14 +118,14 @@ class EventViewModel: ObservableObject {
     }
     
     /// 取得事件顏色 (基於類型)
-    func eventColor(_ event: Event) -> String {
+    func eventColor(_ event: Event) -> Color {
         switch event.type {
         case .deity:
-            return "primaryColor"    // 深赭紅
+            return .primaryColor    // 深赭紅
         case .festival:
-            return "secondaryColor"  // 煙燻灰
+            return .secondaryColor  // 煙燻灰
         case .custom:
-            return "primaryColor"
+            return .primaryColor
         }
     }
 }
