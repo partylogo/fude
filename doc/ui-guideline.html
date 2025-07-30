@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile App Design Guideline</title>
+    <style>
+        :root {
+            /* 核心色彩系統 - 純粹雙色系統 */
+            --brick-red: #9D4F4A;
+            --warm-ivory: #F7F3E8;
+            --smoky-charcoal: #2F2B27;
+            
+            /* 煙燻灰延伸系列 */
+            --charcoal-light: #4A453F;
+            --charcoal-medium: #3A3530;
+            --charcoal-soft: rgba(47, 43, 39, 0.6);
+            --charcoal-subtle: rgba(47, 43, 39, 0.1);
+            --charcoal-border: rgba(47, 43, 39, 0.15);
+            
+            /* 米杏白延伸系列 */
+            --ivory-warm: #F2EDE0;
+            --ivory-cool: #FDFCF7;
+            --ivory-pure: #FFFFFF;
+            
+            /* 語意化顏色 */
+            --primary-color: var(--brick-red);
+            --secondary-color: var(--charcoal-light);
+            --background-color: var(--warm-ivory);
+            --surface-color: var(--ivory-pure);
+            --surface-warm: var(--ivory-warm);
+            --surface-highlight: var(--ivory-cool);
+            --text-primary: var(--smoky-charcoal);
+            --text-secondary: var(--charcoal-soft);
+            --text-subtle: var(--charcoal-subtle);
+            --border-color: var(--charcoal-border);
+            
+            /* 字體系統 */
+            --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-weight-regular: 400;
+            --font-weight-medium: 500;
+            --font-weight-bold: 700;
+            
+            /* 字體大小 */
+            --font-size-h1: 32px;
+            --font-size-h2: 24px;
+            --font-size-h3: 20px;
+            --font-size-body: 16px;
+            --font-size-caption: 14px;
+            --font-size-small: 12px;
+            
+            /* 間距系統 */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
+            
+            /* 陰影系統 */
+            --shadow-sm: 0 2px 4px var(--charcoal-subtle);
+            --shadow-md: 0 4px 8px rgba(47, 43, 39, 0.15);
+            --shadow-lg: 0 8px 16px rgba(47, 43, 39, 0.2);
+            
+            /* 圓角系統 */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-family-primary);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+            padding: var(--spacing-md);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 標題樣式 */
+        h1, h2, h3 {
+            margin-bottom: var(--spacing-md);
+            font-weight: var(--font-weight-bold);
+        }
+        
+        h1 {
+            font-size: var(--font-size-h1);
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        h2 {
+            font-size: var(--font-size-h2);
+            color: var(--primary-color);
+            margin-top: var(--spacing-xl);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: var(--font-size-h3);
+            color: var(--secondary-color);
+            margin-top: var(--spacing-lg);
+        }
+        
+        /* 文字樣式 */
+        p {
+            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-body);
+        }
+        
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+        
+        .text-caption {
+            font-size: var(--font-size-caption);
+            color: var(--text-secondary);
+        }
+        
+        /* 色彩展示 */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+        
+        .color-item {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+        
+        .color-swatch {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-md);
+            margin: 0 auto var(--spacing-sm);
+            border: 1px solid var(--border-color);
+        }
+        
+        .color-brick-red { background-color: var(--brick-red); }
+        .color-warm-ivory { background-color: var(--warm-ivory); }
+        .color-smoky-charcoal { background-color: var(--smoky-charcoal); }
+        .color-charcoal-light { background-color: var(--charcoal-light); }
+        .color-ivory-warm { background-color: var(--ivory-warm); }
+        
+        /* 字體展示 */
+        .typography-example {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .font-h1 { font-size: var(--font-size-h1); font-weight: var(--font-weight-bold); }
+        .font-h2 { font-size: var(--font-size-h2); font-weight: var(--font-weight-bold); }
+        .font-h3 { font-size: var(--font-size-h3); font-weight: var(--font-weight-medium); }
+        .font-body { font-size: var(--font-size-body); font-weight: var(--font-weight-regular); }
+        .font-caption { font-size: var(--font-size-caption); font-weight: var(--font-weight-regular); }
+        
+        /* 按鈕元件 */
+        .button-group {
+            display: flex;
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-body);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--surface-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--surface-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--charcoal-medium);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: var(--surface-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* 輸入框元件 */
+        .input-group {
+            margin: var(--spacing-md) 0;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-caption);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-body);
+            font-family: var(--font-family-primary);
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(157, 79, 74, 0.15);
+        }
+        
+        /* 卡片元件 */
+        .card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* 導覽列 */
+        .nav-bar {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-sm);
+            margin: var(--spacing-lg) 0;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .nav-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--primary-color);
+            color: var(--surface-color);
+        }
+        
+        /* 標籤頁 */
+        .tab-container {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-sm);
+            margin: var(--spacing-lg) 0;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .tab-nav {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .tab-button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .tab-button.active {
+            background-color: var(--primary-color);
+            color: var(--surface-color);
+        }
+        
+        /* 通知元件 */
+        .notification {
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin: var(--spacing-md) 0;
+            border-left: 4px solid;
+        }
+        
+        .notification-success {
+            background-color: var(--surface-highlight);
+            border-left-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        
+        .notification-warning {
+            background-color: rgba(47, 43, 39, 0.08);
+            border-left-color: var(--charcoal-light);
+            color: var(--charcoal-light);
+        }
+        
+        .notification-error {
+            background-color: rgba(47, 43, 39, 0.1);
+            border-left-color: var(--smoky-charcoal);
+            color: var(--smoky-charcoal);
+        }
+        
+        .notification-info {
+            background-color: var(--surface-highlight);
+            border-left-color: var(--charcoal-soft);
+            color: var(--text-primary);
+        }
+        
+        /* 間距展示 */
+        .spacing-demo {
+            display: flex;
+            align-items: center;
+            margin: var(--spacing-sm) 0;
+        }
+        
+        .spacing-box {
+            background-color: var(--primary-color);
+            color: var(--surface-color);
+            padding: var(--spacing-xs);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-caption);
+            margin-right: var(--spacing-md);
+        }
+        
+        .spacing-visual {
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: var(--radius-sm);
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-sm);
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .color-palette {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 手機模擬器 */
+        .phone-mockup {
+            width: 300px;
+            height: 600px;
+            background: var(--smoky-charcoal);
+            border-radius: 30px;
+            padding: 20px;
+            margin: var(--spacing-lg) auto;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--background-color);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .phone-header {
+            background: var(--surface-color);
+            padding: var(--spacing-md);
+            text-align: center;
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .phone-content {
+            padding: var(--spacing-md);
+        }
+        
+        .phone-bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface-color);
+            padding: var(--spacing-sm);
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 8px rgba(47, 43, 39, 0.1);
+        }
+        
+        .phone-nav-item {
+            padding: var(--spacing-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-caption);
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+        
+        .phone-nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        /* 動畫效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* 載入動畫 */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: var(--spacing-md) auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 代碼展示 */
+        .code-block {
+            background: var(--smoky-charcoal);
+            color: var(--warm-ivory);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-family: 'Courier New', monospace;
+            font-size: var(--font-size-caption);
+            overflow-x: auto;
+            margin: var(--spacing-md) 0;
+        }
+        
+        .code-block .keyword {
+            color: var(--warm-ivory);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .code-block .string {
+            color: var(--warm-ivory);
+            opacity: 0.8;
+        }
+        
+        .code-block .comment {
+            color: var(--charcoal-soft);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mobile App Design Guideline</h1>
+        
+        <section>
+            <h2>一、設計總則 (Design Principles)</h2>
+            
+            <div class="card">
+                <h3>設計哲學</h3>
+                <p>• <strong>簡潔為主</strong>：追求清晰直觀的介面設計，避免不必要的視覺干擾</p>
+                <p>• <strong>以用戶為中心</strong>：優先考慮用戶需求和使用情境，提供直觀的操作體驗</p>
+                <p>• <strong>可預測的互動</strong>：遵循平台慣例，確保操作邏輯的一致性</p>
+                <p>• <strong>無障礙設計</strong>：考慮不同能力用戶的需求，提供可及性支援</p>
+            </div>
+            
+            <div class="card">
+                <h3>品牌調性</h3>
+                <p>融合<strong>懷舊古樸</strong>與<strong>現代實用</strong>的特質，呈現<strong>溫暖</strong>、<strong>專業</strong>、<strong>可信賴</strong>的品牌形象。採用低飽和度的暖色調，營造舒適的日常氛圍。</p>
+            </div>
+            
+
+        </section>
+        
+        <section>
+            <h2>二、視覺設計 (Visual Design)</h2>
+            
+            <h3>1. 色彩系統 (Color System)</h3>
+            <p>採用極簡的雙色核心系統，基於深赭紅和煙燻灰的延伸變化，營造溫暖古樸且現代的設計氛圍。所有色彩變化都基於明度調整和透明度變化，確保完美的視覺和諧。</p>
+            
+            <div class="color-palette">
+                <div class="color-item">
+                    <div class="color-swatch color-brick-red"></div>
+                    <h4>深赭紅 (Primary)</h4>
+                    <p class="text-caption">#9D4F4A</p>
+                    <p class="text-caption">主要 CTA、品牌識別</p>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch color-charcoal-light"></div>
+                    <h4>淺煙燻灰 (Secondary)</h4>
+                    <p class="text-caption">#4A453F</p>
+                    <p class="text-caption">次要按鈕、系統狀態</p>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch color-smoky-charcoal"></div>
+                    <h4>煙燻灰 (Text)</h4>
+                    <p class="text-caption">#2F2B27</p>
+                    <p class="text-caption">主要文字、圖標</p>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch color-ivory-warm"></div>
+                    <h4>溫米色 (Surface)</h4>
+                    <p class="text-caption">#F2EDE0</p>
+                    <p class="text-caption">卡片背景、輔助表面</p>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch color-warm-ivory"></div>
+                    <h4>米杏白 (Background)</h4>
+                    <p class="text-caption">#F7F3E8</p>
+                    <p class="text-caption">主要背景色</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h4>色彩功能明確分工</h4>
+                <p>• <strong>深赭紅系列</strong>：積極行動（主按鈕、購買、確認、品牌標識）</p>
+                <p>• <strong>煙燻灰系列</strong>：所有系統狀態（錯誤、警告、次要按鈕、成功提示）</p>
+                <p>• <strong>米杏白系列</strong>：內容承載（背景、表面、留白區域）</p>
+                <p><strong>核心原則</strong>：紅色 = 行動召喚，灰色 = 系統回饋，分工明確不混亂</p>
+            </div>
+            
+            <div class="card">
+                <h4>純粹雙色哲學</h4>
+                <p>• <strong>2 核心色彩</strong>：深赭紅 + 煙燻灰，不再有任何中間變化色</p>
+                <p>• <strong>互動反饋</strong>：使用陰影、位移、透明度創造懸停效果</p>
+                <p>• <strong>透明度變化</strong>：使用 rgba 創造微妙的狀態區分</p>
+                <p>• <strong>極致簡潔</strong>：比 Airbnb 還要純粹的色彩系統</p>
+                <p>• <strong>認知清晰</strong>：紅色專門引導行動，灰色專門傳達資訊</p>
+            </div>
+            
+            <h3>2. 字體與排版 (Typography)</h3>
+            <p>採用系統字體確保最佳效能與可讀性，iOS 使用 San Francisco，Android 使用 Roboto。</p>
+            
+            <div class="typography-example">
+                <div class="font-h1">標題 H1 (32px/Bold)</div>
+                <div class="font-h2">標題 H2 (24px/Bold)</div>
+                <div class="font-h3">標題 H3 (20px/Medium)</div>
+                <div class="font-body">內文 Body (16px/Regular)</div>
+                <div class="font-caption">輔助資訊 Caption (14px/Regular)</div>
+            </div>
+            
+            <div class="code-block">
+<span class="comment">/* CSS 字體系統 */</span>
+<span class="keyword">--font-family-primary:</span> <span class="string">-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;</span>
+<span class="keyword">--font-size-h1:</span> <span class="string">32px;</span>
+<span class="keyword">--font-size-h2:</span> <span class="string">24px;</span>
+<span class="keyword">--font-size-h3:</span> <span class="string">20px;</span>
+<span class="keyword">--font-size-body:</span> <span class="string">16px;</span>
+<span class="keyword">--font-size-caption:</span> <span class="string">14px;</span>
+            </div>
+            
+            <h3>3. 圖標與圖像 (Icons & Imagery)</h3>
+            <p>圖標採用 24px 標準尺寸，線條粗細 2px，符合 Material Design 規範。圖像風格偏向溫暖寫實，避免過度飽和的色彩。</p>
+        </section>
+        
+        <section>
+            <h2>三、元件規範 (Component Library)</h2>
+            
+            <h3>1. 按鈕元件 (Buttons)</h3>
+            <div class="button-group">
+                <button class="btn btn-primary">主要按鈕</button>
+                <button class="btn btn-secondary">次要按鈕</button>
+                <button class="btn btn-outline">線框按鈕</button>
+            </div>
+            
+            <div class="code-block">
+<span class="comment">/* 按鈕樣式 - 現代互動效果 */</span>
+<span class="keyword">.btn-primary</span> {
+    <span class="keyword">background-color:</span> <span class="string">#9D4F4A;</span>
+    <span class="keyword">color:</span> <span class="string">white;</span>
+    <span class="keyword">transition:</span> <span class="string">all 0.3s ease;</span>
+}
+
+<span class="keyword">.btn-primary:hover</span> {
+    <span class="keyword">transform:</span> <span class="string">translateY(-3px);</span>
+    <span class="keyword">box-shadow:</span> <span class="string">0 8px 16px rgba(47, 43, 39, 0.2);</span>
+    <span class="keyword">opacity:</span> <span class="string">0.9;</span>
+}
+
+<span class="keyword">.btn-secondary</span> {
+    <span class="keyword">background-color:</span> <span class="string">#4A453F;</span>
+    <span class="keyword">color:</span> <span class="string">white;</span>
+}
+            </div>
+            
+            <h3>2. 輸入框元件 (Input Fields)</h3>
+            <div class="input-group">
+                <label class="input-label">使用者名稱</label>
+                <input type="text" class="input-field" placeholder="請輸入使用者名稱">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">密碼</label>
+                <input type="password" class="input-field" placeholder="請輸入密碼">
+            </div>
+            
+            <h3>3. 通知元件 (Notifications)</h3>
+            <div class="notification notification-success">
+                <strong>成功！</strong>您的設定已儲存。
+            </div>
+            
+            <div class="notification notification-warning">
+                <strong>注意！</strong>此操作無法復原。
+            </div>
+            
+            <div class="notification notification-error">
+                <strong>錯誤！</strong>請檢查您的輸入。
+            </div>
+            
+            <div class="notification notification-info">
+                <strong>提示：</strong>這是一般資訊通知。
+            </div>
+            
+            <div class="card">
+                <h4>基於延伸色彩的狀態系統</h4>
+                <p>• <strong>成功狀態</strong>：使用淺煙燻灰 (#4A453F) + 高亮背景</p>
+                <p>• <strong>警告狀態</strong>：使用淺煙燻灰 (#4A453F) + 淺灰背景</p>
+                <p>• <strong>錯誤狀態</strong>：使用煙燻灰 (#2F2B27) + 淺灰背景</p>
+                <p>• <strong>資訊狀態</strong>：使用標準文字色 + 高亮背景</p>
+                <p><strong>設計理念</strong>：所有負面訊息（錯誤、警告）都採用中性灰色系，紅色專門用於積極行動</p>
+            </div>
+            
+            <h3>4. 標籤頁元件 (Tabs)</h3>
+            <div class="tab-container">
+                <div class="tab-nav">
+                    <button class="tab-button active">首頁</button>
+                    <button class="tab-button">探索</button>
+                    <button class="tab-button">收藏</button>
+                    <button class="tab-button">設定</button>
+                </div>
+                <div class="tab-content">
+                    <p>這是首頁內容區域。</p>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>四、互動行為 (Interaction Design)</h2>
+            
+            <div class="card">
+                <h3>觸控反饋</h3>
+                <p>• <strong>點擊</strong>：提供視覺反饋，按鈕按下時改變顏色和陰影</p>
+                <p>• <strong>長按</strong>：顯示上下文選單或額外選項</p>
+                <p>• <strong>滑動</strong>：支援左右滑動切換頁面或項目</p>
+                <p>• <strong>拖曳</strong>：用於排序或移動項目</p>
+            </div>
+            
+            <div class="card">
+                <h3>狀態設計</h3>
+                <p>• <strong>載入狀態</strong>：顯示載入動畫，告知用戶系統正在處理</p>
+                <div class="loading-spinner"></div>
+                <p>• <strong>空狀態</strong>：提供友善的空白狀態提示</p>
+                <p>• <strong>錯誤狀態</strong>：清楚說明錯誤原因和解決方案</p>
+            </div>
+            
+            <div class="card">
+                <h3>動畫原則</h3>
+                <p>• 使用緩入緩出 (ease-in-out) 動畫曲線</p>
+                <p>• 動畫持續時間控制在 200-500ms 之間</p>
+                <p>• 避免過度動畫影響使用者體驗</p>
+                <p>• 提供關閉動畫的選項以增進無障礙性</p>
+            </div>
+        </section>
+        
+        <section>
+            <h2>五、版面與佈局 (Layout & Spacing)</h2>
+            
+            <h3>間距系統 (8pt Grid System)</h3>
+            <p>採用 8pt 網格系統，確保元素間距的一致性。</p>
+            
+            <div class="spacing-demo">
+                <div class="spacing-box">4px</div>
+                <div class="spacing-visual" style="width: 4px;"></div>
+            </div>
+            
+            <div class="spacing-demo">
+                <div class="spacing-box">8px</div>
+                <div class="spacing-visual" style="width: 8px;"></div>
+            </div>
+            
+            <div class="spacing-demo">
+                <div class="spacing-box">16px</div>
+                <div class="spacing-visual" style="width: 16px;"></div>
+            </div>
+            
+            <div class="spacing-demo">
+                <div class="spacing-box">24px</div>
+                <div class="spacing-visual" style="width: 24px;"></div>
+            </div>
+            
+            <div class="spacing-demo">
+                <div class="spacing-box">32px</div>
+                <div class="spacing-visual" style="width: 32px;"></div>
+            </div>
+            
+            <div class="code-block">
+<span class="comment">/* 間距系統 */</span>
+<span class="keyword">--spacing-xs:</span> <span class="string">4px;</span>
+<span class="keyword">--spacing-sm:</span> <span class="string">8px;</span>
+<span class="keyword">--spacing-md:</span> <span class="string">16px;</span>
+<span class="keyword">--spacing-lg:</span> <span class="string">24px;</span>
+<span class="keyword">--spacing-xl:</span> <span class="string">32px;</span>
+<span class="keyword">--spacing-xxl:</span> <span class="string">48px;</span>
+            </div>
+            
+            <h3>響應式設計</h3>
+            <p>支援多種螢幕尺寸，確保在不同裝置上都能提供良好的使用體驗。</p>
+            
+            <div class="card">
+                <h4>斷點設計</h4>
+                <p>• 小螢幕 (< 768px)：單欄布局，按鈕全寬</p>
+                <p>• 中螢幕 (768px - 1024px)：雙欄布局，適度間距</p>
+                <p>• 大螢幕 (> 1024px)：多欄布局，最大寬度限制</p>
+            </div>
+        </section>
+        
+        <section>
+            <h2>六、平台一致性與差異 (Platform Specifics)</h2>
+            
+            <div class="card">
+                <h3>iOS vs Android 差異處理</h3>
+                <p>• <strong>導覽模式</strong>：iOS 使用 Tab Bar，Android 使用 Bottom Navigation</p>
+                <p>• <strong>返回操作</strong>：iOS 使用左上角返回按鈕，Android 使用系統返回鍵</p>
+                <p>• <strong>字體選擇</strong>：iOS 使用 San Francisco，Android 使用 Roboto</p>
+                <p>• <strong>圓角設計</strong>：iOS 偏好較大圓角，Android 使用適中圓角</p>
+            </div>
+            
+            <div class="code-block">
+<span class="comment">/* 平台特定樣式 */</span>
+<span class="keyword">.ios-style</span> {
+    <span class="keyword">border-radius:</span> <span class="string">16px;</span>
+    <span class="keyword">font-family:</span> <span class="string">-apple-system, BlinkMacSystemFont;</span>
+}
+
+<span class="keyword">.android-style</span> {
+    <span class="keyword">border-radius:</span> <span class="string">8px;</span>
+    <span class="keyword">font-family:</span> <span class="string">Roboto, sans-serif;</span>
+}
+            </div>
+        </section>
+        
+        <section>
+            <h2>七、樣板頁面範例 (Template Screens)</h2>
+            
+            <h3>1. 登入註冊流程</h3>
+            <div class="card">
+                <h4>登入頁面</h4>
+                <div class="input-group">
+                    <label class="input-label">電子郵件</label>
+                    <input type="email" class="input-field" placeholder="請輸入電子郵件">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">密碼</label>
+                    <input type="password" class="input-field" placeholder="請輸入密碼">
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary">登入</button>
+                    <button class="btn btn-outline">註冊</button>
+                </div>
+            </div>
+            
+            <h3>2. 設定頁面</h3>
+            <div class="card">
+                <h4>個人設定</h4>
+                <div class="nav-bar">
+                    <a href="#" class="nav-item active">帳戶設定</a>
+                    <a href="#" class="nav-item">通知設定</a>
+                    <a href="#" class="nav-item">隱私設定</a>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">顯示名稱</label>
+                    <input type="text" class="input-field" value="使用者">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">個人簡介</label>
+                    <textarea class="input-field" rows="3" placeholder="請輸入個人簡介"></textarea>
+                </div>
+            </div>
+            
+            <h3>3. 錯誤與空狀態</h3>
+            <div class="card">
+                <h4>錯誤頁面</h4>
+                <div style="text-align: center; padding: 40px;">
+                    <h4>糟糕！發生了錯誤</h4>
+                    <p class="text-secondary">請檢查您的網路連線或稍後再試</p>
+                    <button class="btn btn-primary">重試</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h4>空狀態頁面</h4>
+                <div style="text-align: center; padding: 40px;">
+                    <h4>暫無內容</h4>
+                    <p class="text-secondary">目前沒有任何項目，開始建立您的第一個項目吧！</p>
+                    <button class="btn btn-primary">開始建立</button>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>八、開發實作指南 (Development Guidelines)</h2>
+            
+            <h3>CSS 變數系統</h3>
+            <div class="code-block">
+<span class="comment">/* 純粹雙色系統 */</span>
+<span class="keyword">:root</span> {
+    <span class="comment">/* 核心 2 色 */</span>
+    <span class="keyword">--brick-red:</span> <span class="string">#9D4F4A;</span>
+    <span class="keyword">--warm-ivory:</span> <span class="string">#F7F3E8;</span>
+    <span class="keyword">--smoky-charcoal:</span> <span class="string">#2F2B27;</span>
+    
+    <span class="comment">/* 煙燻灰延伸系列 */</span>
+    <span class="keyword">--charcoal-light:</span> <span class="string">#4A453F;</span>
+    <span class="keyword">--charcoal-soft:</span> <span class="string">rgba(47, 43, 39, 0.6);</span>
+    
+    <span class="comment">/* 米杏白延伸系列 */</span>
+    <span class="keyword">--ivory-warm:</span> <span class="string">#F2EDE0;</span>
+    <span class="keyword">--ivory-pure:</span> <span class="string">#FFFFFF;</span>
+    
+    <span class="comment">/* 互動效果：使用變換而非顏色變化 */</span>
+    <span class="keyword">.btn-primary:hover</span> {
+        <span class="keyword">transform:</span> <span class="string">translateY(-3px);</span>
+        <span class="keyword">box-shadow:</span> <span class="string">0 8px 16px rgba(47, 43, 39, 0.2);</span>
+        <span class="keyword">opacity:</span> <span class="string">0.9;</span>
+    }
+}
+            </div> 8px 16px rgba(47, 43, 39, 0.2);</span>
+    
+    <span class="comment">/* 圓角系統 */</span>
+    <span class="keyword">--radius-sm:</span> <span class="string">4px;</span>
+    <span class="keyword">--radius-md:</span> <span class="string">8px;</span>
+    <span class="keyword">--radius-lg:</span> <span class="string">12px;</span>
+    <span class="keyword">--radius-xl:</span> <span class="string">16px;</span>
+}
+            </div><span class="string">32px;</span>
+    <span class="keyword">--font-size-h2:</span> <span class="string">24px;</span>
+    <span class="keyword">--font-size-h3:</span> <span class="string">20px;</span>
+    <span class="keyword">--font-size-body:</span> <span class="string">16px;</span>
+    <span class="keyword">--font-size-caption:</span> <span class="string">14px;</span>
+    
+    <span class="comment">/* 間距系統 */</span>
+    <span class="keyword">--spacing-xs:</span> <span class="string">4px;</span>
+    <span class="keyword">--spacing-sm:</span> <span class="string">8px;</span>
+    <span class="keyword">--spacing-md:</span> <span class="string">16px;</span>
+    <span class="keyword">--spacing-lg:</span> <span class="string">24px;</span>
+    <span class="keyword">--spacing-xl:</span> <span class="string">32px;</span>
+    
+    <span class="comment">/* 陰影系統 */</span>
+    <span class="keyword">--shadow-sm:</span> <span class="string">0 2px 4px rgba(58, 53, 48, 0.1);</span>
+    <span class="keyword">--shadow-md:</span> <span class="string">0 4px 8px rgba(58, 53, 48, 0.15);</span>
+    <span class="keyword">--shadow-lg:</span> <span class="string">0 8px 16px rgba(58, 53, 48, 0.2);</span>
+    
+    <span class="comment">/* 圓角系統 */</span>
+    <span class="keyword">--radius-sm:</span> <span class="string">4px;</span>
+    <span class="keyword">--radius-md:</span> <span class="string">8px;</span>
+    <span class="keyword">--radius-lg:</span> <span class="string">12px;</span>
+    <span class="keyword">--radius-xl:</span> <span class="string">16px;</span>
+}
+            </div>
+            
+            <h3>React Native 範例</h3>
+            <div class="code-block">
+<span class="comment">// React Native 純粹雙色系統</span>
+<span class="keyword">const</span> styles = StyleSheet.create({
+  <span class="keyword">container:</span> {
+    <span class="keyword">flex:</span> <span class="string">1</span>,
+    <span class="keyword">backgroundColor:</span> <span class="string">'#F7F3E8'</span>,
+    <span class="keyword">padding:</span> <span class="string">16</span>,
+  },
+  <span class="keyword">primaryButton:</span> {
+    <span class="keyword">backgroundColor:</span> <span class="string">'#9D4F4A'</span>,
+    <span class="keyword">padding:</span> <span class="string">12</span>,
+    <span class="keyword">borderRadius:</span> <span class="string">8</span>,
+    <span class="keyword">alignItems:</span> <span class="string">'center'</span>,
+    <span class="comment">// 互動效果使用 elevation 而非顏色變化</span>
+    <span class="keyword">elevation:</span> <span class="string">2</span>,
+  },
+  <span class="keyword">secondaryButton:</span> {
+    <span class="keyword">backgroundColor:</span> <span class="string">'#4A453F'</span>,
+    <span class="keyword">padding:</span> <span class="string">12</span>,
+    <span class="keyword">borderRadius:</span> <span class="string">8</span>,
+    <span class="keyword">alignItems:</span> <span class="string">'center'</span>,
+  },
+  <span class="keyword">buttonText:</span> {
+    <span class="keyword">color:</span> <span class="string">'#FFFFFF'</span>,
+    <span class="keyword">fontSize:</span> <span class="string">16</span>,
+    <span class="keyword">fontWeight:</span> <span class="string">'500'</span>,
+  },
+  <span class="keyword">card:</span> {
+    <span class="keyword">backgroundColor:</span> <span class="string">'#FFFFFF'</span>,
+    <span class="keyword">padding:</span> <span class="string">16</span>,
+    <span class="keyword">borderRadius:</span> <span class="string">12</span>,
+    <span class="keyword">marginVertical:</span> <span class="string">8</span>,
+    <span class="keyword">shadowColor:</span> <span class="string">'#2F2B27'</span>,
+    <span class="keyword">shadowOffset:</span> { <span class="keyword">width:</span> <span class="string">0</span>, <span class="keyword">height:</span> <span class="string">2</span> },
+    <span class="keyword">shadowOpacity:</span> <span class="string">0.1</span>,
+    <span class="keyword">shadowRadius:</span> <span class="string">4</span>,
+    <span class="keyword">elevation:</span> <span class="string">2</span>,
+  },
+});
+            </div>
+            
+            <h3>Flutter 範例</h3>
+            <div class="code-block">
+<span class="comment">// Flutter 純粹雙色主題</span>
+<span class="keyword">class</span> AppTheme {
+  <span class="keyword">static final</span> ThemeData lightTheme = ThemeData(
+    <span class="keyword">primaryColor:</span> <span class="string">Color(0xFF9D4F4A)</span>,
+    <span class="keyword">backgroundColor:</span> <span class="string">Color(0xFFF7F3E8)</span>,
+    <span class="keyword">textTheme:</span> TextTheme(
+      <span class="keyword">headline1:</span> TextStyle(
+        <span class="keyword">fontSize:</span> <span class="string">32</span>,
+        <span class="keyword">fontWeight:</span> <span class="string">FontWeight.bold</span>,
+        <span class="keyword">color:</span> <span class="string">Color(0xFF2F2B27)</span>,
+      ),
+      <span class="keyword">bodyText1:</span> TextStyle(
+        <span class="keyword">fontSize:</span> <span class="string">16</span>,
+        <span class="keyword">color:</span> <span class="string">Color(0xFF2F2B27)</span>,
+      ),
+    ),
+    <span class="keyword">elevatedButtonTheme:</span> ElevatedButtonThemeData(
+      <span class="keyword">style:</span> ElevatedButton.styleFrom(
+        <span class="keyword">primary:</span> <span class="string">Color(0xFF9D4F4A)</span>,
+        <span class="comment">// 使用 elevation 創造互動效果</span>
+        <span class="keyword">elevation:</span> <span class="string">2</span>,
+        <span class="keyword">shape:</span> RoundedRectangleBorder(
+          <span class="keyword">borderRadius:</span> BorderRadius.circular(<span class="string">8</span>),
+        ),
+      ),
+    ),
+  );
+}
+            </div>>
+        </section>
+        
+        <section>
+            <h2>九、無障礙設計 (Accessibility)</h2>
+            
+            <div class="card">
+                <h3>色彩對比</h3>
+                <p>簡化色彩系統後的對比度檢測結果：</p>
+                <p>• 深赭紅 (#8A4A45) 在白色背景上：對比度 5.2:1 ✓</p>
+                <p>• 古銅黃 (#B8884F) 在白色背景上：對比度 4.8:1 ✓</p>
+                <p>• 煙燻灰 (#2F2B27) 在白色背景上：對比度 12.1:1 ✓</p>
+                <p>• 白色文字在深赭紅背景上：對比度 5.2:1 ✓</p>
+                <p>所有組合均符合 WCAG 2.1 AA 標準</p>
+            </div>
+            
+            <div class="card">
+                <h3>色彩依賴性降低</h3>
+                <p>• 成功/警告/錯誤狀態除了色彩外，還配合圖標和文字說明</p>
+                <p>• 重要操作按鈕除了顏色區分外，還有位置和大小的層級區分</p>
+                <p>• 狀態變化提供多重感官反饋（視覺+觸覺+聲音）</p>
+            </div>
+            
+            <div class="card">
+                <h3>觸控友善設計</h3>
+                <p>• 最小觸控面積：44px × 44px (iOS) / 48dp × 48dp (Android)</p>
+                <p>• 按鈕間最小間距：8px</p>
+                <p>• 支援語音控制和輔助觸控</p>
+                <p>• 動態字型大小調整支援</p>
+            </div>
+        </section>
+        
+        <section>
+            <h2>十、效能最佳化 (Performance)</h2>
+            
+            <div class="card">
+                <h3>色彩系統效能優勢</h3>
+                <p>• <strong>減少色彩計算</strong>：從5色簡化為4色系統，減少CSS變數處理</p>
+                <p>• <strong>統一暖色調</strong>：減少GPU渲染時的色彩空間轉換</p>
+                <p>• <strong>語義化命名</strong>：提高開發效率，減少錯誤使用</p>
+            </div>
+            
+            <div class="card">
+                <h3>動畫效能</h3>
+                <p>• 優先使用 CSS transform 和 opacity</p>
+                <p>• 避免觸發重排 (reflow) 和重繪 (repaint)</p>
+                <p>• 使用 will-change 屬性優化動畫層</p>
+                <p>• 統一的色彩變化減少重繪成本</p>
+            </div>
+            
+            <div class="code-block">
+<span class="comment">/* 效能最佳化的色彩動畫 */</span>
+<span class="keyword">.color-transition</span> {
+  <span class="keyword">background-color:</span> <span class="string">var(--primary-color);</span>
+  <span class="keyword">transition:</span> <span class="string">background-color 0.3s ease;</span>
+}
+
+<span class="keyword">.color-transition:hover</span> {
+  <span class="keyword">background-color:</span> <span class="string">#75403B;</span> <span class="comment">/* 預計算的hover色彩 */</span>
+}
+            </div>
+        </section>
+        
+        <div class="card" style="margin-top: 48px; text-align: center;">
+            <h3>設計系統完成</h3>
+            <p class="text-secondary">此設計指南提供了完整的 mobile app 設計規範，包含視覺設計、元件庫、互動行為等各個面向。請根據實際專案需求進行調整和擴充。</p>
+            <button class="btn btn-primary">開始使用</button>
+        </div>
+    </div>
+    
+    <script>
+        // 標籤頁互動
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 移除所有 active 類別
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    // 添加 active 類別到點擊的按鈕
+                    this.classList.add('active');
+                });
+            });
+            
+            // 為卡片添加淡入動畫
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.classList.add('fade-in');
+            });
+            
+            // 按鈕點擊效果
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 創建點擊波紋效果
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    ripple.style.pointerEvents = 'none';
+                    ripple.style.animation = 'ripple 0.6s ease-out';
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        // 動態樣式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                0% {
+                    transform: scale(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

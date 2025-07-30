@@ -1,0 +1,104 @@
+# macOS System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Xcode - XcodeGen 管理，忽略生成的專案文件
+*.xcodeproj/*
+!*.xcodeproj/project.xcworkspace/
+!*.xcodeproj/xcshareddata/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/xcshareddata/
+
+# Xcode - User files (個人設定)
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+*.moved-aside
+DerivedData/
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+*.xcscmblueprint
+
+# iOS Build files
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods (如果使用)
+Pods/
+*.xcworkspace
+Podfile.lock
+
+# Carthage (如果使用)
+Carthage/Build
+
+# fastlane (如果使用)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Code Injection (如果使用)
+iOSInjectionProject/
+
+# Development Environment
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Firebase 配置文件（敏感資訊）
+GoogleService-Info.plist
+
+# 環境變數文件
+.env
+.env.local
+.env.production
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Node.js (React Admin 後台)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# React Admin Build
+/admin/build
+/admin/.next/
+/admin/out/
+/admin/.vercel
+
+# 測試覆蓋率
+coverage/
+.nyc_output
+
+# Editor files
+*~
+.*.swp
+.*.swo
+
+# XcodeGen 配置文件保留
+!project.yml

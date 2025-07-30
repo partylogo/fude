@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>民俗通知 App - 7頁面最終版本</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .mockup-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .mockup-title {
+            text-align: center;
+            font-size: 2rem;
+            color: #1d1d1f;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .phones-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 320px;
+            height: 640px;
+            background: #000;
+            border-radius: 30px;
+            padding: 8px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 0 auto;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .screen-content {
+            height: calc(100% - 44px - 84px);
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .nav-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 16px 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 19px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .content-section {
+            padding: 16px;
+        }
+
+        .quick-access {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .quick-card {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            color: #2d3436;
+            font-weight: 600;
+            font-size: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .quick-card div:first-child {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-icon {
+            width: 26px;
+            height: 26px;
+            margin-right: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .event-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            border: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .event-title {
+            font-weight: 600;
+            color: #2d3436;
+            font-size: 16px;
+        }
+
+        .event-date {
+            color: #667eea;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .event-desc {
+            color: #636e72;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .temple-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .temple-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .temple-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .temple-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            margin-right: 14px;
+            font-size: 18px;
+        }
+
+        .temple-info h3 {
+            color: #2d3436;
+            font-size: 16px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .temple-info p {
+            color: #636e72;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .temple-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #636e72;
+            font-size: 12px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 84px;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding-bottom: 20px;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #636e72;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            width: 26px;
+            height: 26px;
+            background: currentColor;
+            border-radius: 50%;
+            margin: 0 auto 6px;
+        }
+
+        .search-bar {
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 14px 18px;
+            border: none;
+            width: 100%;
+            font-size: 15px;
+            color: #2d3436;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 12px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        .filter-tab {
+            background: #e5e7eb;
+            color: #6b7280;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            border: none;
+            font-weight: 500;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            color: #fff;
+        }
+
+        .screen-label {
+            text-align: center;
+            font-weight: 600;
+            color: #636e72;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            padding: 24px 20px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .detail-avatar {
+            width: 88px;
+            height: 88px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+
+        .detail-name {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .detail-subtitle {
+            opacity: 0.95;
+            font-size: 15px;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section h3 {
+            color: #2d3436;
+            font-size: 17px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .detail-section p {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .settings-section {
+            margin-bottom: 20px;
+        }
+
+        .settings-list {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 16px;
+        }
+
+        .settings-item {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            color: #2d3436;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .toggle {
+            width: 48px;
+            height: 28px;
+            background: #667eea;
+            border-radius: 14px;
+            position: relative;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .deity-selection-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .deity-avatar-small {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .deity-info {
+            flex: 1;
+        }
+
+        .deity-name-small {
+            color: #2d3436;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .deity-date-small {
+            color: #636e72;
+            font-size: 12px;
+        }
+
+        .add-button, .remove-button {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-button {
+            background: #667eea;
+            color: #fff;
+        }
+
+        .remove-button {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            color: #fff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            font-size: 12px;
+        }
+
+        .checkbox-empty {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            margin-right: 14px;
+        }
+
+        .festival-name {
+            color: #2d3436;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .festival-date {
+            color: #636e72;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <h1 class="mockup-title">民俗通知 App - 8頁面最終版本 (2個Tab)</h1>
+        
+        <div class="phones-grid">
+        
+            <!-- 1. 首頁 -->
+            <div class="phone-container">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋 100%</span>
+                    </div>
+                    <div class="screen-content">
+                        <div class="nav-header">民俗提醒</div>
+                        
+                        <div class="content-section">
+                            <div class="quick-access">
+                                <div class="quick-card">
+                                    <div>🏮</div>
+                                    <div>今日運勢</div>
+                                </div>
+                            </div>
+
+                            <div class="section-title">
+                                <div class="section-icon">📅</div>
+                                近期重要日子
+                            </div>
+                            
+                            <div class="event-card">
+                                <div class="event-header">
+                                    <div class="event-title">媽祖聖誕</div>
+                                    <div class="event-date">還有 3 天</div>
+                                </div>
+                                <div class="event-desc">農曆三月廿三日 • 國曆4月20日 • 海上女神媽祖的誕辰</div>
+                                <div class="event-action">
+                                    <button style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 13px; margin-top: 8px; cursor: pointer;">查看附近相關廟宇</button>
+                                </div>
+                            </div>
+
+                            <div class="event-card">
+                                <div class="event-header">
+                                    <div class="event-title">土地公拜拜日</div>
+                                    <div class="event-date">還有 5 天</div>
+                                </div>
+                                <div class="event-desc">農曆二月十六日 • 國曆4月22日 • 祈求平安順利</div>
+                                <div class="event-action">
+                                    <button style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 13px; margin-top: 8px; cursor: pointer;">查看附近相關廟宇</button>
+                                </div>
+                            </div>
+
+                            <div class="event-card">
+                                <div class="event-header">
+                                    <div class="event-title">清明節</div>
+                                    <div class="event-date">還有 12 天</div>
+                                </div>
+                                <div class="event-desc">國曆4月4-6日 • 慎終追遠 • 掃墓祭祖的重要節日</div>
+                                <div class="event-action">
+                                    <button style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 13px; margin-top: 8px; cursor: pointer;">查看附近相關廟宇</button>
+                                </div>
+                            </div>
+
+                            <div class="section-title">
+                                <div class="section-icon">🎭</div>
+                                近期相關活動
+                            </div>
+                            
+                            <div class="event-card">
+                                <div class="temple-header">
+                                    <div class="temple-icon">🏛️</div>
+                                    <div class="temple-info">
+                                        <h3>鹿港天后宮</h3>
+                                        <p>媽祖聖誕慶典法會</p>
+                                    </div>
+                                </div>
+                                <div style="color: #636e72; font-size: 12px; margin-top: 8px;">
+                                    4月20日 09:00-16:00 • 盛大慶典活動，包含祈福法會、民俗表演
+                                </div>
+                            </div>
+
+                            <div class="event-card">
+                                <div class="temple-header">
+                                    <div class="temple-icon">⛩️</div>
+                                    <div class="temple-info">
+                                        <h3>福安宮</h3>
+                                        <p>土地公春季祈福法會</p>
+                                    </div>
+                                </div>
+                                <div style="color: #636e72; font-size: 12px; margin-top: 8px;">
+                                    4月22日 07:00-12:00 • 為信眾祈求平安順利、事業興旺
+                                </div>
+                            </div>
+
+                            <div class="event-card">
+                                <div class="temple-header">
+                                    <div class="temple-icon">🏮</div>
+                                    <div class="temple-info">
+                                        <h3>龍山寺</h3>
+                                        <p>清明思親法會</p>
+                                    </div>
+                                </div>
+                                <div style="color: #636e72; font-size: 12px; margin-top: 8px;">
+                                    4月4-6日 每日 08:00-17:00 • 三日清明法會，誦經超度先人
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bottom-nav">
+                        <div class="nav-item active">
+                            <div class="nav-icon"></div>
+                            <div>首頁</div>
+                        </div>
+                        <div class="nav-item">
+                            <div class="nav-icon"></div>
+                            <div>通知</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">1. 首頁 - 第一個Tab，神明生日可點擊</div>
+            </div>
+
+            <!-- 2. 附近相關廟宇詳細頁面 -->
+            <div class="phone-container">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋 100%</span>
+                    </div>
+                    <div class="screen-content">
+                        <div class="nav-header">媽祖聖誕 - 附近廟宇</div>
+                        
+                        <div class="content-section">
+                            <div style="background: #f0f7ff; padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #667eea;">
+                                <p style="color: #2d3436; font-size: 15px; line-height: 1.5; margin-bottom: 4px;">
+                                    <strong>媽祖聖誕</strong> - 農曆三月廿三日 (國曆4月20日)
+                                </p>
+                                <p style="color: #636e72; font-size: 13px;">
+                                    以下是附近專門祭祀媽祖的廟宇
+                                </p>
+                            </div>
+
+                            <div class="section-title">
+                                <div class="section-icon">🏛️</div>
+                                附近媽祖廟 (10km 內)
+                            </div>
+                            
+                            <div class="temple-card">
+                                <div class="temple-header">
+                                    <div class="temple-icon">🏛️</div>
+                                    <div class="temple-info">
+                                        <h3>鹿港天后宮</h3>
+                                        <p>彰化縣鹿港鎮 • 主祀媽祖</p>
+                                    </div>
+                                </div>
+                                <div class="temple-stats">
+                                    <span>距離 1.2 公里</span>
+                                    <span>⭐ 4.8 (1,250 評論)</span>
+                                </div>
+                                <div style="margin-top: 8px; color: #636e72; font-size: 12px;">
+                                    4月20日有盛大慶典 • 09:00-16:00
+                                </div>
+                            </div>
+
+                            <div class="temple-card">
+                                <div class="temple-header">
+                                    <div class="temple-icon">🌊</div>
+                                    <div class="temple-info">
+                                        <h3>海豐媽祖廟</h3>
+                                        <p>彰化縣鹿港鎮 • 主祀媽祖</p>
+                                    </div>
+                                </div>
+                                <div class="temple-stats">
+                                    <span>距離 3.8 公里</span>
+                                    <span>⭐ 4.6 (680 評論)</span>
+                                </div>
+                                <div style="margin-top: 8px; color: #636e72; font-size: 12px;">
+                                    4月20日祈福法會 • 08:00-12:00
+                                </div>
+                            </div>
+
+                            <div class="temple-card">
+                                <div class="temple-header">
+                                    <div class="temple-icon">⛵</div>
+                                    <div class="temple-info">
+                                        <h3>南瑤宮</h3>
+                                        <p>彰化市南瑤里 • 主祀媽祖</p>
+                                    </div>
+                                </div>
+                                <div class="temple-stats">
+                                    <span>距離 8.5 公里</span>
+                                    <span>⭐ 4.7 (1,890 評論)</span>
+                                </div>
+                                <div style="margin-top: 8px; color: #636e72; font-size: 12px;">
+                                    4月20日媽祖遶境活動 • 06:00-18:00
+                                </div>
+                            </div>
+
+                            <div class="temple-card">
+                                <div class="temple-header">
+                                    <div class="temple-icon">🛡️</div>
+                                    <div class="temple-info">
+                                        <h3>護安宮</h3>
+                                        <p>彰化縣和美鎮 • 主祀媽祖</p>
+                                    </div>
+                                </div>
+                                <div class="temple-stats">
+                                    <span>距離 9.2 公里</span>
+                                    <span>⭐ 4.5 (420 評論)</span>
+                                </div>
+                                <div style="margin-top: 8px; color: #636e72; font-size: 12px;">
+                                    4月20日點燈祈福 • 07:00-21:00
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">2. 附近相關廟宇詳細頁面 - 從首頁"查看附近相關廟宇"進入</div>
+            </div>
+
+            <!-- 3. 神明詳細頁面 -->
+            <div class="phone-container">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋 100%</span>
+                    </div>
+                    <div class="screen-content">
+                        <div class="detail-header">
+                            <div class="detail-avatar">👸</div>
+                            <div class="detail-name">媽祖</div>
+                            <div class="detail-subtitle">海上女神 • 農曆三月廿三</div>
+                        </div>
+                        
+                        <div class="detail-content">
+                            <div class="detail-section">
+                                <h3>神明簡介</h3>
+                                <p>媽祖，又稱天后、天妃，是東南沿海地區信仰的海神，被譽為「海上女神」。媽祖原名林默娘，宋朝福建莆田人，傳說她能預知天氣變化，拯救海難船隻。</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3>主要職掌</h3>
+                                <p>• 保佑海上平安，船隻順利航行<br>
+                                • 護佑漁民作業安全<br>
+                                • 賜福信眾平安健康<br>
+                                • 庇護旅途平安</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3>知名寺廟</h3>
+                                
+                                <div class="temple-card">
+                                    <div class="temple-header">
+                                        <div class="temple-icon">🏛️</div>
+                                        <div class="temple-info">
+                                            <h3>鹿港天后宮</h3>
+                                            <p>彰化縣鹿港鎮中山路430號</p>
+                                        </div>
+                                    </div>
+                                    <div class="temple-stats">
+                                        <span>開放時間：05:00-22:00</span>
+                                        <span>⭐ 4.8</span>
+                                    </div>
+                                </div>
+
+                                <div class="temple-card">
+                                    <div class="temple-header">
+                                        <div class="temple-icon">🏮</div>
+                                        <div class="temple-info">
+                                            <h3>北港朝天宮</h3>
+                                            <p>雲林縣北港鎮中山路178號</p>
+                                        </div>
+                                    </div>
+                                    <div class="temple-stats">
+                                        <span>開放時間：04:00-24:00</span>
+                                        <span>⭐ 4.9</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3>拜拜須知</h3>
+                                <p>• 供品：鮮花、水果、清茶<br>
+                                • 禁忌：避免葷腥，保持虔誠<br>
+                                • 最佳時間：早晨或傍晚<br>
+                                • 祈願：平安、健康、事業順利</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">3. 神明詳細頁面 - 從首頁神明生日進入</div>
+            </div>
+
+            <!-- 4. 通知設定頁面 -->
+            <div class="phone-container">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋 100%</span>
+                    </div>
+                    <div class="screen-content">
+                        <div class="nav-header">通知設定</div>
+                        
+                        <div class="content-section">
+                            <div class="settings-list">
+                                <div class="settings-item">
+                                    <div class="settings-label">啟用所有通知</div>
+                                    <div class="toggle"></div>
+                                </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <div class="section-title">
+                                    <div class="section-icon">⏰</div>
+                                    通知時間設定
+                                </div>
+                                <div class="settings-list">
+                                    <div class="settings-item">
+                                        <div class="settings-label">提前通知</div>
+                                        <div style="color: #667eea;">1天前</div>
+                                    </div>
+                                    <div class="settings-item">
+                                        <div class="settings-label">通知時間</div>
+                                        <div style="color: #667eea;">08:00</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <div class="section-title">
+                                    <div class="section-icon">🔔</div>
+                                    通知類型
+                                </div>
+                                <div class="settings-list">
+                                    <div class="settings-item">
+                                        <div class="settings-label">初一十五提醒</div>
+                                        <div class="toggle"></div>
+                                    </div>
+                                    <div class="settings-item">
+                                        <div class="settings-label">初二十六提醒</div>
+                                        <div class="toggle"></div>
+                                    </div>
+                                    <div class="settings-item">
+                                        <div class="settings-label">簡少年老師 2025 拜拜推薦</div>
+                                        <div class="toggle"></div>
+                                    </div>
+                                    <div class="settings-item" style="background: #f8f9fa; cursor: pointer;">
+                                        <div class="settings-label" style="color: #667eea; font-size: 14px; padding-left: 20px;">
+                                            ✓ 已選擇 8 項推薦
+                                        </div>
+                                        <div style="color: #636e72;">></div>
+                                    </div>
+                                    <div class="settings-item">
+                                        <div class="settings-label">自定提醒</div>
+                                        <div class="toggle"></div>
+                                    </div>
+                                    <div class="settings-item" style="background: #f8f9fa; cursor: pointer;">
+                                        <div class="settings-label" style="color: #667eea; font-size: 14px; padding-left: 20px;">
+                                            ✓ 已選擇 6 個節慶
+                                        </div>
+                                        <div style="color: #636e72;">></div>
+                                    </div>
+                                    <div class="settings-item" style="background: #f8f9fa; cursor: pointer;">
+                                        <div class="settings-label" style="color: #667eea; font-size: 14px; padding-left: 20px;">
+                                            ✓ 已選擇 4 位神明
+                                        </div>
+                                        <div style="color: #636e72;">></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bottom-nav">
+                        <div class="nav-item">
+                            <div class="nav-icon"></div>
+                            <div>首頁</div>
+                        </div>
+                        <div class="nav-item active">
+                            <div class="nav-icon"></div>
+                            <div>通知</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">4. 通知設定頁面 - 第二個Tab</div>
+            </div>
+
+            <!-- 5. 神明選擇頁面 -->
+            <div class="phone-container">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋 100%</span>
+                    </div>
+                    <div class="screen-content">
+                        <div class="nav-header">選擇神明生日</div>
+                        
+                        <div class="content-section">
+                            <div class="section-title">
+                                <div class="section-icon">✅</div>
+                                已選擇的神明 (4)
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">媽祖</div>
+                                    <div class="festival-date">農曆 3/23</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">關聖帝君</div>
+                                    <div class="festival-date">農曆 6/24</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">觀音菩薩</div>
+                                    <div class="festival-date">農曆 2/19</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">玉皇大帝</div>
+                                    <div class="festival-date">農曆 1/9</div>
+                                </div>
+                            </div>
+
+                            <div class="section-title">
+                                <div class="section-icon">📅</div>
+                                其他神明
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox-empty"></div>
+                                <div class="deity-info">
+                                    <div class="festival-name">文昌帝君</div>
+                                    <div class="festival-date">農曆 2/3</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox-empty"></div>
+                                <div class="deity-info">
+                                    <div class="festival-name">財神爺</div>
+                                    <div class="festival-date">農曆 3/15</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox-empty"></div>
+                                <div class="deity-info">
+                                    <div class="festival-name">註生娘娘</div>
+                                    <div class="festival-date">農曆 3/20</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox-empty"></div>
+                                <div class="deity-info">
+                                    <div class="festival-name">月老</div>
+                                    <div class="festival-date">農曆 8/15</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">5. 神明選擇頁面 - 從通知設定"已選擇4位神明"進入</div>
+            </div>
+
+            <!-- 6. 民俗節慶選擇頁面 -->
+            <div class="phone-container">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋 100%</span>
+                    </div>
+                    <div class="screen-content">
+                        <div class="nav-header">選擇民俗節慶</div>
+                        
+                        <div class="content-section">
+                            <div class="section-title">
+                                <div class="section-icon">✅</div>
+                                已選擇的節慶 (6)
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">農曆新年</div>
+                                    <div class="festival-date">農曆 1/1</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">元宵節</div>
+                                    <div class="festival-date">農曆 1/15</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">清明節</div>
+                                    <div class="festival-date">國曆 4/4-6</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">端午節</div>
+                                    <div class="festival-date">農曆 5/5</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">中秋節</div>
+                                    <div class="festival-date">農曆 8/15</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">重陽節</div>
+                                    <div class="festival-date">農曆 9/9</div>
+                                </div>
+                            </div>
+
+                            <div class="section-title">
+                                <div class="section-icon">📅</div>
+                                其他節慶
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox-empty"></div>
+                                <div class="deity-info">
+                                    <div class="festival-name">七夕情人節</div>
+                                    <div class="festival-date">農曆 7/7</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox-empty"></div>
+                                <div class="deity-info">
+                                    <div class="festival-name">中元節</div>
+                                    <div class="festival-date">農曆 7/15</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox-empty"></div>
+                                <div class="deity-info">
+                                    <div class="festival-name">冬至</div>
+                                    <div class="festival-date">國曆 12/21-23</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox-empty"></div>
+                                <div class="deity-info">
+                                    <div class="festival-name">除夕</div>
+                                    <div class="festival-date">農曆 12/30</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">6. 民俗節慶選擇頁面 - 從通知設定"已選擇6個節慶"進入</div>
+            </div>
+
+            <!-- 7. 簡少年老師推薦詳細頁面 -->
+            <div class="phone-container">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋 100%</span>
+                    </div>
+                    <div class="screen-content">
+                        <div class="nav-header">簡少年老師 2025 拜拜推薦</div>
+                        
+                        <div class="content-section">
+                            <div style="background: #f0f7ff; padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #667eea;">
+                                <p style="color: #2d3436; font-size: 15px; line-height: 1.5; margin-bottom: 8px;">
+                                    簡少年老師精選2025年最重要的拜拜時機，詳細請查看以下影片
+                                </p>
+                                <div style="background: #667eea; color: white; padding: 8px 16px; border-radius: 8px; text-align: center; font-size: 14px; font-weight: 500;">
+                                    📹 觀看推薦影片
+                                </div>
+                            </div>
+
+                            <div class="section-title">
+                                <div class="section-icon">👸</div>
+                                已選擇的神明 (3)
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">媽祖</div>
+                                    <div class="festival-date">農曆 3/23</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">財神爺</div>
+                                    <div class="festival-date">農曆 3/15</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">文昌帝君</div>
+                                    <div class="festival-date">農曆 2/3</div>
+                                </div>
+                            </div>
+
+                            <div class="section-title">
+                                <div class="section-icon">🏮</div>
+                                已選擇的節慶 (5)
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">農曆新年</div>
+                                    <div class="festival-date">農曆 1/1</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">元宵節</div>
+                                    <div class="festival-date">農曆 1/15</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">清明節</div>
+                                    <div class="festival-date">國曆 4/4-6</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">端午節</div>
+                                    <div class="festival-date">農曆 5/5</div>
+                                </div>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <div class="checkbox">✓</div>
+                                <div class="deity-info">
+                                    <div class="festival-name">中秋節</div>
+                                    <div class="festival-date">農曆 8/15</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">7. 簡少年老師推薦詳細頁面 - 從通知設定"已選擇8項推薦"進入</div>
+            </div>
+
+            <!-- 8. 寺廟詳細頁面 -->
+            <div class="phone-container">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋 100%</span>
+                    </div>
+                    <div class="screen-content">
+                        <div class="detail-header" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">
+                            <div class="detail-avatar">🏛️</div>
+                            <div class="detail-name">鹿港天后宮</div>
+                            <div class="detail-subtitle">彰化縣鹿港鎮 • ⭐ 4.8 評分</div>
+                        </div>
+                        
+                        <div class="detail-content">
+                            <div class="detail-section">
+                                <h3>基本資訊</h3>
+                                <p><strong>地址：</strong>彰化縣鹿港鎮中山路430號<br>
+                                <strong>電話：</strong>(04) 777-9899<br>
+                                <strong>主祀神明：</strong>媽祖<br>
+                                <strong>開放時間：</strong>05:00-22:00</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3>寺廟簡介</h3>
+                                <p>鹿港天后宮創建於明末清初，是台灣歷史最悠久的媽祖廟之一。廟宇建築融合閩南與台灣本土特色，雕樑畫棟，金碧輝煌，被列為國定古蹟。</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3>參拜特色</h3>
+                                <p>• <strong>求平安：</strong>媽祖護佑海上平安，旅途順利<br>
+                                • <strong>求姻緣：</strong>月老殿香火鼎盛<br>
+                                • <strong>求子嗣：</strong>註生娘娘靈驗無比<br>
+                                • <strong>求事業：</strong>文昌帝君保佑學業事業</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3>交通資訊</h3>
+                                <p><strong>大眾運輸：</strong><br>
+                                • 台鐵彰化站轉搭彰化客運至鹿港<br>
+                                • 高鐵台中站轉搭台灣好行鹿港線<br><br>
+                                <strong>自行開車：</strong><br>
+                                • 國道1號→彰化交流道→142縣道→鹿港<br>
+                                • 廟前設有收費停車場</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3>參拜建議</h3>
+                                <p>• <strong>最佳時間：</strong>早晨6-8點或傍晚5-7點<br>
+                                • <strong>建議供品：</strong>鮮花、水果、餅乾<br>
+                                • <strong>特別節慶：</strong>媽祖聖誕（農曆3/23）<br>
+                                • <strong>注意事項：</strong>保持安靜、勿大聲喧嘩</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">8. 寺廟詳細頁面 - 從寺廟頁面進入</div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+---
+alwaysApply: true
+---
+
+## 短語詞庫:當我使用這些短語的時候，請遵循以下的指示回覆
+    - ncn 代表 no code now，這時候就先分析討論規劃，不要進行寫 code 或改動
+    - amq 代表 ask me question，就代表，如果你還有什麼不確定的，請問我
+
+## Guidelines for DOCUMENTATION
+
+### DOC_UPDATES
+
+- Update relevant documentation in /docs when modifying features
+- Keep README.md in sync with new capabilities
+- Maintain changelog entries in fyi.md

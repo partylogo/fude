@@ -1,0 +1,111 @@
+name: fude
+
+options:
+  bundleIdPrefix: com.fude.app
+  deploymentTarget:
+    iOS: "16.0"
+  defaultConfig: Debug
+  developmentLanguage: zh-Hant
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1"  # iPhone only
+    SWIFT_VERSION: "5.9"
+    CODE_SIGN_STYLE: Automatic
+
+configs:
+  Debug: debug
+  Release: release
+
+targets:
+  fude:
+    type: application
+    platform: iOS
+    sources:
+      - path: fude
+        excludes:
+          - "**/*.md"
+      - path: Sources
+        optional: true
+    resources:
+      - fude/Assets.xcassets
+      - path: fude/GoogleService-Info.plist
+        optional: true
+    info:
+      path: fude/Info.plist
+      properties:
+        CFBundleName: "民俗提醒"
+        CFBundleDisplayName: "民俗提醒"
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        UIRequiredDeviceCapabilities:
+          - armv7
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UILaunchStoryboardName: LaunchScreen
+        NSLocationWhenInUseUsageDescription: "需要位置權限來顯示附近的廟宇"
+        NSUserNotificationsUsageDescription: "需要通知權限來提醒您重要的民俗節日"
+    dependencies:
+      - framework: SwiftUI.framework
+      - framework: Combine.framework
+      - framework: CoreLocation.framework
+      - framework: UserNotifications.framework
+      - framework: MapKit.framework
+      - sdk: libz.tbd
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fude.app.folklore
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UISupportsDocumentBrowser: false
+        ENABLE_PREVIEWS: true
+        DEVELOPMENT_ASSET_PATHS: '"fude/Preview Content"'
+
+  fudeTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - fudeTests
+    dependencies:
+      - target: fude
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fude.app.folklore.fudeTests
+        
+  fudeUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - fudeUITests
+    dependencies:
+      - target: fude
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fude.app.folklore.fudeUITests
+
+schemes:
+  fude:
+    build:
+      targets:
+        fude: all
+        fudeTests: [test]
+        fudeUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - fudeTests
+        - fudeUITests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
