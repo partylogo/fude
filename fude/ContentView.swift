@@ -7,15 +7,10 @@
 
 import SwiftUI
 
+/// 主要內容視圖 - Version 1.0 只有首頁
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        HomeView()
     }
 }
 

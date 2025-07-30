@@ -21,6 +21,34 @@
                ReferencedContainer = "container:fude.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9B85386AA639E4B0E7F5E7BD"
+               BuildableName = "fudeTests.xctest"
+               BlueprintName = "fudeTests"
+               ReferencedContainer = "container:fude.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D6EA2EF719F9A65263C08779"
+               BuildableName = "fudeUITests.xctest"
+               BlueprintName = "fudeUITests"
+               ReferencedContainer = "container:fude.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -47,6 +75,17 @@
                BlueprintIdentifier = "9B85386AA639E4B0E7F5E7BD"
                BuildableName = "fudeTests.xctest"
                BlueprintName = "fudeTests"
+               ReferencedContainer = "container:fude.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D6EA2EF719F9A65263C08779"
+               BuildableName = "fudeUITests.xctest"
+               BlueprintName = "fudeUITests"
                ReferencedContainer = "container:fude.xcodeproj">
             </BuildableReference>
          </TestableReference>

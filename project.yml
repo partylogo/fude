@@ -50,11 +50,11 @@ targets:
         NSLocationWhenInUseUsageDescription: "需要位置權限來顯示附近的廟宇"
         NSUserNotificationsUsageDescription: "需要通知權限來提醒您重要的民俗節日"
     dependencies:
-      - framework: SwiftUI.framework
-      - framework: Combine.framework
-      - framework: CoreLocation.framework
-      - framework: UserNotifications.framework
-      - framework: MapKit.framework
+      - sdk: SwiftUI.framework
+      - sdk: Combine.framework
+      - sdk: CoreLocation.framework
+      - sdk: UserNotifications.framework
+      - sdk: MapKit.framework
       - sdk: libz.tbd
     settings:
       base:
@@ -77,6 +77,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.fude.app.folklore.fudeTests
+        GENERATE_INFOPLIST_FILE: true
         
   fudeUITests:
     type: bundle.ui-testing
@@ -88,6 +89,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.fude.app.folklore.fudeUITests
+        GENERATE_INFOPLIST_FILE: true
 
 schemes:
   fude:
