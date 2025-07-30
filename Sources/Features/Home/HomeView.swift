@@ -48,15 +48,6 @@ struct HomeView: View {
                 }
                 
                 Spacer()
-                
-                // 設定按鈕 (Version 1.0 先顯示但不實作功能)
-                Button(action: {
-                    // TODO: 導航到設定頁面
-                }) {
-                    Image(systemName: "gear")
-                        .font(.title2)
-                        .foregroundColor(.textSecondary)
-                }
             }
         }
     }
@@ -163,16 +154,10 @@ struct EventCard: View {
                 
                 Spacer()
                 
-                // 倒數天數
-                VStack(alignment: .trailing, spacing: Spacing.xs) {
-                    Text(viewModel.formatCountdown(event.countdownDays))
-                        .font(.cardTitle)
-                        .foregroundColor(.primaryColor)
-                    
-                    Text("倒數")
-                        .font(.caption)
-                        .foregroundColor(.textSecondary)
-                }
+                // 天數顯示
+                Text(viewModel.formatCountdown(event.countdownDays))
+                    .font(.cardTitle)
+                    .foregroundColor(.primaryColor)
             }
             
             // 日期資訊
