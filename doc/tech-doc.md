@@ -1889,9 +1889,13 @@ async function getCacheHitRate() {
 ### Phase 2A: 本地開發環境建置與測試 (Week 3)
 - [ ] 設定本地 Supabase (Docker) 環境
 - [ ] 建立本地資料庫 schema migration（基礎資料表：events, groups, group_items）
-- [ ] 設定本地 Vercel dev server 環境
-- [ ] 實作 `/api/events` GET endpoint 與農曆轉換（本地測試）
-- [ ] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)（本地測試）
+- [x] 設定本地 Vercel dev server 環境 (Express + Jest 測試環境)
+- [x] 實作 `/api/events` GET endpoint 與農曆轉換（本地測試）- **32 個測試通過**
+  - [x] `/api/events` 基礎功能與日期範圍過濾
+  - [x] `/api/lunar` 農曆轉換 API 
+  - [x] EventsService & LunarCalendarService 業務邏輯層
+  - [x] 完整單元測試與整合測試覆蓋
+- [ ] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)（本地測試）- **進行中**
 - [ ] 建立 React Admin 專案結構（連接本地環境）
 - [ ] 實作 events CRUD 與農曆轉換器（本地測試）
 - [ ] 建立 groups 管理介面（本地測試）
