@@ -1872,59 +1872,15 @@ async function getCacheHitRate() {
 - [x] 實作設計系統（Colors, Typography, Spacing）基於 UI Guideline 純粹雙色系統
 - [x] 建立資料模型（Event, User, NotificationSettings）與 Mock 資料
 - [x] 建立 iOS HomeView 與 EventViewModel (Mock 資料)
-- [ ] 建立 iOS NotificationSettingsView ⏳ **進行中**
-- [ ] 建立選擇頁面（DeitySelectionView、FestivalSelectionView）
+- [x] 建立 iOS NotificationSettingsView ✅ **已完成**
+- [x] 建立選擇頁面（DeitySelectionView、FestivalSelectionView）
+- [x] 建立 TabView 底部導航系統
+- [x] 建立 GroupDetailView (簡少年推薦詳細頁面)
 - [x] 撰寫單元測試（iOS ViewModels）- 基礎測試完成
 - [x] Git 專案管理建立 (project.yml, .gitignore, README.md)
 - [ ] 部署到 TestFlight 進行內測
 
 > **Version 1.0 完成標準**：iOS App 可正常顯示近期節慶、基礎通知設定（使用 Mock 資料）。對應UI mockup的頁面1、4、5、6完成。
-
-### 📊 當前開發狀態 (2024-12-19)
-
-#### ✅ 已完成功能
-1. **專案架構建立**
-   - XcodeGen 配置完成 (`project.yml`)
-   - 專案結構符合 Sources/ 目錄規範
-   - Git 版本控制建立，包含適當的 .gitignore
-
-2. **設計系統完整實作**
-   - `Colors.swift`: 純粹雙色系統 (深赭紅 #9D4F4A + 煙燻灰 #2F2B27)
-   - `Typography.swift`: 完整字體層級系統
-   - `Spacing.swift`: 8pt Grid 間距系統
-   - Preview 支援與語意化命名
-
-3. **資料模型與 Mock 資料**
-   - `Event.swift`: 支援農曆日期、倒數計算、事件篩選
-   - `User.swift`: 使用者資料結構
-   - `NotificationSettings.swift`: 通知設定與群組管理
-   - 10個完整節慶/神明生日 Mock 資料
-
-4. **首頁功能實作**
-   - `HomeView.swift`: 現代化 SwiftUI 介面，支援 Pull-to-refresh
-   - `EventViewModel.swift`: 事件管理邏輯，狀態管理
-   - `EventCard.swift`: 響應式卡片設計
-   - Loading 狀態與空狀態處理
-
-5. **測試系統建立**
-   - 基礎單元測試覆蓋資料模型
-   - Swift Testing framework 整合
-   - 編譯通過，無重大技術債務
-
-#### 🔄 進行中功能
-- **NotificationSettingsView**: 通知設定頁面 (頁面4)
-
-#### ⏳ 待開發功能
-- **DeitySelectionView**: 神明選擇頁面 (頁面5)
-- **FestivalSelectionView**: 民俗節慶選擇頁面 (頁面6)
-- **TestFlight 部署**: 內測版本發布
-
-#### 🎯 技術亮點
-- **農曆日期支援**: 完整的農曆轉國曆顯示
-- **倒數天數計算**: "今天"、"明天"、"X天後" 智能顯示
-- **事件類型區分**: 圖示化的神明/節慶識別
-- **響應式設計**: 支援 Light/Dark 模式
-- **現代化 SwiftUI**: Combine + Async/Await 架構
 
 ---
 
