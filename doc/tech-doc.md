@@ -1887,19 +1887,21 @@ async function getCacheHitRate() {
 ## Version 1.1 (通知 app 完整版) - Week 3-4
 
 ### Phase 2A: 本地開發環境建置與測試 (Week 3)
-- [ ] 設定本地 Supabase (Docker) 環境
-- [ ] 建立本地資料庫 schema migration（基礎資料表：events, groups, group_items）
+- [x] 設定本地 Supabase (Docker) 環境 - **Migration schema 已準備**
+- [x] 建立本地資料庫 schema migration（基礎資料表：events, groups, group_items）- **SQL migration 完成**
 - [x] 設定本地 Vercel dev server 環境 (Express + Jest 測試環境)
-- [x] 實作 `/api/events` GET endpoint 與農曆轉換（本地測試）- **32 個測試通過**
+- [x] 實作 `/api/events` GET endpoint 與農曆轉換（本地測試）- **Repository 模式重構完成**
   - [x] `/api/events` 基礎功能與日期範圍過濾
   - [x] `/api/lunar` 農曆轉換 API 
   - [x] EventsService & LunarCalendarService 業務邏輯層
+  - [x] EventRepository 資料存取層 (6 個測試)
   - [x] 完整單元測試與整合測試覆蓋
-- [x] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)（本地測試）- **63 個測試通過**
+- [x] 實作群組 API endpoints (`/api/groups`, `/api/groups/:id`, `/api/groups/:id/items`)（本地測試）- **Repository 模式重構完成**
   - [x] `/api/groups` 群組列表 API
   - [x] `/api/groups/:id` 群組詳細 API  
   - [x] `/api/groups/:id/items` 群組事件 API（依類型分組）
   - [x] GroupsService 業務邏輯層與 ID 驗證
+  - [x] GroupRepository 資料存取層 (10 個測試)
   - [x] 完整單元測試與整合測試覆蓋
 - [ ] 建立 React Admin 專案結構（連接本地環境）
 - [ ] 實作 events CRUD 與農曆轉換器（本地測試）
