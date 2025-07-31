@@ -1909,7 +1909,16 @@ async function getCacheHitRate() {
   - [x] Events & Groups 資源管理基礎架構
   - [x] 完整測試覆蓋 (App 組件 + DataProvider)
   - [x] 開發環境配置與構建測試
-- [ ] 實作 events CRUD 與農曆轉換器（本地測試）
+- [x] 實作 events CRUD 與農曆轉換器（本地測試）- **完整 CRUD API + React Admin 組件**
+  - [x] POST /api/events - 建立新事件 (完整驗證)
+  - [x] GET /api/events/:id - 取得單一事件
+  - [x] PUT /api/events/:id - 更新事件 (部分更新支援)
+  - [x] DELETE /api/events/:id - 刪除事件
+  - [x] EventList 組件 (Datagrid + 操作按鈕)
+  - [x] EventEdit 組件 (完整編輯表單)
+  - [x] EventCreate 組件 (建立表單 + 農曆轉換工具)
+  - [x] LunarConverter 農曆轉國曆工具組件
+  - [x] 完整資料驗證與錯誤處理 (11 個新測試)
 - [ ] 建立 groups 管理介面（本地測試）
 - [ ] **本地環境完整測試**：確認所有 API 和後台功能正常
 
