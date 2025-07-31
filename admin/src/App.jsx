@@ -5,6 +5,9 @@ import dataProvider from './dataProvider';
 import EventList from './components/EventList';
 import EventEdit from './components/EventEdit';
 import EventCreate from './components/EventCreate';
+import GroupList from './components/GroupList';
+import GroupEdit from './components/GroupEdit';
+import GroupCreate from './components/GroupCreate';
 
 const App = () => {
   useEffect(() => {
@@ -22,8 +25,9 @@ const App = () => {
       />
       <Resource 
         name="groups" 
-        list={ListGuesser} 
-        edit={EditGuesser} 
+        list={GroupList} 
+        edit={GroupEdit} 
+        create={GroupCreate}
         show={ShowGuesser} 
       />
     </Admin>
