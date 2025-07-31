@@ -1,12 +1,13 @@
 // Groups API Handler
-const { mockGroups, mockGroupItems } = require('../data/mockGroups');
-const mockEvents = require('../data/mockEvents');
+const GroupRepository = require('../database/groupRepository');
 const GroupsService = require('../services/groupsService');
 
-const groupsHandler = (req, res) => {
+const groupsHandler = async (req, res) => {
   try {
+    const repository = new GroupRepository();
+    
     // 取得所有啟用的群組
-    const enabledGroups = GroupsService.getAllGroups(mockGroups);
+    const enabledGroups = await repository.findEnabledGroups();
     
     res.status(200).json({
       groups: enabledGroups
@@ -18,8 +19,10 @@ const groupsHandler = (req, res) => {
   }
 };
 
-const groupDetailHandler = (req, res) => {
+const groupDetailHandler = async (req, res) => {
   try {
+    const repository = new GroupRepository();
+    
     // 驗證群組 ID
     const validation = GroupsService.validateGroupId(req.params.id);
     if (!validation.isValid) {
@@ -29,7 +32,7 @@ const groupDetailHandler = (req, res) => {
     }
 
     // 取得群組詳細資訊
-    const group = GroupsService.getGroupById(mockGroups, validation.id);
+    const group = await repository.findById(validation.id);
     if (!group) {
       return res.status(404).json({
         error: 'Group not found'
@@ -44,8 +47,10 @@ const groupDetailHandler = (req, res) => {
   }
 };
 
-const groupItemsHandler = (req, res) => {
+const groupItemsHandler = async (req, res) => {
   try {
+    const repository = new GroupRepository();
+    
     // 驗證群組 ID
     const validation = GroupsService.validateGroupId(req.params.id);
     if (!validation.isValid) {
@@ -55,7 +60,7 @@ const groupItemsHandler = (req, res) => {
     }
 
     // 檢查群組是否存在
-    const group = GroupsService.getGroupById(mockGroups, validation.id);
+    const group = await repository.findById(validation.id);
     if (!group) {
       return res.status(404).json({
         error: 'Group not found'
@@ -63,8 +68,7 @@ const groupItemsHandler = (req, res) => {
     }
 
     // 取得群組事件並分類
-    const groupEvents = GroupsService.getGroupEvents(validation.id, mockGroupItems, mockEvents);
-    const groupedEvents = GroupsService.groupEventsByType(groupEvents);
+    const groupedEvents = await repository.getGroupEventsByType(validation.id);
 
     res.status(200).json(groupedEvents);
   } catch (error) {

@@ -1,10 +1,11 @@
 // Events API Handler
-const mockEvents = require('../data/mockEvents');
+const EventRepository = require('../database/eventRepository');
 const EventsService = require('../services/eventsService');
 
-const eventsHandler = (req, res) => {
+const eventsHandler = async (req, res) => {
   try {
     const { from, to } = req.query;
+    const repository = new EventRepository();
 
     // 驗證日期格式
     if (!EventsService.isValidDateString(from) || !EventsService.isValidDateString(to)) {
@@ -13,11 +14,16 @@ const eventsHandler = (req, res) => {
       });
     }
 
-    // 使用 service 進行日期過濾
-    const filteredEvents = EventsService.filterByDateRange(mockEvents, from, to);
+    // 使用 repository 取得資料
+    let events;
+    if (from || to) {
+      events = await repository.findByDateRange(from, to);
+    } else {
+      events = await repository.findAll();
+    }
 
     res.status(200).json({
-      events: filteredEvents
+      events: events
     });
   } catch (error) {
     res.status(500).json({
