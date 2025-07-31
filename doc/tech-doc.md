@@ -1919,7 +1919,15 @@ async function getCacheHitRate() {
   - [x] EventCreate 組件 (建立表單 + 農曆轉換工具)
   - [x] LunarConverter 農曆轉國曆工具組件
   - [x] 完整資料驗證與錯誤處理 (11 個新測試)
-- [ ] 建立 groups 管理介面（本地測試）
+- [x] 建立 groups 管理介面（本地測試）- **完整 Groups CRUD + 事件管理**
+  - [x] POST/PUT/DELETE /api/groups - 群組 CRUD API (完整驗證)
+  - [x] POST/DELETE /api/groups/:id/items - 群組事件管理 API
+  - [x] GroupList 組件 (Datagrid + 操作按鈕)
+  - [x] GroupEdit 組件 (完整編輯表單)
+  - [x] GroupCreate 組件 (建立表單 + 使用說明)
+  - [x] GroupItemsManager 群組事件管理工具組件
+  - [x] 即時事件添加/移除功能 (多對多關係管理)
+  - [x] 完整資料驗證與錯誤處理 (14 個新測試)
 - [ ] **本地環境完整測試**：確認所有 API 和後台功能正常
 
 ### Phase 2B: 雲端部署與後端 API 建置 (Week 4)
