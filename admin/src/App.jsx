@@ -2,6 +2,9 @@
 import React, { useEffect } from 'react';
 import { Admin, Resource, ListGuesser, EditGuesser, ShowGuesser } from 'react-admin';
 import dataProvider from './dataProvider';
+import EventList from './components/EventList';
+import EventEdit from './components/EventEdit';
+import EventCreate from './components/EventCreate';
 
 const App = () => {
   useEffect(() => {
@@ -12,8 +15,9 @@ const App = () => {
     <Admin dataProvider={dataProvider} title="Folklore Admin Dashboard">
       <Resource 
         name="events" 
-        list={ListGuesser} 
-        edit={EditGuesser} 
+        list={EventList} 
+        edit={EventEdit} 
+        create={EventCreate}
         show={ShowGuesser} 
       />
       <Resource 
