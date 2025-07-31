@@ -1903,7 +1903,12 @@ async function getCacheHitRate() {
   - [x] GroupsService 業務邏輯層與 ID 驗證
   - [x] GroupRepository 資料存取層 (10 個測試)
   - [x] 完整單元測試與整合測試覆蓋
-- [ ] 建立 React Admin 專案結構（連接本地環境）
+- [x] 建立 React Admin 專案結構（連接本地環境）- **12 個測試通過，構建成功**
+  - [x] React Admin 4.16 + Vite 5.0 專案設置
+  - [x] DataProvider 連接本地 API (localhost:3000)
+  - [x] Events & Groups 資源管理基礎架構
+  - [x] 完整測試覆蓋 (App 組件 + DataProvider)
+  - [x] 開發環境配置與構建測試
 - [ ] 實作 events CRUD 與農曆轉換器（本地測試）
 - [ ] 建立 groups 管理介面（本地測試）
 - [ ] **本地環境完整測試**：確認所有 API 和後台功能正常
