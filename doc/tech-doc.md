@@ -2021,7 +2021,7 @@ async function getCacheHitRate() {
   - [x] 將 SystemMaintenanceMonitor 集成到主應用 (新增系統維護選單) ✅
   - [ ] 優化測試覆蓋和 UI/UX 改進：
     - 智能表單動態欄位驗證邏輯 + 單元測試 ✅
-    - 優化監控面板用戶體驗
+    - 優化監控面板用戶體驗 (TDD 實作中 - skeleton loading 完成 ✅)
     - 增強列表顯示功能（規則摘要、下次發生日期等）
 
 - [x] **環境配置與部署準備** ✅
