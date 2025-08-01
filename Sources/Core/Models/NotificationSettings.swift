@@ -124,6 +124,55 @@ struct NotificationSettings: Codable, Equatable {
 // MARK: - Group Model
 /// 推薦群組模型
 struct Group: Identifiable, Codable, Equatable {
+    private enum CodingKeys: String, CodingKey {
+        case id, name, description, enabled
+        case videoUrl = "video_url"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+        case eventIds = "event_ids"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(Int.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        description = try container.decode(String.self, forKey: .description)
+        enabled = (try? container.decodeIfPresent(Bool.self, forKey: .enabled)) ?? true
+        videoUrl = try? container.decodeIfPresent(String.self, forKey: .videoUrl)
+
+        let createdStr = try? container.decodeIfPresent(String.self, forKey: .createdAt)
+        let updatedStr = try? container.decodeIfPresent(String.self, forKey: .updatedAt)
+        createdAt = Group.dateFormatter.date(from: createdStr ?? "") ?? Date()
+        updatedAt = Group.dateFormatter.date(from: updatedStr ?? "") ?? Date()
+
+        eventIds = (try? container.decodeIfPresent([Int].self, forKey: .eventIds)) ?? []
+    }
+
+    // Manual memberwise init (required because we implemented Decodable)
+    init(id: Int,
+         name: String,
+         description: String,
+         enabled: Bool = true,
+         videoUrl: String? = nil,
+         createdAt: Date = Date(),
+         updatedAt: Date = Date(),
+         eventIds: [Int] = []) {
+        self.id = id
+        self.name = name
+        self.description = description
+        self.enabled = enabled
+        self.videoUrl = videoUrl
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.eventIds = eventIds
+    }
+
+    static let dateFormatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
     let id: Int
     let name: String
     let description: String

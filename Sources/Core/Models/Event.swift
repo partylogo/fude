@@ -38,6 +38,103 @@ struct LunarDate: Codable, Equatable {
 
 /// 民俗事件模型
 struct Event: Identifiable, Codable, Equatable {
+    // Custom CodingKeys to map snake_case from backend
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case type
+        case title
+        case description
+        case lunarMonth = "lunar_month"
+        case lunarDay = "lunar_day"
+        case lunarIsLeap = "is_leap"
+        case solarDate = "solar_date"
+        case coverUrl = "cover_url"
+        case deityRole = "deity_role"
+        case worshipNotes = "worship_notes"
+    }
+
+    // Manual init(from:) to support flexible payloads & Date conversion
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(Int.self, forKey: .id)
+        type = try container.decode(EventType.self, forKey: .type)
+        title = try container.decode(String.self, forKey: .title)
+        description = (try? container.decode(String.self, forKey: .description)) ?? ""
+
+        // Decode lunar fields if present
+        if let month = try? container.decodeIfPresent(Int.self, forKey: .lunarMonth),
+           let day = try? container.decodeIfPresent(Int.self, forKey: .lunarDay) {
+            let isLeap = (try? container.decodeIfPresent(Bool.self, forKey: .lunarIsLeap)) ?? false
+            lunarDate = LunarDate(month: month, day: day, isLeap: isLeap)
+        } else {
+            lunarDate = nil
+        }
+
+        // solar_date could be either string or array
+        if let datesArray = try? container.decodeIfPresent([String].self, forKey: .solarDate) {
+            solarDate = datesArray.compactMap { Self.dateFormatter.date(from: $0) }
+        } else if let singleDateStr = try? container.decodeIfPresent(String.self, forKey: .solarDate) {
+            if let parsed = Self.dateFormatter.date(from: singleDateStr) {
+                solarDate = [parsed]
+            } else {
+                solarDate = []
+            }
+        } else {
+            solarDate = []
+        }
+
+        coverUrl = try? container.decodeIfPresent(String.self, forKey: .coverUrl)
+        deityRole = try? container.decodeIfPresent(String.self, forKey: .deityRole)
+        worshipNotes = try? container.decodeIfPresent(String.self, forKey: .worshipNotes)
+    }
+
+    // Provide Encodable conformance
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(type, forKey: .type)
+        try container.encode(title, forKey: .title)
+        try container.encode(description, forKey: .description)
+        if let lunarDate = lunarDate {
+            try container.encode(lunarDate.month, forKey: .lunarMonth)
+            try container.encode(lunarDate.day, forKey: .lunarDay)
+            try container.encode(lunarDate.isLeap, forKey: .lunarIsLeap)
+        }
+        let dateStrings = solarDate.map { Self.dateFormatter.string(from: $0) }
+        try container.encode(dateStrings, forKey: .solarDate)
+        try container.encodeIfPresent(coverUrl, forKey: .coverUrl)
+        try container.encodeIfPresent(deityRole, forKey: .deityRole)
+        try container.encodeIfPresent(worshipNotes, forKey: .worshipNotes)
+    }
+    // Manual memberwise initializer (restores previous convenience for tests & mock data)
+    init(id: Int,
+         type: EventType,
+         title: String,
+         description: String,
+         lunarDate: LunarDate?,
+         solarDate: [Date],
+         coverUrl: String?,
+         deityRole: String?,
+         worshipNotes: String?) {
+        self.id = id
+        self.type = type
+        self.title = title
+        self.description = description
+        self.lunarDate = lunarDate
+        self.solarDate = solarDate
+        self.coverUrl = coverUrl
+        self.deityRole = deityRole
+        self.worshipNotes = worshipNotes
+    }
+
+    static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.calendar = Calendar(identifier: .gregorian)
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
     let id: Int
     let type: EventType
     let title: String

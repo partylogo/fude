@@ -22,26 +22,37 @@ class EventViewModel: ObservableObject {
     // MARK: - Private Properties
     
     private var cancellables = Set<AnyCancellable>()
-    
+
+    private let api: APIService
     // MARK: - Initialization
     
-    init() {
+    init(api: APIService = .shared) {
+        self.api = api
         loadUpcomingEvents()
     }
     
     // MARK: - Public Methods
     
-    /// 載入近期事件 (Version 1.0 使用 Mock 資料)
+    /// 載入近期事件：先嘗試從 API 抓取，失敗回退 Mock
     func loadUpcomingEvents() {
         isLoading = true
         errorMessage = nil
         
-        // 模擬網路延遲
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-            
-            self.upcomingEvents = Event.upcomingEvents
-            self.isLoading = false
+        Task {
+            do {
+                let events = try await api.fetchEvents()
+                await MainActor.run {
+                    self.upcomingEvents = events.filter { $0.countdownDays <= 10 }.sorted { $0.countdownDays < $1.countdownDays }
+                    self.isLoading = false
+                }
+            } catch {
+                // 回退 Mock
+                await MainActor.run {
+                    self.upcomingEvents = Event.upcomingEvents
+                    self.errorMessage = error.localizedDescription
+                    self.isLoading = false
+                }
+            }
         }
     }
     

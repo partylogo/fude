@@ -59,7 +59,7 @@ struct GroupDetailView: View {
         VStack(spacing: Spacing.sm) {
             HStack {
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text(group.description ?? "簡少年老師精選2025年最重要的拜拜時機")
+                    Text(group.description)
                         .font(.bodyLarge)
                         .foregroundColor(.textPrimary)
                         .multilineTextAlignment(.leading)

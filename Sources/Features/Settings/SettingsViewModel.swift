@@ -54,9 +54,11 @@ class SettingsViewModel: ObservableObject {
         }.count
     }
     
+    private let api: APIService
     // MARK: - Initialization
     
-    init() {
+    init(api: APIService = .shared) {
+        self.api = api
         self.notificationSettings = NotificationSettings.mockSettings
         loadData()
     }
@@ -67,15 +69,39 @@ class SettingsViewModel: ObservableObject {
     func loadData() {
         isLoading = true
         
-        // 載入可選擇的事件
-        let allEvents = Event.mockEvents
-        availableDeities = allEvents.filter { $0.type == .deity }
-        availableFestivals = allEvents.filter { $0.type == .festival }
-        
-        // 載入簡少年推薦群組
-        teacherRecommendations = Group.mockGroups.first { $0.name.contains("簡少年") }
-        
-        isLoading = false
+        Task {
+            do {
+                // 從 API 取得事件
+                let events = try await APIService.shared.fetchEvents()
+                await MainActor.run {
+                    self.availableDeities = events.filter { $0.type == .deity }
+                    self.availableFestivals = events.filter { $0.type == .festival }
+                }
+            } catch {
+                // 回退 Mock
+                await MainActor.run {
+                    let allEvents = Event.mockEvents
+                    self.availableDeities = allEvents.filter { $0.type == .deity }
+                    self.availableFestivals = allEvents.filter { $0.type == .festival }
+                }
+            }
+
+            do {
+                // 取得群組
+                let groups = try await api.fetchGroups()
+                await MainActor.run {
+                    self.teacherRecommendations = groups.first { $0.name.contains("簡少年") }
+                }
+            } catch {
+                await MainActor.run {
+                    self.teacherRecommendations = Group.mockGroups.first { $0.name.contains("簡少年") }
+                }
+            }
+
+            await MainActor.run {
+                self.isLoading = false
+            }
+        }
     }
     
     // MARK: - Settings Actions
@@ -148,10 +174,23 @@ class SettingsViewModel: ObservableObject {
     
     /// 載入群組項目
     func loadGroupItems(groupId: Int) async {
-        guard let group = Group.mockGroups.first(where: { $0.id == groupId }) else { return }
-        
-        await MainActor.run {
-            self.teacherRecommendations = group
+        do {
+            let items = try await api.fetchGroupItems(groupId: groupId)
+            await MainActor.run {
+                // 目前只更新 selected lists 供 UI 顯示
+                if let deities = items.deities {
+                    self.availableDeities = deities
+                }
+                if let festivals = items.festivals {
+                    self.availableFestivals = festivals
+                }
+            }
+        } catch {
+            // fallback mock 行為保持
+            guard let group = Group.mockGroups.first(where: { $0.id == groupId }) else { return }
+            await MainActor.run {
+                self.teacherRecommendations = group
+            }
         }
     }
     

@@ -1928,7 +1928,31 @@ async function getCacheHitRate() {
   - [x] GroupItemsManager 群組事件管理工具組件
   - [x] 即時事件添加/移除功能 (多對多關係管理)
   - [x] 完整資料驗證與錯誤處理 (14 個新測試)
-- [x] **本地環境完整測試**：確認所有 API 和後台功能正常 - **全面驗證通過**
+- [x] **本地環境完整測試**：確認後端 API + React Admin 功能正常 - **全面驗證通過**
+
+  #### 🆕 iOS 與後端 End-to-End 測試（本地）
+  - [x] 建立 **APIService.swift**：共用 `URLSession` 封裝 (`/api/events`, `/api/groups`) 
+  - [x] 建立 **Env.xcconfig**：`API_BASE_URL=http://localhost:3000`
+  - [x] 修改 `EventViewModel.loadUpcomingEvents()` 從 API 抓取資料（fallback Mock on failure）
+  - [x] 修改 `SettingsViewModel`：
+    - 讀取 `/api/groups`、`/api/groups/:id/items`
+    - 解析並更新 `selectedDeities`、`selectedFestivals`
+  - [ ] 建立 **NetworkMock** 供單元測試注入
+  - [ ] 撰寫單元測試 (XCTest)
+    - `APIServiceTests`：驗證成功 / 失敗情境
+    - `EventViewModelNetworkTests`：確保 events 透過 API 更新
+  - [ ] 建立 **iOS ↔ API 整合測試腳本**：
+    ```bash
+    # 在根目錄同時啟動後端
+    node server.js &
+    # 啟動 React Admin 並透過 curl 新增事件
+    curl -X POST http://localhost:3000/api/events \
+      -H 'Content-Type: application/json' \
+      -d '{"title":"本地測試事件","type":"custom","description":"E2E 測試"}'
+    # 啟動模擬器並跑 UITest 驗證首頁看到 "本地測試事件"
+    ```
+  - [ ] 更新 `local-testing-guide.md` 加入 iOS ↔ API E2E 步驟
+
   - [x] API 層測試：Events/Groups/Lunar 全部端點正常運行
   - [x] React Admin 構建測試：1.08MB 生產版本成功構建 
   - [x] 前後端整合測試：DataProvider 完整 API 連接驗證

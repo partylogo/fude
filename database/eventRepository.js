@@ -4,8 +4,22 @@ const mockEvents = require('../data/mockEvents');
 class EventRepository {
   constructor() {
     // 使用 mock data，之後可以替換為真實資料庫連接
-    this.events = [...mockEvents];
-    this.nextId = Math.max(...this.events.map(e => e.id)) + 1;
+    // 使用 module-level 共享陣列，確保跨請求持久
+    if (process.env.NODE_ENV === 'test') {
+      // 測試環境：每次重新複製 mock 資料，保持測試獨立
+      this.events = JSON.parse(JSON.stringify(mockEvents));
+      let nextId = Math.max(...this.events.map(e => e.id)) + 1;
+      this.nextIdRef = () => nextId++;
+    } else {
+      // 開發 / 產品環境：使用全域共享陣列，確保跨請求持久
+      if (!global.__eventsStore) {
+        global.__eventsStore = [...mockEvents];
+        global.__nextEventId = Math.max(...global.__eventsStore.map(e => e.id)) + 1;
+      }
+      this.events = global.__eventsStore;
+      this.nextIdRef = () => global.__nextEventId++;
+    }
+    
   }
 
   /**
@@ -69,7 +83,7 @@ class EventRepository {
    */
   async create(eventData) {
     const newEvent = {
-      id: this.nextId++,
+      id: this.nextIdRef(),
       ...eventData,
       solar_date: Array.isArray(eventData.solar_date) ? eventData.solar_date : [eventData.solar_date]
     };

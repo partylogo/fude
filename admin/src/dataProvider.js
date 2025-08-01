@@ -1,7 +1,7 @@
 // Data Provider - 連接本地 API
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 // 創建 axios 實例
 const apiClient = axios.create({
@@ -49,7 +49,11 @@ const dataProvider = {
       // 處理不同的 API 回應格式
       let data, total;
       if (resource === 'events' && response.data.events) {
-        data = response.data.events;
+        data = response.data.events.map(evt => ({
+          ...evt,
+          // ensure solar_date is string for DateField
+          solar_date: Array.isArray(evt.solar_date) ? evt.solar_date[0] : evt.solar_date,
+        }));
         total = data.length;
       } else if (resource === 'groups' && response.data.groups) {
         data = response.data.groups;
