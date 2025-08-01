@@ -147,6 +147,7 @@ class SettingsViewModel: ObservableObject {
     
     /// 切換事件選擇狀態
     func toggleEventSelection(_ event: Event) {
+        objectWillChange.send()
         if let index = notificationSettings.selectedEventIds.firstIndex(of: event.id) {
             notificationSettings.selectedEventIds.remove(at: index)
         } else {
