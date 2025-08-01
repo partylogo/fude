@@ -1,99 +1,24 @@
-// Events Edit 組件
+// Events Edit 組件 - Updated to use Smart Form  
+// Following Kent Beck's TDD principles (Red → Green → Refactor)
+
 import React from 'react';
-import {
-  Edit,
-  SimpleForm,
-  TextInput,
-  SelectInput,
-  DateInput,
-  NumberInput,
-  BooleanInput
-} from 'react-admin';
+import { Edit } from 'react-admin';
+import SmartEventForm from './SmartEventForm';
 import LunarConverter from './LunarConverter';
 
 const EventEdit = () => {
-  const typeChoices = [
-    { id: 'deity', name: '神明節日' },
-    { id: 'festival', name: '民俗節慶' },
-    { id: 'custom', name: '自訂事件' }
-  ];
-
   return (
     <Edit>
-      <SimpleForm>
-        <TextInput 
-          source="title" 
-          label="事件名稱" 
-          required 
-          fullWidth
-        />
-        
-        <SelectInput 
-          source="type" 
-          label="事件類型" 
-          choices={typeChoices}
-          required 
-        />
-        
-        <TextInput 
-          source="description" 
-          label="事件描述" 
-          required 
-          multiline 
-          fullWidth
-        />
-        
-        <DateInput 
-          source="solar_date" 
-          label="國曆日期" 
-          required 
-        />
-        
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
-          <NumberInput 
-            source="lunar_month" 
-            label="農曆月份" 
-            min={1} 
-            max={12}
-          />
-          
-          <NumberInput 
-            source="lunar_day" 
-            label="農曆日期" 
-            min={1} 
-            max={30}
-          />
-          
-          <BooleanInput 
-            source="is_leap_month" 
-            label="閏月"
-          />
-        </div>
-        
-        <TextInput 
-          source="cover_url" 
-          label="封面圖片 URL" 
-          fullWidth
-        />
-        
-        <TextInput 
-          source="deity_role" 
-          label="神明職掌" 
-          fullWidth
-        />
-        
-        <TextInput 
-          source="worship_notes" 
-          label="祭拜注意事項" 
-          multiline 
-          fullWidth
-        />
-
-        {/* 農曆轉換器工具 */}
-        <div style={{ marginTop: '24px' }}>
-          <LunarConverter />
-        </div>
-      </SimpleForm>
+      <SmartEventForm />
+      
+      {/* 農曆轉換工具 */}
+      <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f5f5f5' }}>
+        <h3 style={{ color: '#1976d2', marginBottom: '8px' }}>農曆轉換工具</h3>
+        <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+          使用此工具將農曆日期轉換為國曆日期，方便填寫上方表單
+        </p>
+        <LunarConverter />
+      </div>
     </Edit>
   );
 };

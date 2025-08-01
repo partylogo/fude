@@ -13,7 +13,7 @@ const validateEventData = (data, isUpdate = false) => {
   }
 
   if (!isUpdate || data.type !== undefined) {
-    const validTypes = ['deity', 'festival', 'custom'];
+    const validTypes = ['deity', 'festival', 'custom', 'solar_term'];
     if (!data.type || !validTypes.includes(data.type)) {
       errors.push('type must be one of: deity, festival, custom');
     }

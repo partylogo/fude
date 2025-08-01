@@ -4,7 +4,7 @@ import {
   List,
   Datagrid,
   TextField,
-  DateField,
+  FunctionField,
   SelectField,
   EditButton,
   ShowButton,
@@ -15,7 +15,8 @@ const EventList = () => {
   const typeChoices = [
     { id: 'deity', name: '神明節日' },
     { id: 'festival', name: '民俗節慶' },
-    { id: 'custom', name: '自訂事件' }
+    { id: 'custom', name: '自訂事件' },
+    { id: 'solar_term', name: '節氣事件' }
   ];
 
   return (
@@ -29,7 +30,17 @@ const EventList = () => {
           choices={typeChoices}
         />
         <TextField source="description" label="描述" />
-        <DateField source="solar_date" label="國曆日期" />
+        <FunctionField label="國曆日期" render={record => {
+          if (Array.isArray(record.solar_date) && record.solar_date.length) {
+            const dateStr = record.solar_date[0];
+            return dateStr ? new Date(dateStr).toLocaleDateString('zh-TW') : '';
+          }
+          // fallback for festival fixed month/day
+          if (record.solar_month && record.solar_day) {
+            return `${record.solar_month}/${record.solar_day}`;
+          }
+          return '';
+        }} />
         <TextField source="lunar_month" label="農曆月" />
         <TextField source="lunar_day" label="農曆日" />
         <EditButton />

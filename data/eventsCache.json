@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "type": "deity",
+    "title": "媽祖聖誕",
+    "description": "海上女神媽祖的誕辰",
+    "solar_date": "2025-04-20",
+    "leap_behavior": "never_leap",
+    "lunar_month": 3,
+    "lunar_day": 23
+  },
+  {
+    "id": 2,
+    "type": "festival",
+    "title": "清明節",
+    "description": "祭祖掃墓的重要節日",
+    "solar_date": "2025-04-05"
+  },
+  {
+    "id": 3,
+    "title": "小暑",
+    "type": "solar_term",
+    "solar_month": 8,
+    "solar_day": 2,
+    "description": "小暑",
+    "solar_date": [
+      null
+    ],
+    "solar_term_name": "小暑"
+  },
+  {
+    "id": 4,
+    "title": "測試事件",
+    "type": "festival",
+    "solar_month": 8,
+    "solar_day": 5,
+    "description": "測試事件",
+    "solar_date": [
+      null
+    ]
+  },
+  {
+    "id": 5,
+    "title": "臨時測試",
+    "type": "custom",
+    "description": "check persist",
+    "solar_date": [
+      null
+    ]
+  }
+]

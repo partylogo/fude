@@ -22,7 +22,7 @@ final class EventViewModelNetworkTests: XCTestCase {
     func testViewModelLoadsDataFromAPI() async throws {
         // Arrange mock response
         let json = """
-        {"events":[{"id":1,"type":"deity","title":"媽祖聖誕","description":"海上女神","lunar_month":3,"lunar_day":23,"solar_date":["2025-04-20"]}]}
+        {"events":[{"id":1,"type":"deity","title":"媽祖聖誕","description":"海上女神","solar_month":8,"solar_day":2}]}
         """
         MockURLProtocol.mockResponses["/api/events"] = (200, json)
 

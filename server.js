@@ -18,6 +18,7 @@ const {
   addGroupItem,
   removeGroupItem
 } = require('./api/groups');
+const systemRouter = require('./api/system');
 
 // Events Routes (CRUD)
 app.get('/api/events', eventsHandler);      // 取得事件列表
@@ -35,6 +36,10 @@ app.delete('/api/groups/:id', deleteGroup);                   // 刪除群組
 app.get('/api/groups/:id/items', groupItemsHandler);          // 取得群組事件
 app.post('/api/groups/:id/items', addGroupItem);              // 添加事件到群組
 app.delete('/api/groups/:id/items/:eventId', removeGroupItem); // 從群組移除事件
+
+// System Routes - 複雜日期規則系統 API
+app.use('/api/system', systemRouter);
+app.use('/api', systemRouter); // 為了向後相容，也直接掛載 solar-terms 路由
 
 // Other Routes
 app.post('/api/lunar', lunarHandler);

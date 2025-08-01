@@ -18,6 +18,7 @@ struct SettingsViewModelTests {
     @Test func viewModelInitialization() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         
         // THEN: 檢查初始狀態
         let notificationSettings = await viewModel.notificationSettings
@@ -38,6 +39,7 @@ struct SettingsViewModelTests {
     @Test func loadDataFunctionality() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         
         // WHEN: 重新載入資料
         await viewModel.loadData()
@@ -68,6 +70,7 @@ struct SettingsViewModelTests {
     @Test func toggleAllNotifications() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let initialState = await viewModel.notificationSettings.enableAll
         
         // WHEN: 切換總通知開關
@@ -88,6 +91,7 @@ struct SettingsViewModelTests {
     @Test func updateAdvanceDays() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         
         // WHEN: 更新提前天數
         await viewModel.updateAdvanceDays(3)
@@ -109,6 +113,7 @@ struct SettingsViewModelTests {
     @Test func updateNotifyTime() async throws {
         // GIVEN: 創建 ViewModel 和測試時間
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let testDate = Date()
         
         // WHEN: 更新通知時間
@@ -126,6 +131,7 @@ struct SettingsViewModelTests {
     @Test func toggleSpecificNotifications() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         
         // WHEN & THEN: 測試各種通知開關
         let initialNewMoon = await viewModel.notificationSettings.newmoonEnabled
@@ -149,6 +155,7 @@ struct SettingsViewModelTests {
     @Test func toggleEventSelection() async throws {
         // GIVEN: 創建 ViewModel 和測試事件
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let availableDeities = await viewModel.availableDeities
         let testEvent = availableDeities.first!
         
@@ -173,6 +180,7 @@ struct SettingsViewModelTests {
     @Test func eventSelectionIntegrity() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let availableDeities = await viewModel.availableDeities
         let testEvent = availableDeities.first!
         
@@ -199,6 +207,7 @@ struct SettingsViewModelTests {
     @Test func toggleGroupSubscription() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let testGroupId = 1
         
         // WHEN: 檢查初始訂閱狀態
@@ -225,6 +234,7 @@ struct SettingsViewModelTests {
     @Test func loadGroupItems() async throws {
         // GIVEN: 創建 ViewModel 和測試群組 ID
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let testGroupId = Group.mockGroups.first!.id
         
         // WHEN: 載入群組項目
@@ -238,6 +248,7 @@ struct SettingsViewModelTests {
     @Test func getGroupEvents() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let testGroup = Group.mockGroups.first!
         
         // WHEN: 取得群組事件
@@ -258,6 +269,7 @@ struct SettingsViewModelTests {
     @Test func selectedEventsProperties() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let availableDeities = await viewModel.availableDeities
         let availableFestivals = await viewModel.availableFestivals
         
@@ -287,6 +299,7 @@ struct SettingsViewModelTests {
     @Test func selectedRecommendationsCount() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         
         // WHEN: 取得推薦項目數量
         let count = await viewModel.selectedRecommendationsCount
@@ -307,6 +320,7 @@ struct SettingsViewModelTests {
     @Test func formattedAdvanceDays() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         
         // WHEN & THEN: 測試不同天數的格式化
         await viewModel.updateAdvanceDays(0)
@@ -325,6 +339,7 @@ struct SettingsViewModelTests {
     @Test func formattedNotifyTime() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         
         // WHEN: 檢查通知時間格式
         let formattedTime = await viewModel.formattedNotifyTime
@@ -337,6 +352,7 @@ struct SettingsViewModelTests {
     @Test func isSubscribedToTeacherRecommendations() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         
         // WHEN: 檢查初始訂閱狀態
         let initialSubscription = await viewModel.isSubscribedToTeacherRecommendations
@@ -354,6 +370,7 @@ struct SettingsViewModelTests {
     @Test func nonExistentGroupHandling() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let nonExistentGroupId = 99999
         
         // WHEN: 嘗試取得不存在的群組事件
@@ -373,6 +390,7 @@ struct SettingsViewModelTests {
     @Test func duplicateEventSelectionHandling() async throws {
         // GIVEN: 創建 ViewModel
         let viewModel = await SettingsViewModel()
+        try? await Task.sleep(for: .milliseconds(600))
         let availableDeities = await viewModel.availableDeities
         let testEvent = availableDeities.first!
         

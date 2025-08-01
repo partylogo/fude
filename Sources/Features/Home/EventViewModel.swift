@@ -41,11 +41,13 @@ class EventViewModel: ObservableObject {
         Task {
             do {
                 let events = try await api.fetchEvents()
+
                 await MainActor.run {
                     self.upcomingEvents = events.filter { $0.countdownDays <= 10 }.sorted { $0.countdownDays < $1.countdownDays }
                     self.isLoading = false
                 }
             } catch {
+                print("API ERROR:", error)
                 // 回退 Mock
                 await MainActor.run {
                     self.upcomingEvents = Event.upcomingEvents
@@ -53,6 +55,9 @@ class EventViewModel: ObservableObject {
                     self.isLoading = false
                 }
             }
+            
+            //
+            
         }
     }
     
@@ -125,6 +130,8 @@ class EventViewModel: ObservableObject {
             return "star.fill"       // 民俗節慶
         case .custom:
             return "bell.fill"       // 自定義提醒
+        case .solarTerm:
+            return "leaf.fill"       // 節氣
         }
     }
     
@@ -137,6 +144,8 @@ class EventViewModel: ObservableObject {
             return .secondaryColor  // 煙燻灰
         case .custom:
             return .primaryColor
+        case .solarTerm:
+            return .secondaryColor
         }
     }
 }

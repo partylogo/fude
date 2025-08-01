@@ -1,4 +1,7 @@
 // Event Repository - 資料存取層
+const fs = require('fs');
+const path = require('path');
+const CACHE_PATH = path.join(__dirname, '..', 'data', 'eventsCache.json');
 const mockEvents = require('../data/mockEvents');
 
 class EventRepository {
@@ -13,13 +16,41 @@ class EventRepository {
     } else {
       // 開發 / 產品環境：使用全域共享陣列，確保跨請求持久
       if (!global.__eventsStore) {
-        global.__eventsStore = [...mockEvents];
-        global.__nextEventId = Math.max(...global.__eventsStore.map(e => e.id)) + 1;
+        // 嘗試從 JSON 快取載入
+        let cached = null;
+        try {
+          if (fs.existsSync(CACHE_PATH)) {
+            cached = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf-8'));
+          }
+        } catch (err) {
+          console.error('[EventRepository] 讀取快取失敗:', err);
+        }
+        global.__eventsStore = cached && Array.isArray(cached) && cached.length ? cached : [...mockEvents];
+        global.__nextEventId = Math.max(0, ...global.__eventsStore.map(e => e.id)) + 1;
+
+        // 在啟動時同步寫入快取，確保檔案存在
+        try {
+          fs.mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
+          fs.writeFileSync(CACHE_PATH, JSON.stringify(global.__eventsStore, null, 2));
+        } catch (err) {
+          console.error('[EventRepository] 寫入快取失敗:', err);
+        }
       }
       this.events = global.__eventsStore;
       this.nextIdRef = () => global.__nextEventId++;
     }
-    
+  }
+
+  /**
+   * 將目前 events 寫入 JSON 快取（僅非測試環境）
+   */
+  persist() {
+    if (process.env.NODE_ENV === 'test') return;
+    try {
+      fs.writeFileSync(CACHE_PATH, JSON.stringify(this.events, null, 2));
+    } catch (err) {
+      console.error('[EventRepository] 寫入快取失敗:', err);
+    }
   }
 
   /**
@@ -39,20 +70,20 @@ class EventRepository {
   async findByDateRange(from, to) {
     return this.events.filter(event => {
       const eventDate = new Date(Array.isArray(event.solar_date) ? event.solar_date[0] : event.solar_date);
-      
+
       let matchesFrom = true;
       let matchesTo = true;
-      
+
       if (from) {
         const fromDate = new Date(from);
         matchesFrom = eventDate >= fromDate;
       }
-      
+
       if (to) {
         const toDate = new Date(to);
         matchesTo = eventDate <= toDate;
       }
-      
+
       return matchesFrom && matchesTo;
     });
   }
@@ -87,8 +118,9 @@ class EventRepository {
       ...eventData,
       solar_date: Array.isArray(eventData.solar_date) ? eventData.solar_date : [eventData.solar_date]
     };
-    
+
     this.events.push(newEvent);
+    this.persist();
     return { ...newEvent };
   }
 
@@ -103,8 +135,9 @@ class EventRepository {
     if (index === -1) {
       return null;
     }
-    
+
     this.events[index] = { ...this.events[index], ...updateData };
+    this.persist();
     return { ...this.events[index] };
   }
 
@@ -118,8 +151,9 @@ class EventRepository {
     if (index === -1) {
       return false;
     }
-    
+
     this.events.splice(index, 1);
+    this.persist();
     return true;
   }
 }

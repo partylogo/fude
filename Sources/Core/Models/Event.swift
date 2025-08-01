@@ -13,6 +13,7 @@ enum EventType: String, CaseIterable, Codable {
     case festival = "festival"     // 民俗節慶
     case deity = "deity"          // 神明生日
     case custom = "custom"        // 自定義提醒
+    case solarTerm = "solar_term" // 24節氣
 }
 
 /// 農曆日期結構
@@ -48,6 +49,8 @@ struct Event: Identifiable, Codable, Equatable {
         case lunarDay = "lunar_day"
         case lunarIsLeap = "is_leap"
         case solarDate = "solar_date"
+        case solarMonth = "solar_month"
+        case solarDay = "solar_day"
         case coverUrl = "cover_url"
         case deityRole = "deity_role"
         case worshipNotes = "worship_notes"
@@ -71,8 +74,10 @@ struct Event: Identifiable, Codable, Equatable {
         }
 
         // solar_date could be either string or array
-        if let datesArray = try? container.decodeIfPresent([String].self, forKey: .solarDate) {
-            solarDate = datesArray.compactMap { Self.dateFormatter.date(from: $0) }
+        // solar_date could be string, array, or array with nulls
+        if let dateStringsOpt = try? container.decodeIfPresent([String?].self, forKey: .solarDate) {
+            let validStrings = dateStringsOpt.compactMap { $0 }
+            solarDate = validStrings.compactMap { Self.dateFormatter.date(from: $0) }
         } else if let singleDateStr = try? container.decodeIfPresent(String.self, forKey: .solarDate) {
             if let parsed = Self.dateFormatter.date(from: singleDateStr) {
                 solarDate = [parsed]
@@ -82,6 +87,10 @@ struct Event: Identifiable, Codable, Equatable {
         } else {
             solarDate = []
         }
+
+        // Decode optional solar month/day (for solar term or fixed-date events)
+        solarMonth = try? container.decodeIfPresent(Int.self, forKey: .solarMonth)
+        solarDay = try? container.decodeIfPresent(Int.self, forKey: .solarDay)
 
         coverUrl = try? container.decodeIfPresent(String.self, forKey: .coverUrl)
         deityRole = try? container.decodeIfPresent(String.self, forKey: .deityRole)
@@ -113,6 +122,8 @@ struct Event: Identifiable, Codable, Equatable {
          description: String,
          lunarDate: LunarDate?,
          solarDate: [Date],
+         solarMonth: Int? = nil,
+         solarDay: Int? = nil,
          coverUrl: String?,
          deityRole: String?,
          worshipNotes: String?) {
@@ -122,6 +133,8 @@ struct Event: Identifiable, Codable, Equatable {
         self.description = description
         self.lunarDate = lunarDate
         self.solarDate = solarDate
+        self.solarMonth = solarMonth
+        self.solarDay = solarDay
         self.coverUrl = coverUrl
         self.deityRole = deityRole
         self.worshipNotes = worshipNotes
@@ -141,6 +154,8 @@ struct Event: Identifiable, Codable, Equatable {
     let description: String
     let lunarDate: LunarDate?
     let solarDate: [Date]  // 一年可能有多個對應日期
+    let solarMonth: Int?   // 固定國曆月 (for solar_term/festival)
+    let solarDay: Int?
     let coverUrl: String?
     
     // 神明相關欄位 (Version 2.2 使用)
@@ -149,24 +164,23 @@ struct Event: Identifiable, Codable, Equatable {
     
     /// 距離下次發生的天數
     var countdownDays: Int {
-        let today = Date()
         let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
         
-        // 找到最近的未來日期
-        let futureDates = solarDate.filter { $0 > today }
-        guard let nextDate = futureDates.min() else {
-            // 如果今年沒有未來日期，計算到明年的天數
-            let nextYear = calendar.component(.year, from: today) + 1
-            if let nextYearDate = solarDate.first {
-                let components = calendar.dateComponents([.month, .day], from: nextYearDate)
-                if let nextYearEvent = calendar.date(from: DateComponents(year: nextYear, month: components.month, day: components.day)) {
-                    return calendar.dateComponents([.day], from: today, to: nextYearEvent).day ?? 0
-                }
+        // 收集候選日期
+        var candidateDates = solarDate.map { calendar.startOfDay(for: $0) }.filter { $0 >= todayStart }
+        
+        if candidateDates.isEmpty, let m = solarMonth, let d = solarDay {
+            let year = calendar.component(.year, from: todayStart)
+            if let thisYear = calendar.date(from: DateComponents(year: year, month: m, day: d)) {
+                candidateDates.append(calendar.startOfDay(for: thisYear))
             }
-            return 365
+            if let nextYear = calendar.date(from: DateComponents(year: year + 1, month: m, day: d)) {
+                candidateDates.append(calendar.startOfDay(for: nextYear))
+            }
         }
-        
-        return calendar.dateComponents([.day], from: today, to: nextDate).day ?? 0
+        guard let next = candidateDates.min() else { return 365 }
+        return calendar.dateComponents([.day], from: todayStart, to: next).day ?? 0
     }
     
     /// 是否即將到來 (7天內)

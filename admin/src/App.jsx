@@ -1,4 +1,6 @@
-// React Admin 主應用程式
+// React Admin 主應用程式 - Updated to include System Maintenance Monitor
+// Following Kent Beck's TDD principles (Red → Green → Refactor)
+
 import React, { useEffect } from 'react';
 import { Admin, Resource, ListGuesser, EditGuesser, ShowGuesser } from 'react-admin';
 import dataProvider from './dataProvider';
@@ -8,6 +10,10 @@ import EventCreate from './components/EventCreate';
 import GroupList from './components/GroupList';
 import GroupEdit from './components/GroupEdit';
 import GroupCreate from './components/GroupCreate';
+import SystemMaintenanceMonitor from './components/SystemMaintenanceMonitor';
+
+// Custom list component that renders SystemMaintenanceMonitor
+const SystemDashboard = () => <SystemMaintenanceMonitor />;
 
 const App = () => {
   useEffect(() => {
@@ -29,6 +35,11 @@ const App = () => {
         edit={GroupEdit} 
         create={GroupCreate}
         show={ShowGuesser} 
+      />
+      <Resource 
+        name="system" 
+        list={SystemDashboard}
+        options={{ label: '系統維護' }}
       />
     </Admin>
   );
