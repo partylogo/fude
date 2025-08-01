@@ -2020,7 +2020,7 @@ async function getCacheHitRate() {
   - [x] 實作 SystemMaintenanceMonitor 系統監控面板 ✅
   - [x] 將 SystemMaintenanceMonitor 集成到主應用 (新增系統維護選單) ✅
   - [ ] 優化測試覆蓋和 UI/UX 改進：
-    - 智能表單動態欄位驗證邏輯 ✅
+    - 智能表單動態欄位驗證邏輯 + 單元測試 ✅
     - 優化監控面板用戶體驗
     - 增強列表顯示功能（規則摘要、下次發生日期等）
 

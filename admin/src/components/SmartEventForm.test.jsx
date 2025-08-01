@@ -154,6 +154,38 @@ describe('SmartEventForm - Leap Month Handling', () => {
 });
 
 describe('SmartEventForm - Validation', () => {
+  test('should validate missing lunar fields when deity type selected', async () => {
+    render(
+      <TestWrapper>
+        <SmartEventForm />
+      </TestWrapper>
+    );
+    const typeSelect = screen.getByLabelText(/事件類型/);
+    fireEvent.change(typeSelect, { target: { value: 'deity' } });
+
+    // 點擊儲存
+    fireEvent.click(screen.getByText(/儲存/));
+
+    await waitFor(() => {
+      expect(screen.getByText(/農曆月份必須在 1-12 之間|必填/)).toBeInTheDocument();
+      expect(screen.getByText(/農曆日期必須在 1-30 之間|必填/)).toBeInTheDocument();
+    });
+  });
+
+  test('should validate missing solar fields when festival type selected', async () => {
+    render(
+      <TestWrapper>
+        <SmartEventForm />
+      </TestWrapper>
+    );
+    const typeSelect = screen.getByLabelText(/事件類型/);
+    fireEvent.change(typeSelect, { target: { value: 'festival' } });
+    fireEvent.click(screen.getByText(/儲存/));
+    await waitFor(() => {
+      expect(screen.getByText(/國曆月份必須在 1-12 之間|必填/)).toBeInTheDocument();
+      expect(screen.getByText(/國曆日期必須在 1-31 之間|必填/)).toBeInTheDocument();
+    });
+  });
   
   test('should validate required fields', async () => {
     // Arrange
