@@ -19,7 +19,8 @@ import {
   Alert,
   Chip,
   CircularProgress,
-  Grid
+  Grid,
+  Skeleton
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -108,11 +109,57 @@ export default function SystemMaintenanceMonitor() {
     loadData();
   }, []);
 
+  // Skeleton loading components for better UX
+  const ExtensionStatusSkeleton = () => (
+    <Card data-testid="extension-status-skeleton">
+      <CardContent>
+        <Skeleton variant="text" width="60%" height={32} />
+        <Box sx={{ mt: 2 }}>
+          <Skeleton variant="text" width="40%" />
+          <Skeleton variant="text" width="30%" />
+          <Skeleton variant="text" width="50%" />
+          <Skeleton variant="text" width="35%" />
+        </Box>
+        <Box sx={{ mt: 2 }}>
+          <Skeleton variant="rectangular" width={120} height={36} />
+        </Box>
+      </CardContent>
+    </Card>
+  );
+
+  const MaintenanceHistorySkeleton = () => (
+    <Card data-testid="maintenance-history-skeleton">
+      <CardContent>
+        <Skeleton variant="text" width="40%" height={32} />
+        <Box sx={{ mt: 2 }}>
+          {[1, 2, 3].map((row) => (
+            <Box key={row} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Skeleton variant="text" width="20%" />
+              <Skeleton variant="text" width="15%" />
+              <Skeleton variant="text" width="10%" />
+              <Skeleton variant="text" width="10%" />
+              <Skeleton variant="text" width="15%" />
+            </Box>
+          ))}
+        </Box>
+      </CardContent>
+    </Card>
+  );
+
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-        <Typography variant="body1" sx={{ ml: 2 }}>載入中...</Typography>
+      <Box>
+        <Typography variant="h4" gutterBottom>
+          系統維護監控面板
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <ExtensionStatusSkeleton />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <MaintenanceHistorySkeleton />
+          </Grid>
+        </Grid>
       </Box>
     );
   }
