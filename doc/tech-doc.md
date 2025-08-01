@@ -2028,6 +2028,7 @@ async function getCacheHitRate() {
   - [x] 環境變數設定 (`EXTEND_YEARS=5`, `TZ=Asia/Taipei`) ✅
   - [x] API 向後相容策略（Sunset Headers + `/api/v2/events`）✅
   - [ ] 資料庫效能優化（索引、分區策略）
+  - [ ] 修正 `api/system.js` 測試環境（NODE_ENV=test）不應返回 mock，僅限 development mock
 
 #### 🔧 原有功能實作（已完成）
 - [x] 實作 `/api/events` GET endpoint 與農曆轉換（本地測試）- **Repository 模式重構完成**

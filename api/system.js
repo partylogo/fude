@@ -12,7 +12,7 @@ const router = express.Router();
  */
 router.get('/extension-status', async (req, res) => {
   try {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       return res.json({
         min_extended_year: null,
         max_extended_year: null,
@@ -63,7 +63,7 @@ router.get('/maintenance-history', async (req, res) => {
 router.post('/trigger-maintenance', async (req, res) => {
   try {
     // 開發環境簡易響應，避免連線真實資料庫
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       return res.json({
         message: '開發模式：模擬維護完成',
         success: true,
