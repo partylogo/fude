@@ -57,6 +57,38 @@ const SmartEventToolbar = () => (
 );
 
 export default function SmartEventForm(props) {
+  // 表單層級驗證：依事件類型檢查必要欄位
+  const formValidate = (values) => {
+    const errors = {};
+    const type = values.type;
+
+    if (!type) return errors; // 基本驗證已涵蓋
+
+    const addError = (field, msg) => {
+      if (!errors[field]) errors[field] = msg;
+    };
+
+    switch (type) {
+      case 'deity':
+        if (!values.lunar_month) addError('lunar_month', '必填');
+        if (!values.lunar_day) addError('lunar_day', '必填');
+        break;
+      case 'festival':
+        if (!values.solar_month) addError('solar_month', '必填');
+        if (!values.solar_day) addError('solar_day', '必填');
+        break;
+      case 'solar_term':
+        if (!values.solar_term_name) addError('solar_term_name', '必填');
+        break;
+      case 'custom':
+        if (!values.one_time_date) addError('one_time_date', '必填');
+        break;
+      default:
+        break;
+    }
+
+    return errors;
+  };
   const record = useRecordContext();
   const [eventType, setEventType] = useState(record?.type || '');
 
@@ -84,7 +116,7 @@ export default function SmartEventForm(props) {
   };
 
   return (
-    <SimpleForm record={record} toolbar={<SmartEventToolbar />} {...props}>
+    <SimpleForm record={record} toolbar={<SmartEventToolbar />} validate={formValidate} {...props}>
       {/* Basic Fields - Always visible */}
       <TextInput 
         source="title" 
