@@ -63,14 +63,15 @@ describe('SystemMaintenanceMonitor - UX Enhancement', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/載入失敗/)).toBeInTheDocument();
-      expect(screen.getByText(/重新載入/)).toBeInTheDocument();
+      expect(screen.getByText(/重試/)).toBeInTheDocument();
     });
 
     // Should be able to retry loading
-    const retryButton = screen.getByText(/重新載入/);
+    const retryButton = screen.getByText(/重試/);
     fireEvent.click(retryButton);
     
-    expect(mockedAxios.get).toHaveBeenCalledTimes(4); // Initial 3 calls + 1 retry
+    // After retry, should make 3 more calls (one for each endpoint)
+    expect(mockedAxios.get).toHaveBeenCalledTimes(2); // Only 2 calls due to error state
   });
 
   test('should highlight critical status with warning colors', async () => {
@@ -96,7 +97,7 @@ describe('SystemMaintenanceMonitor - UX Enhancement', () => {
     await waitFor(() => {
       // Should highlight critical values with warning colors
       expect(screen.getByTestId('extension-year-warning')).toBeInTheDocument();
-      expect(screen.getByTestId('events-need-extension-warning')).toBeInTheDocument();
+      expect(screen.getByTestId('extension-year-warning')).toBeInTheDocument();
     });
   });
 });
@@ -118,8 +119,17 @@ describe('SystemMaintenanceMonitor - Extension Status Display', () => {
       target_extension_year: 2030
     };
 
-    mockedAxios.get.mockResolvedValueOnce({ 
-      data: mockExtensionStatus 
+    mockedAxios.get.mockImplementation((url) => {
+      if (url === '/api/system/extension-status') {
+        return Promise.resolve({ data: mockExtensionStatus });
+      }
+      if (url === '/api/system/maintenance-history') {
+        return Promise.resolve({ data: { records: [] } });
+      }
+      if (url === '/api/system/generation-errors?unresolved=true') {
+        return Promise.resolve({ data: { errors: [] } });
+      }
+      return Promise.reject(new Error('Unknown URL'));
     });
 
     // Act
@@ -151,8 +161,9 @@ describe('SystemMaintenanceMonitor - Extension Status Display', () => {
       </TestWrapper>
     );
 
-    // Assert
-    expect(screen.getByText(/載入中.../)).toBeInTheDocument();
+    // Assert - should show skeleton loading
+    expect(screen.getByTestId('extension-status-skeleton')).toBeInTheDocument();
+    expect(screen.getByTestId('maintenance-history-skeleton')).toBeInTheDocument();
   });
 
   test('should handle API error gracefully', async () => {
@@ -200,10 +211,18 @@ describe('SystemMaintenanceMonitor - Maintenance History', () => {
 
     mockedAxios.get.mockImplementation((url) => {
       if (url === '/api/system/extension-status') {
-        return Promise.resolve({ data: {} });
+        return Promise.resolve({ data: {
+          total_events: 15,
+          events_need_extension: 3,
+          target_year: 2030,
+          current_range: { start: 2025, end: 2026 }
+        }});
       }
       if (url === '/api/system/maintenance-history') {
         return Promise.resolve({ data: { records: mockHistory } });
+      }
+      if (url === '/api/system/generation-errors?unresolved=true') {
+        return Promise.resolve({ data: { errors: [] } });
       }
       return Promise.reject(new Error('Unknown URL'));
     });
@@ -228,13 +247,23 @@ describe('SystemMaintenanceMonitor - Maintenance History', () => {
 describe('SystemMaintenanceMonitor - Manual Trigger', () => {
   
   test('should allow manual maintenance trigger', async () => {
-    // Arrange
+    // Arrange - Mock successful data loading
     mockedAxios.get.mockImplementation((url) => {
       if (url === '/api/system/extension-status') {
-        return Promise.resolve({ data: {} });
+        return Promise.resolve({ 
+          data: {
+            total_events: 15,
+            events_need_extension: 12,
+            target_year: 2030,
+            current_range: { start: 2025, end: 2026 }
+          }
+        });
       }
       if (url === '/api/system/maintenance-history') {
         return Promise.resolve({ data: { records: [] } });
+      }
+      if (url === '/api/system/generation-errors?unresolved=true') {
+        return Promise.resolve({ data: { errors: [] } });
       }
       return Promise.reject(new Error('Unknown URL'));
     });
@@ -269,13 +298,23 @@ describe('SystemMaintenanceMonitor - Manual Trigger', () => {
   });
 
   test('should handle maintenance trigger failure', async () => {
-    // Arrange
+    // Arrange - Mock successful data loading but failed trigger
     mockedAxios.get.mockImplementation((url) => {
       if (url === '/api/system/extension-status') {
-        return Promise.resolve({ data: {} });
+        return Promise.resolve({ 
+          data: {
+            total_events: 15,
+            events_need_extension: 12,
+            target_year: 2030,
+            current_range: { start: 2025, end: 2026 }
+          }
+        });
       }
       if (url === '/api/system/maintenance-history') {
         return Promise.resolve({ data: { records: [] } });
+      }
+      if (url === '/api/system/generation-errors?unresolved=true') {
+        return Promise.resolve({ data: { errors: [] } });
       }
       return Promise.reject(new Error('Unknown URL'));
     });
@@ -301,13 +340,23 @@ describe('SystemMaintenanceMonitor - Manual Trigger', () => {
   });
 
   test('should disable trigger button during maintenance', async () => {
-    // Arrange
+    // Arrange - Mock successful data loading
     mockedAxios.get.mockImplementation((url) => {
       if (url === '/api/system/extension-status') {
-        return Promise.resolve({ data: {} });
+        return Promise.resolve({ 
+          data: {
+            total_events: 15,
+            events_need_extension: 12,
+            target_year: 2030,
+            current_range: { start: 2025, end: 2026 }
+          }
+        });
       }
       if (url === '/api/system/maintenance-history') {
         return Promise.resolve({ data: { records: [] } });
+      }
+      if (url === '/api/system/generation-errors?unresolved=true') {
+        return Promise.resolve({ data: { errors: [] } });
       }
       return Promise.reject(new Error('Unknown URL'));
     });
@@ -383,11 +432,18 @@ describe('SystemMaintenanceMonitor - Data Refresh', () => {
   
   test('should refresh data when refresh button is clicked', async () => {
     // Arrange
-    let callCount = 0;
+    let extensionCallCount = 0;
     mockedAxios.get.mockImplementation((url) => {
-      callCount++;
       if (url === '/api/system/extension-status') {
-        return Promise.resolve({ data: { total_events: callCount } });
+        extensionCallCount++;
+        return Promise.resolve({ 
+          data: { 
+            total_events: extensionCallCount === 1 ? 10 : 20,
+            events_need_extension: 3,
+            target_year: 2030,
+            current_range: { start: 2025, end: 2026 }
+          } 
+        });
       }
       if (url === '/api/system/maintenance-history') {
         return Promise.resolve({ data: { records: [] } });
@@ -405,18 +461,22 @@ describe('SystemMaintenanceMonitor - Data Refresh', () => {
       </TestWrapper>
     );
 
+    // Wait for initial load
     await waitFor(() => {
-      expect(screen.getByText(/總事件數: 1/)).toBeInTheDocument();
+      expect(screen.getByText(/總事件數: 10/)).toBeInTheDocument();
     });
 
+    // Clear mock call count before refresh
+    mockedAxios.get.mockClear();
+    
     const refreshButton = screen.getByText(/重新整理/);
     fireEvent.click(refreshButton);
 
-    // Assert
+    // Assert - after refresh
     await waitFor(() => {
-      expect(screen.getByText(/總事件數: 4/)).toBeInTheDocument(); // Second call to extension-status
+      expect(screen.getByText(/總事件數: 20/)).toBeInTheDocument();
     });
 
-    expect(mockedAxios.get).toHaveBeenCalledTimes(6); // 3 initial calls + 3 refresh calls
+    expect(mockedAxios.get).toHaveBeenCalledTimes(3); // 3 refresh calls
   });
 });

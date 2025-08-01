@@ -199,7 +199,11 @@ export default function SystemMaintenanceMonitor() {
                   <Typography variant="body1">
                     需要延伸: {extensionStatus.events_need_extension || 0}
                   </Typography>
-                  <Typography variant="body1">
+                  <Typography 
+                    variant="body1"
+                    data-testid={extensionStatus.events_need_extension > 10 ? "extension-year-warning" : undefined}
+                    color={extensionStatus.events_need_extension > 10 ? "warning.main" : "text.primary"}
+                  >
                     目標年份: {extensionStatus.target_extension_year || 'N/A'}
                   </Typography>
                   {extensionStatus.min_extended_year && (
