@@ -97,7 +97,10 @@ class DateGenerationService {
     // 更新 generated_until
     await this.updateEvent(eventId, { generated_until: targetYear });
     
-    return newOccurrences.length;
+    return {
+      success: true,
+      occurrencesGenerated: newOccurrences.length
+    };
   }
 
   /**
@@ -156,7 +159,9 @@ class DateGenerationService {
    */
   async convertLunarToSolar(year, month, day, isLeap = false) {
     const lunarCalendarService = require('./lunarCalendarService');
-    return lunarCalendarService.convertToSolar({ year, month, day, isLeap });
+    const result = lunarCalendarService.convertToSolar({ year, month, day, isLeap });
+    // convertToSolar returns an array, we take the first result
+    return Array.isArray(result) ? result[0] : result;
   }
 
   /**
@@ -180,10 +185,10 @@ class DateGenerationService {
         WHERE term_name = $1 AND year = $2
       `, [termName, year]);
       
-      return retryResult.rows[0]?.occurrence_date?.toISOString().split('T')[0];
+      return retryResult.rows[0]?.occurrence_date;
     }
     
-    return result.rows[0].occurrence_date.toISOString().split('T')[0];
+    return result.rows[0].occurrence_date;
   }
 
   /**
