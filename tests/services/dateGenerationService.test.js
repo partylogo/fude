@@ -86,25 +86,13 @@ describe('DateGenerationService - Core Tests', () => {
         generated_until: null // Generate from current year
       };
 
-      // Mock getEvent
-      query.mockResolvedValueOnce({ rows: [mockEvent] });
+      // Clear all mocks first
+      query.mockClear();
       
-      // Mock getSolarTermDate calls - just mock the query directly
-      query.mockImplementation((sql, params) => {
-        if (sql.includes('SELECT occurrence_date FROM solar_terms')) {
-          return Promise.resolve({ rows: [{ occurrence_date: '2025-04-05' }] });
-        }
-        if (sql.includes('SELECT COUNT(*) as count')) {
-          return Promise.resolve({ rows: [{ count: 1 }] }); // Data exists
-        }
-        if (sql.includes('INSERT INTO event_occurrences')) {
-          return Promise.resolve({ rowCount: 5 });
-        }
-        if (sql.includes('UPDATE events')) {
-          return Promise.resolve({ rowCount: 1 });
-        }
-        return Promise.resolve({ rows: [] });
-      });
+      // Mock all calls in sequence
+      query
+        .mockResolvedValueOnce({ rows: [mockEvent] }) // getEvent
+        .mockResolvedValue({ rows: [{ occurrence_date: '2025-04-05' }] }); // All getSolarTermDate calls
 
       // Act
       const result = await dateGenerationService.generateOccurrences(2);
@@ -112,6 +100,10 @@ describe('DateGenerationService - Core Tests', () => {
       // Assert - should generate from solar_terms table data
       expect(result.success).toBe(true);
       expect(result.occurrencesGenerated).toBeGreaterThan(0);
+      expect(query).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT occurrence_date'),
+        expect.arrayContaining(['清明', expect.any(Number)])
+      );
     });
 
     test('should handle generation errors and record them properly', async () => {
