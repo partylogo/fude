@@ -211,7 +211,7 @@ extension NotificationSettings {
         newmoonEnabled: true,
         fullmoonEnabled: true,
         customEnabled: true,
-        selectedEventIds: [1, 2, 3, 4], // 媽祖、關公、觀音、玉皇大帝
+        selectedEventIds: [],
         selectedGroupIds: [1] // 簡少年老師推薦
     )
 }
