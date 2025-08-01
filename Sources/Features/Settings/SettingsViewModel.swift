@@ -60,47 +60,36 @@ class SettingsViewModel: ObservableObject {
     init(api: APIService = .shared) {
         self.api = api
         self.notificationSettings = NotificationSettings.mockSettings
-        loadData()
+        Task {
+            await loadData()
+        }
     }
     
     // MARK: - Data Loading
     
     /// 載入所有資料
-    func loadData() {
+    /// 重新載入資料；呼叫端可 `await` 等待完成（在測試中更穩定）
+    func loadData() async {
         isLoading = true
-        
-        Task {
-            do {
-                // 從 API 取得事件
-                let events = try await APIService.shared.fetchEvents()
-                await MainActor.run {
-                    self.availableDeities = events.filter { $0.type == .deity }
-                    self.availableFestivals = events.filter { $0.type == .festival }
-                }
-            } catch {
-                // 回退 Mock
-                await MainActor.run {
-                    let allEvents = Event.mockEvents
-                    self.availableDeities = allEvents.filter { $0.type == .deity }
-                    self.availableFestivals = allEvents.filter { $0.type == .festival }
-                }
-            }
+        defer { isLoading = false }
+        do {
+            // 從 API 取得事件
+            let events = try await APIService.shared.fetchEvents()
+            self.availableDeities = events.filter { $0.type == .deity }
+            self.availableFestivals = events.filter { $0.type == .festival }
+        } catch {
+            // 回退 Mock
+            let allEvents = Event.mockEvents
+            self.availableDeities = allEvents.filter { $0.type == .deity }
+            self.availableFestivals = allEvents.filter { $0.type == .festival }
+        }
 
-            do {
-                // 取得群組
-                let groups = try await api.fetchGroups()
-                await MainActor.run {
-                    self.teacherRecommendations = groups.first { $0.name.contains("簡少年") }
-                }
-            } catch {
-                await MainActor.run {
-                    self.teacherRecommendations = Group.mockGroups.first { $0.name.contains("簡少年") }
-                }
-            }
-
-            await MainActor.run {
-                self.isLoading = false
-            }
+        do {
+            // 取得群組
+            let groups = try await api.fetchGroups()
+            self.teacherRecommendations = groups.first { $0.name.contains("簡少年") }
+        } catch {
+            self.teacherRecommendations = Group.mockGroups.first { $0.name.contains("簡少年") }
         }
     }
     

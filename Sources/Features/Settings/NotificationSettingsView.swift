@@ -25,15 +25,26 @@ struct NotificationSettingsView: View {
                     
                     // 通知時間設定
                     timeSettingsSection
+                        .disabled(!viewModel.notificationSettings.enableAll)
+                        .opacity(viewModel.notificationSettings.enableAll ? 1 : 0.4)
                     
                     // 通知類型
                     notificationTypesSection
+                        .disabled(!viewModel.notificationSettings.enableAll)
+                        .opacity(viewModel.notificationSettings.enableAll ? 1 : 0.4)
                 }
                 .padding(.horizontal, Spacing.screenPadding)
                 .padding(.bottom, 100) // 為底部導航留空間
             }
-            .navigationTitle("通知設定")
+            
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("通知設定")
+                        .font(.titleSmall)
+                        .foregroundColor(.textPrimary)
+                }
+            }
             .background(Color.backgroundColor)
         }
         .sheet(isPresented: $showingTimePicker) {
@@ -65,7 +76,7 @@ struct NotificationSettingsView: View {
     private var masterToggleSection: some View {
         SettingsCard {
             SettingsRow(
-                title: "啟用所有通知",
+                title: "啟用通知功能",
                 trailing: {
                     Toggle("", isOn: $viewModel.notificationSettings.enableAll)
                         .toggleStyle(CustomToggleStyle())
