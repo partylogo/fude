@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { TestContext } from 'react-admin';
+import { AdminContext } from 'react-admin';
 import SystemMaintenanceMonitor from './SystemMaintenanceMonitor';
 
 // Mock axios for API calls
@@ -14,7 +14,7 @@ vi.mock('axios');
 const mockedAxios = vi.mocked(axios);
 
 const TestWrapper = ({ children, ...props }) => (
-  <TestContext dataProvider={{
+  <AdminContext dataProvider={{
     getList: () => Promise.resolve({ data: [], total: 0 }),
     getOne: () => Promise.resolve({ data: {} }),
     getMany: () => Promise.resolve({ data: [] }),
@@ -26,8 +26,80 @@ const TestWrapper = ({ children, ...props }) => (
     deleteMany: () => Promise.resolve({ data: [] })
   }} {...props}>
     {children}
-  </TestContext>
+  </AdminContext>
 );
+
+describe('SystemMaintenanceMonitor - UX Enhancement', () => {
+  
+  beforeEach(() => {
+    mockedAxios.get.mockClear();
+    mockedAxios.post.mockClear();
+  });
+
+  test('should show loading state with skeleton placeholders', async () => {
+    // RED: This test should fail initially
+    mockedAxios.get.mockImplementation(() => new Promise(() => {})); // Never resolves
+    
+    render(
+      <TestWrapper>
+        <SystemMaintenanceMonitor />
+      </TestWrapper>
+    );
+
+    // Should show skeleton loading states instead of just "載入中..."
+    expect(screen.getByTestId('extension-status-skeleton')).toBeInTheDocument();
+    expect(screen.getByTestId('maintenance-history-skeleton')).toBeInTheDocument();
+  });
+
+  test('should show error state with retry button', async () => {
+    // RED: This test should fail initially
+    mockedAxios.get.mockRejectedValue(new Error('Network Error'));
+    
+    render(
+      <TestWrapper>
+        <SystemMaintenanceMonitor />
+      </TestWrapper>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/載入失敗/)).toBeInTheDocument();
+      expect(screen.getByText(/重新載入/)).toBeInTheDocument();
+    });
+
+    // Should be able to retry loading
+    const retryButton = screen.getByText(/重新載入/);
+    fireEvent.click(retryButton);
+    
+    expect(mockedAxios.get).toHaveBeenCalledTimes(4); // Initial 3 calls + 1 retry
+  });
+
+  test('should highlight critical status with warning colors', async () => {
+    // RED: This test should fail initially
+    const mockCriticalStatus = {
+      min_extended_year: 2025,
+      max_extended_year: 2026, // Only 1 year ahead - critical!
+      total_events: 15,
+      events_need_extension: 12, // Most events need extension - critical!
+      target_extension_year: 2030
+    };
+
+    mockedAxios.get.mockResolvedValueOnce({ data: mockCriticalStatus });
+    mockedAxios.get.mockResolvedValueOnce({ data: [] });
+    mockedAxios.get.mockResolvedValueOnce({ data: [] });
+    
+    render(
+      <TestWrapper>
+        <SystemMaintenanceMonitor />
+      </TestWrapper>
+    );
+
+    await waitFor(() => {
+      // Should highlight critical values with warning colors
+      expect(screen.getByTestId('extension-year-warning')).toBeInTheDocument();
+      expect(screen.getByTestId('events-need-extension-warning')).toBeInTheDocument();
+    });
+  });
+});
 
 describe('SystemMaintenanceMonitor - Extension Status Display', () => {
   
