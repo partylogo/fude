@@ -84,12 +84,32 @@ struct NotificationSettingsView: View {
                             set: { _ in viewModel.toggleAllNotifications() }
                         ))
                         .toggleStyle(CustomToggleStyle())
-                        .disabled(!viewModel.canEnableNotifications && !viewModel.notificationSettings.enableAll)
                     }
                 )
                 
                 // 如果權限被拒絕，顯示提示
-                if !viewModel.canEnableNotifications {
+                if !viewModel.canEnableNotifications && !viewModel.notificationSettings.enableAll {
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Divider()
+                        
+                        HStack {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundColor(.blue)
+                                .font(.caption)
+                            
+                            Text("點擊開關將重新請求通知權限")
+                                .font(.caption)
+                                .foregroundColor(.textSecondary)
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, Spacing.screenPadding)
+                        .padding(.vertical, Spacing.xs)
+                    }
+                }
+                
+                // 如果權限被拒絕且用戶嘗試開啟，顯示設定指引
+                if !viewModel.canEnableNotifications && viewModel.notificationSettings.enableAll {
                     VStack(alignment: .leading, spacing: Spacing.xs) {
                         Divider()
                         
@@ -98,7 +118,7 @@ struct NotificationSettingsView: View {
                                 .foregroundColor(.orange)
                                 .font(.caption)
                             
-                            Text("需要到「設定 > 通知」中開啟通知權限")
+                            Text("需要到「設定 > 通知 > fude」中手動開啟權限")
                                 .font(.caption)
                                 .foregroundColor(.textSecondary)
                             

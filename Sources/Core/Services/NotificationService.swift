@@ -103,6 +103,33 @@ final class NotificationService: NSObject, ObservableObject {
         }
     }
     
+    /// 強制請求權限 - 用於用戶在 App 內主動開啟通知時
+    func requestAuthorizationForced() async -> Bool {
+        print("🔔 NotificationService.requestAuthorizationForced called")
+        print("🔔 Current authorization status: \(authorizationStatus)")
+        
+        // 對於 denied 狀態，iOS 不會再顯示對話框，需要引導用戶到設定
+        if authorizationStatus == .denied {
+            print("🔔 Permission denied, cannot show dialog again. User must go to Settings.")
+            return false
+        }
+        
+        // 對於 notDetermined，直接請求
+        if authorizationStatus == .notDetermined {
+            await requestAuthorizationIfNeeded()
+            return authorizationStatus == .authorized
+        }
+        
+        // 已經授權
+        if authorizationStatus == .authorized {
+            print("🔔 Permission already authorized")
+            return true
+        }
+        
+        print("🔔 Permission in other state: \(authorizationStatus)")
+        return false
+    }
+    
     /// 檢查當前權限狀態
     func checkAuthorizationStatus() async {
         let settings = await notificationCenter.getNotificationSettings()

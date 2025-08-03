@@ -72,7 +72,12 @@ class SettingsViewModel: ObservableObject {
         
         // 監聽通知服務權限狀態變化
         notificationService.$authorizationStatus
-            .sink { [weak self] _ in
+            .sink { [weak self] status in
+                // 當權限被拒絕時，自動關閉通知功能
+                if status == .denied {
+                    print("🔔 Permission denied, disabling notifications")
+                    self?.notificationSettings.enableAll = false
+                }
                 // 當權限狀態變化時，觸發 UI 更新
                 self?.objectWillChange.send()
             }
@@ -118,17 +123,27 @@ class SettingsViewModel: ObservableObject {
         let newValue = !notificationSettings.enableAll
         print("🔔 toggleAllNotifications called: \(notificationSettings.enableAll) → \(newValue)")
         
-        // 如果用戶要開啟通知，先檢查系統權限
+        // 如果用戶要開啟通知，嘗試請求權限
         if newValue {
-            guard canEnableNotifications else {
-                print("🔔 Cannot enable notifications: system permission denied")
-                // 可以在這裡顯示提示用戶到設定中開啟權限
-                return
+            print("🔔 User wants to enable notifications, requesting permission...")
+            Task {
+                let granted = await notificationService.requestAuthorizationForced()
+                
+                await MainActor.run {
+                    if granted {
+                        print("🔔 Permission granted, enabling notifications")
+                        notificationSettings.enableAll = true
+                    } else {
+                        print("🔔 Permission denied or needs system settings, keeping notifications disabled")
+                        notificationSettings.enableAll = false
+                    }
+                }
             }
-            print("🔔 Enabling notifications with system permission granted")
+        } else {
+            // 用戶要關閉通知
+            print("🔔 User disabling notifications")
+            notificationSettings.enableAll = false
         }
-        
-        notificationSettings.enableAll = newValue
     }
     
     /// 更新提前通知天數
