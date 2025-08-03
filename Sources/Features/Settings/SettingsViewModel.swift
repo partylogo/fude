@@ -30,6 +30,9 @@ class SettingsViewModel: ObservableObject {
     /// 載入狀態
     @Published var isLoading = false
     
+    /// 顯示權限設定提示 Alert
+    @Published var showPermissionAlert = false
+    
     /// 通知服務
     private let notificationService = NotificationService.shared
     private var cancellables = Set<AnyCancellable>()
@@ -125,7 +128,16 @@ class SettingsViewModel: ObservableObject {
         
         // 如果用戶要開啟通知，嘗試請求權限
         if newValue {
-            print("🔔 User wants to enable notifications, requesting permission...")
+            print("🔔 User wants to enable notifications, checking permission...")
+            
+            // 如果權限已經被拒絕，直接顯示 Alert
+            if notificationService.authorizationStatus == .denied {
+                print("🔔 Permission denied, showing alert")
+                showPermissionAlert = true
+                return
+            }
+            
+            // 嘗試請求權限
             Task {
                 let granted = await notificationService.requestAuthorizationForced()
                 
@@ -134,7 +146,8 @@ class SettingsViewModel: ObservableObject {
                         print("🔔 Permission granted, enabling notifications")
                         notificationSettings.enableAll = true
                     } else {
-                        print("🔔 Permission denied or needs system settings, keeping notifications disabled")
+                        print("🔔 Permission denied, showing alert")
+                        showPermissionAlert = true
                         notificationSettings.enableAll = false
                     }
                 }
