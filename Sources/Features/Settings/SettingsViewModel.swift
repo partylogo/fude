@@ -97,7 +97,16 @@ class SettingsViewModel: ObservableObject {
     
     /// 切換總通知開關
     func toggleAllNotifications() {
-        notificationSettings.enableAll.toggle()
+        let newValue = !notificationSettings.enableAll
+        
+        // 如果用戶要開啟通知，先請求權限
+        if newValue {
+            Task {
+                await NotificationService.shared.requestAuthorizationIfNeeded()
+            }
+        }
+        
+        notificationSettings.enableAll = newValue
     }
     
     /// 更新提前通知天數

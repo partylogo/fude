@@ -2121,6 +2121,21 @@ async function getCacheHitRate() {
   - [x] 修改 `SettingsViewModel`：
     - 讀取 `/api/groups`、`/api/groups/:id/items`
     - 解析並更新 `selectedDeities`、`selectedFestivals`
+  - [x] **iOS 通知權限系統實作** - TDD 開發流程：
+    - [x] 建立 `NotificationService.swift` 通知服務類別 ✅
+      - 權限狀態管理 (`@Published authorizationStatus`)
+      - `requestAuthorizationIfNeeded()` 智能權限請求
+      - `UNUserNotificationCenterDelegate` 實作
+      - Protocol-based 依賴注入設計支援測試
+    - [x] 整合到 `SettingsViewModel.toggleAllNotifications()` ✅
+      - 使用者開啟通知時觸發權限請求
+      - 異步權限請求處理
+    - [x] 單元測試 (`NotificationServiceTests.swift`) ✅
+      - 權限請求邏輯測試 (6個測試案例)
+      - 狀態變更通知測試
+      - Mock UNUserNotificationCenter 測試
+      - Protocol-based mocking 架構
+    - [x] 整合測試：設定頁面 → 開啟通知 → 系統權限對話框出現 ✅
   - [ ] 建立 **NetworkMock** 供單元測試注入
   - [ ] 撰寫單元測試 (XCTest)
     - `APIServiceTests`：驗證成功 / 失敗情境
