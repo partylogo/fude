@@ -12,7 +12,7 @@ import SwiftUI
 struct GroupDetailView: View {
     
     let group: Group
-    @StateObject private var viewModel = SettingsViewModel()
+    @EnvironmentObject var viewModel: SettingsViewModel
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {

@@ -11,7 +11,7 @@ import SwiftUI
 /// 神明選擇頁面
 struct DeitySelectionView: View {
     
-    @StateObject private var viewModel = SettingsViewModel()
+    @EnvironmentObject var viewModel: SettingsViewModel
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {

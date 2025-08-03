@@ -2156,6 +2156,25 @@ async function getCacheHitRate() {
       - 設定變更持久化測試
       - 錯誤處理和數據完整性測試
     - [x] 整合測試：App 重啟後設定保持不變 ✅
+  - [x] **iOS 設定頁面狀態同步問題修復** - 共享 ViewModel 方案：
+    - [ ] 問題分析：每個頁面獨立創建 `@StateObject SettingsViewModel()`，導致狀態不同步 ❌
+      - 自定提醒選擇完成後，外層頁面不會更新顯示數量
+      - 神明/節慶選擇頁面與主設定頁面數據隔離
+      - 導航返回後 UI 與實際數據狀態不一致
+    - [ ] 實作共享 ViewModel 架構（方案 A）：
+      - 主設定頁面：保持 `@StateObject private var viewModel = SettingsViewModel()`
+      - 子頁面改為：`@EnvironmentObject var viewModel: SettingsViewModel`
+      - 導航傳遞：使用 `.environmentObject(viewModel)` 共享實例
+      - 移除子頁面中的獨立 ViewModel 創建
+    - [ ] 修改受影響的頁面：
+      - `DeitySelectionView.swift`: 改用 @EnvironmentObject
+      - `FestivalSelectionView.swift`: 改用 @EnvironmentObject  
+      - `GroupDetailView.swift`: 改用 @EnvironmentObject
+      - `NotificationSettingsView.swift`: 更新導航傳遞方式
+    - [ ] 統一狀態更新通知機制：
+      - 檢查所有設定修改方法的 `objectWillChange.send()` 調用
+      - 確保 UI 更新的一致性和即時性
+    - [ ] 整合測試：選擇頁面修改 → 返回主頁面 → 數量正確更新
   - [ ] 建立 **NetworkMock** 供單元測試注入
   - [ ] 撰寫單元測試 (XCTest)
     - `APIServiceTests`：驗證成功 / 失敗情境
