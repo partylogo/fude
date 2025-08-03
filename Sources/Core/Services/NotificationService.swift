@@ -20,6 +20,11 @@ final class NotificationService: NSObject, ObservableObject {
     /// 當前通知權限狀態
     @Published var authorizationStatus: UNAuthorizationStatus = .notDetermined
     
+    /// 是否可以啟用通知功能（權限已授權）
+    var canEnableNotifications: Bool {
+        return authorizationStatus == .authorized
+    }
+    
     // MARK: - Private Properties
     
     private let notificationCenter: any UNUserNotificationCenterProtocol
@@ -55,16 +60,34 @@ final class NotificationService: NSObject, ObservableObject {
         // 初始化時檢查權限狀態
         Task {
             await checkAuthorizationStatus()
+            // App 首次啟動時主動請求權限
+            await requestAuthorizationOnFirstLaunch()
         }
+    }
+    
+    /// App 首次啟動時主動請求權限
+    private func requestAuthorizationOnFirstLaunch() async {
+        // 只在 notDetermined 狀態下主動請求權限
+        guard authorizationStatus == .notDetermined else { return }
+        
+        print("🔔 First launch: requesting notification permission proactively")
+        await requestAuthorizationIfNeeded()
     }
     
     // MARK: - Public Methods
     
     /// 智能權限請求 - 只在需要時請求
     func requestAuthorizationIfNeeded() async {
-        // 只在 notDetermined 狀態下請求權限
-        guard authorizationStatus == .notDetermined else { return }
+        print("🔔 NotificationService.requestAuthorizationIfNeeded called")
+        print("🔔 Current authorization status: \(authorizationStatus)")
         
+        // 只在 notDetermined 狀態下請求權限
+        guard authorizationStatus == .notDetermined else { 
+            print("🔔 Permission already determined, skipping request")
+            return 
+        }
+        
+        print("🔔 Requesting authorization...")
         do {
             let granted = try await notificationCenter.requestAuthorization(
                 options: [UNAuthorizationOptions.alert, .sound, .badge]
@@ -73,9 +96,10 @@ final class NotificationService: NSObject, ObservableObject {
             // 權限請求完成後更新狀態
             await checkAuthorizationStatus()
             
-            print("通知權限請求結果：\(granted ? "已授權" : "被拒絕")")
+            print("🔔 通知權限請求結果：\(granted ? "已授權" : "被拒絕")")
+            print("🔔 Updated authorization status: \(authorizationStatus)")
         } catch {
-            print("權限請求錯誤：\(error)")
+            print("🔔 權限請求錯誤：\(error)")
         }
     }
     

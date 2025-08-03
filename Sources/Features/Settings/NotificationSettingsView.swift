@@ -75,13 +75,40 @@ struct NotificationSettingsView: View {
     /// 總開關區塊
     private var masterToggleSection: some View {
         SettingsCard {
-            SettingsRow(
-                title: "啟用通知功能",
-                trailing: {
-                    Toggle("", isOn: $viewModel.notificationSettings.enableAll)
+            VStack(spacing: 0) {
+                SettingsRow(
+                    title: "啟用通知功能",
+                    trailing: {
+                        Toggle("", isOn: Binding(
+                            get: { viewModel.notificationSettings.enableAll },
+                            set: { _ in viewModel.toggleAllNotifications() }
+                        ))
                         .toggleStyle(CustomToggleStyle())
+                        .disabled(!viewModel.canEnableNotifications && !viewModel.notificationSettings.enableAll)
+                    }
+                )
+                
+                // 如果權限被拒絕，顯示提示
+                if !viewModel.canEnableNotifications {
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Divider()
+                        
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                                .font(.caption)
+                            
+                            Text("需要到「設定 > 通知」中開啟通知權限")
+                                .font(.caption)
+                                .foregroundColor(.textSecondary)
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, Spacing.screenPadding)
+                        .padding(.vertical, Spacing.xs)
+                    }
                 }
-            )
+            }
         }
     }
     

@@ -30,6 +30,10 @@ class SettingsViewModel: ObservableObject {
     /// 載入狀態
     @Published var isLoading = false
     
+    /// 通知服務
+    private let notificationService = NotificationService.shared
+    private var cancellables = Set<AnyCancellable>()
+    
     // MARK: - Computed Properties
     
     /// 已選擇的神明
@@ -54,12 +58,26 @@ class SettingsViewModel: ObservableObject {
         }.count
     }
     
+    /// 是否可以啟用通知功能（基於系統權限）
+    var canEnableNotifications: Bool {
+        return notificationService.canEnableNotifications
+    }
+    
     private let api: APIService
     // MARK: - Initialization
     
     init(api: APIService = .shared) {
         self.api = api
         self.notificationSettings = NotificationSettings.mockSettings
+        
+        // 監聽通知服務權限狀態變化
+        notificationService.$authorizationStatus
+            .sink { [weak self] _ in
+                // 當權限狀態變化時，觸發 UI 更新
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+        
         Task {
             await loadData()
         }
@@ -98,12 +116,16 @@ class SettingsViewModel: ObservableObject {
     /// 切換總通知開關
     func toggleAllNotifications() {
         let newValue = !notificationSettings.enableAll
+        print("🔔 toggleAllNotifications called: \(notificationSettings.enableAll) → \(newValue)")
         
-        // 如果用戶要開啟通知，先請求權限
+        // 如果用戶要開啟通知，先檢查系統權限
         if newValue {
-            Task {
-                await NotificationService.shared.requestAuthorizationIfNeeded()
+            guard canEnableNotifications else {
+                print("🔔 Cannot enable notifications: system permission denied")
+                // 可以在這裡顯示提示用戶到設定中開啟權限
+                return
             }
+            print("🔔 Enabling notifications with system permission granted")
         }
         
         notificationSettings.enableAll = newValue
