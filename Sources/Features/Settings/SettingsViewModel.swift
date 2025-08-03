@@ -76,13 +76,7 @@ class SettingsViewModel: ObservableObject {
         // 監聽通知服務權限狀態變化
         notificationService.$authorizationStatus
             .sink { [weak self] status in
-                // 當權限被拒絕時，自動關閉通知功能
-                if status == .denied {
-                    print("🔔 Permission denied, disabling notifications")
-                    self?.notificationSettings.enableAll = false
-                }
-                // 當權限狀態變化時，觸發 UI 更新
-                self?.objectWillChange.send()
+                self?.handlePermissionStatusChange(status)
             }
             .store(in: &cancellables)
         
@@ -272,5 +266,55 @@ extension SettingsViewModel {
     var isSubscribedToTeacherRecommendations: Bool {
         guard let group = teacherRecommendations else { return false }
         return notificationSettings.selectedGroupIds.contains(group.id)
+    }
+    
+    // MARK: - Permission Management
+    
+    /// 刷新通知權限狀態
+    func refreshNotificationStatus() async {
+        print("🔔 Refreshing notification permission status...")
+        await notificationService.checkAuthorizationStatus()
+        
+        // 如果系統權限被拒絕，強制關閉 App 內的開關
+        if !notificationService.canEnableNotifications {
+            print("🔔 System permission denied, disabling app notification toggle")
+            notificationSettings.enableAll = false
+        }
+        
+        print("🔔 Permission status refreshed: \(notificationService.authorizationStatus)")
+    }
+    
+    /// 處理權限狀態變化
+    private func handlePermissionStatusChange(_ status: UNAuthorizationStatus) {
+        print("🔔 Permission status changed to: \(status)")
+        
+        switch status {
+        case .denied:
+            // 權限被拒絕時，強制關閉 App 內的通知開關
+            print("🔔 Permission denied, disabling app notifications")
+            notificationSettings.enableAll = false
+            
+        case .authorized:
+            // 權限被授予時，不自動開啟開關，讓用戶自己決定
+            print("🔔 Permission authorized, keeping current app setting")
+            
+        case .notDetermined:
+            // 權限未決定時，保持當前設定
+            print("🔔 Permission not determined, keeping current app setting")
+            
+        case .provisional:
+            // 臨時權限，類似於 authorized
+            print("🔔 Permission provisional, keeping current app setting")
+            
+        case .ephemeral:
+            // 短暫權限，類似於 authorized
+            print("🔔 Permission ephemeral, keeping current app setting")
+            
+        @unknown default:
+            print("🔔 Unknown permission status: \(status)")
+        }
+        
+        // 觸發 UI 更新
+        objectWillChange.send()
     }
 }

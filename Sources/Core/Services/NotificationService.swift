@@ -132,8 +132,16 @@ final class NotificationService: NSObject, ObservableObject {
     
     /// 檢查當前權限狀態
     func checkAuthorizationStatus() async {
+        print("🔔 Checking notification authorization status...")
         let settings = await notificationCenter.getNotificationSettings()
+        let oldStatus = authorizationStatus
         authorizationStatus = settings.authorizationStatus
+        
+        if oldStatus != authorizationStatus {
+            print("🔔 Authorization status changed: \(oldStatus) → \(authorizationStatus)")
+        } else {
+            print("🔔 Authorization status unchanged: \(authorizationStatus)")
+        }
     }
 }
 

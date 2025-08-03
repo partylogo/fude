@@ -47,6 +47,12 @@ struct NotificationSettingsView: View {
             }
             .background(Color.backgroundColor)
         }
+        .onAppear {
+            // 頁面出現時檢查通知權限狀態
+            Task {
+                await viewModel.refreshNotificationStatus()
+            }
+        }
         .sheet(isPresented: $showingTimePicker) {
             timePickerSheet
         }
