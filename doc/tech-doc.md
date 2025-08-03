@@ -2136,6 +2136,25 @@ async function getCacheHitRate() {
       - Mock UNUserNotificationCenter 測試
       - Protocol-based mocking 架構
     - [x] 整合測試：設定頁面 → 開啟通知 → 系統權限對話框出現 ✅
+  - [x] **iOS 通知設定本地存儲系統** - TDD 開發流程：
+    - [ ] 分析現有問題：`NotificationSettings.mockSettings` 無持久化，App 重啟設定丟失 ❌
+    - [ ] 設計 Version 1.1 本地存儲方案：
+      - 使用 `UserDefaults` 存儲通知設定（無需用戶登入）
+      - 保持現有 `NotificationSettings` 模型結構
+      - 設計遷移接口，為 Version 2.0 用戶系統做準備
+    - [ ] 實作 `NotificationSettingsManager.swift` 本地存儲服務：
+      - `saveSettings(_:)` 保存設定到 UserDefaults
+      - `loadSettings()` 從 UserDefaults 加載設定，fallback 到默認值
+      - `migrateToUserSystem()` 預留 Version 2.0 遷移接口
+    - [ ] 修改 `SettingsViewModel` 整合本地存儲：
+      - 初始化時從 `NotificationSettingsManager` 加載設定
+      - 所有設定變更時自動保存到本地存儲
+      - 移除對 `mockSettings` 的依賴
+    - [ ] 單元測試 (`NotificationSettingsManagerTests.swift`)：
+      - 保存/加載設定功能測試
+      - 默認值 fallback 測試
+      - 設定變更持久化測試
+    - [ ] 整合測試：App 重啟後設定保持不變
   - [ ] 建立 **NetworkMock** 供單元測試注入
   - [ ] 撰寫單元測試 (XCTest)
     - `APIServiceTests`：驗證成功 / 失敗情境

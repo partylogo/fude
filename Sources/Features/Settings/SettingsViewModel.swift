@@ -35,6 +35,10 @@ class SettingsViewModel: ObservableObject {
     
     /// 通知服務
     private let notificationService = NotificationService.shared
+    
+    /// 通知設定管理器
+    private let settingsManager = NotificationSettingsManager.shared
+    
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
@@ -71,7 +75,9 @@ class SettingsViewModel: ObservableObject {
     
     init(api: APIService = .shared) {
         self.api = api
-        self.notificationSettings = NotificationSettings.mockSettings
+        
+        // 從本地存儲加載通知設定
+        self.notificationSettings = settingsManager.loadSettings()
         
         // 監聽通知服務權限狀態變化
         notificationService.$authorizationStatus
@@ -139,10 +145,12 @@ class SettingsViewModel: ObservableObject {
                     if granted {
                         print("🔔 Permission granted, enabling notifications")
                         notificationSettings.enableAll = true
+                        saveSettings()
                     } else {
                         print("🔔 Permission denied, showing alert")
                         showPermissionAlert = true
                         notificationSettings.enableAll = false
+                        saveSettings()
                     }
                 }
             }
@@ -150,12 +158,14 @@ class SettingsViewModel: ObservableObject {
             // 用戶要關閉通知
             print("🔔 User disabling notifications")
             notificationSettings.enableAll = false
+            saveSettings()
         }
     }
     
     /// 更新提前通知天數
     func updateAdvanceDays(_ days: Int) {
         notificationSettings.advanceDays = days
+        saveSettings()
     }
     
     /// 更新通知時間
@@ -163,16 +173,19 @@ class SettingsViewModel: ObservableObject {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         notificationSettings.notifyTime = formatter.string(from: time)
+        saveSettings()
     }
     
     /// 切換新月提醒（初一）
     func toggleNewMoonEnabled() {
         notificationSettings.newmoonEnabled.toggle()
+        saveSettings()
     }
     
     /// 切換滿月提醒（十五）
     func toggleFullMoonEnabled() {
         notificationSettings.fullmoonEnabled.toggle()
+        saveSettings()
     }
     
     /// 切換初二十六提醒
@@ -185,6 +198,7 @@ class SettingsViewModel: ObservableObject {
     /// 切換自定提醒
     func toggleCustomEnabled() {
         notificationSettings.customEnabled.toggle()
+        saveSettings()
     }
     
     /// 切換群組訂閱
@@ -194,6 +208,7 @@ class SettingsViewModel: ObservableObject {
         } else {
             notificationSettings.selectedGroupIds.append(groupId)
         }
+        saveSettings()
     }
     
     // MARK: - Event Selection
@@ -206,6 +221,7 @@ class SettingsViewModel: ObservableObject {
         } else {
             notificationSettings.selectedEventIds.append(event.id)
         }
+        saveSettings()
     }
     
     /// 檢查事件是否已選擇
@@ -268,6 +284,13 @@ extension SettingsViewModel {
         return notificationSettings.selectedGroupIds.contains(group.id)
     }
     
+    // MARK: - Settings Persistence
+    
+    /// 保存通知設定到本地存儲
+    private func saveSettings() {
+        settingsManager.saveSettings(notificationSettings)
+    }
+    
     // MARK: - Permission Management
     
     /// 刷新通知權限狀態
@@ -293,6 +316,7 @@ extension SettingsViewModel {
             // 權限被拒絕時，強制關閉 App 內的通知開關
             print("🔔 Permission denied, disabling app notifications")
             notificationSettings.enableAll = false
+            saveSettings()
             
         case .authorized:
             // 權限被授予時，不自動開啟開關，讓用戶自己決定
