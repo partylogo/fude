@@ -43,7 +43,7 @@ class EventViewModel: ObservableObject {
                 let events = try await api.fetchEvents()
 
                 await MainActor.run {
-                    self.upcomingEvents = events.filter { $0.countdownDays <= 10 }.sorted { $0.countdownDays < $1.countdownDays }
+                    self.upcomingEvents = events.filter { $0.countdownDays >= 0 && $0.countdownDays <= 10 }.sorted { $0.countdownDays < $1.countdownDays }
                     self.isLoading = false
                 }
             } catch {
