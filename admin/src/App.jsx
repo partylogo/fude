@@ -37,11 +37,13 @@ const App = () => {
         create={GroupCreate}
         show={ShowGuesser} 
       />
-      <Resource 
-        name="system" 
-        list={SystemDashboard}
-        options={{ label: '系統維護' }}
-      />
+      {import.meta.env.VITE_ENABLE_SYSTEM_MONITOR === 'true' && (
+        <Resource 
+          name="system" 
+          list={SystemDashboard}
+          options={{ label: '系統維護' }}
+        />
+      )}
     </Admin>
   );
 };

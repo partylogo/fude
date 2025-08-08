@@ -72,12 +72,8 @@ class EventRepository {
         if (error) throw error;
         return (data || []).map(normalizeDbEvent);
       } catch (err) {
-        if (isSchemaMissing(err)) {
-          // Disable supabase for this instance and fallback to in-memory
-          this.supabase = null;
-        } else {
-          throw err;
-        }
+        // 任何 supabase 錯誤一律回退，避免 500 阻斷 Admin
+        this.supabase = null;
       }
     }
     return [...this.events];
@@ -99,11 +95,7 @@ class EventRepository {
         if (error) throw error;
         return (data || []).map(normalizeDbEvent);
       } catch (err) {
-        if (isSchemaMissing(err)) {
-          this.supabase = null;
-        } else {
-          throw err;
-        }
+        this.supabase = null;
       }
     }
     return this.events.filter(event => {
@@ -141,11 +133,7 @@ class EventRepository {
         if (error) throw error;
         return (data || []).map(normalizeDbEvent);
       } catch (err) {
-        if (isSchemaMissing(err)) {
-          this.supabase = null;
-        } else {
-          throw err;
-        }
+        this.supabase = null;
       }
     }
     return this.events.filter(event => event.type === type);
@@ -167,11 +155,7 @@ class EventRepository {
         if (error && error.code !== 'PGRST116') throw error; // not found
         return data ? normalizeDbEvent(data) : null;
       } catch (err) {
-        if (isSchemaMissing(err)) {
-          this.supabase = null;
-        } else {
-          throw err;
-        }
+        this.supabase = null;
       }
     }
     const event = this.events.find(e => e.id === id);

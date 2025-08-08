@@ -112,7 +112,10 @@ export default function SmartEventForm(props) {
 
   // Handle type change to show/hide dynamic fields
   const handleTypeChange = (event) => {
-    setEventType(event.target.value);
+    const next = event.target.value;
+    setEventType(next);
+    // 清空不屬於該型別的欄位，避免殘留
+    const form = props?.formRef?.current || undefined;
   };
 
   return (
