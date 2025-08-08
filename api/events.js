@@ -1,6 +1,7 @@
 // Events API Handler
 const EventRepository = require('../database/eventRepository');
 const EventsService = require('../services/eventsService');
+const LunarCalendarService = require('../services/lunarCalendarService');
 
 // 驗證事件資料
 const validateEventData = (data, isUpdate = false) => {
@@ -37,6 +38,13 @@ const validateEventData = (data, isUpdate = false) => {
     if (isNaN(day) || day < 1 || day > 30) {
       errors.push('lunar_day must be between 1 and 30');
     }
+  }
+
+  // 必須提供 solar_date 或者 (lunar_month + lunar_day)
+  const hasSolar = data.solar_date !== undefined && data.solar_date !== null && String(data.solar_date).trim() !== '';
+  const hasLunar = data.lunar_month !== undefined && data.lunar_day !== undefined;
+  if (!hasSolar && !hasLunar) {
+    errors.push('Either solar_date (YYYY-MM-DD) or lunar_month + lunar_day is required');
   }
 
   return errors;
@@ -103,6 +111,19 @@ const createEvent = async (req, res) => {
       return res.status(400).json({
         error: 'Validation failed: ' + errors.join(', ')
       });
+    }
+
+    // 若未提供 solar_date，但有 lunar_month/day，嘗試轉為國曆
+    if (!req.body.solar_date && req.body.lunar_month && req.body.lunar_day) {
+      const converted = LunarCalendarService.convertToSolar({
+        month: Number(req.body.lunar_month),
+        day: Number(req.body.lunar_day),
+        isLeap: Boolean(req.body.is_leap_month)
+      });
+      if (Array.isArray(converted) && converted.length > 0) {
+        // 先取第一個日期即可（DB 層會存陣列）
+        req.body.solar_date = converted[0];
+      }
     }
 
     // 建立事件

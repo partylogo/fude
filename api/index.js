@@ -45,6 +45,15 @@ app.delete('/api/groups/:id/items/:eventId', removeGroupItem);
 
 app.post('/api/lunar', lunarHandler);
 
+// Debug echo for create payloads
+app.post('/api/debug/echo', (req, res) => {
+  res.json({
+    method: req.method,
+    url: req.url,
+    body: req.body
+  });
+});
+
 if (systemRouter) {
   app.use('/api/system', systemRouter);
   app.use('/api', systemRouter);
