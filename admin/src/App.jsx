@@ -2,7 +2,7 @@
 // Following Kent Beck's TDD principles (Red → Green → Refactor)
 
 import React, { useEffect } from 'react';
-import { Admin, Resource, ListGuesser, EditGuesser } from 'react-admin';
+import { Admin, Resource, ListGuesser, EditGuesser, ShowGuesser } from 'react-admin';
 import dataProvider from './dataProvider';
 import EventList from './components/EventList';
 import EventEdit from './components/EventEdit';
