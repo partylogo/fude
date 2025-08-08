@@ -86,9 +86,12 @@ const eventsHandler = async (req, res) => {
       events = await repository.findAll();
     }
 
-    res.status(200).json({
-      events: events
-    });
+    // 對外相容：solar_date 統一字串
+    const normalized = (events || []).map(e => ({
+      ...e,
+      solar_date: Array.isArray(e.solar_date) ? (e.solar_date[0] || null) : (e.solar_date ?? null)
+    }));
+    res.status(200).json({ events: normalized });
   } catch (error) {
     console.error('[eventsHandler] error:', error);
     res.status(500).json({ error: 'Internal server error', code: 'E_EVENTS_LIST' });
@@ -108,7 +111,9 @@ const getEvent = async (req, res) => {
       });
     }
 
-    res.status(200).json(event);
+    const out = { ...event };
+    if (Array.isArray(out.solar_date)) out.solar_date = out.solar_date[0] || null;
+    res.status(200).json(out);
   } catch (error) {
     console.error('[getEvent] error:', error);
     res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_GET' });

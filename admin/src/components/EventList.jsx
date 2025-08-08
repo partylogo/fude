@@ -35,7 +35,7 @@ const EventList = () => {
           const first = Array.isArray(record.solar_date)
             ? (record.solar_date[0] || '')
             : (record.solar_date || '');
-          if (first) {
+          if (typeof first === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(first)) {
             try { return new Date(first).toLocaleDateString('zh-TW'); } catch (_e) {}
           }
           if (record.solar_month && record.solar_day) {

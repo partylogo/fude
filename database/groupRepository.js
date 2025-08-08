@@ -27,7 +27,8 @@ class GroupRepository {
         if (error) throw error;
         return data || [];
       } catch (err) {
-        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+        // 任何 supabase 錯誤一律回退，避免 500 阻斷 Admin
+        this.supabase = null;
       }
     }
     return [...this.groups];
@@ -48,7 +49,7 @@ class GroupRepository {
         if (error) throw error;
         return data || [];
       } catch (err) {
-        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+        this.supabase = null;
       }
     }
     return this.groups.filter(group => group.enabled);
@@ -70,7 +71,7 @@ class GroupRepository {
         if (error && error.code !== 'PGRST116') throw error;
         return data || null;
       } catch (err) {
-        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+        this.supabase = null;
       }
     }
     const group = this.groups.find(g => g.id === id);
@@ -99,7 +100,7 @@ class GroupRepository {
         if (errEvents) throw errEvents;
         return events || [];
       } catch (err) {
-        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+        this.supabase = null;
       }
     }
     const eventIds = this.groupItems[groupId] || [];
@@ -228,7 +229,8 @@ class GroupRepository {
         if (error) return false;
         return true;
       } catch (err) {
-        if (isSchemaMissing(err)) this.supabase = null; else return false;
+        this.supabase = null;
+        return false;
       }
     }
     const group = await this.findById(groupId);
@@ -262,7 +264,8 @@ class GroupRepository {
         if (error) return false;
         return true;
       } catch (err) {
-        if (isSchemaMissing(err)) this.supabase = null; else return false;
+        this.supabase = null;
+        return false;
       }
     }
     if (!this.groupItems[groupId]) return false;

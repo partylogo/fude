@@ -1,14 +1,10 @@
 // Groups Edit 組件
 import React from 'react';
-import {
-  Edit,
-  SimpleForm,
-  TextInput,
-  BooleanInput
-} from 'react-admin';
+import { Edit, SimpleForm, TextInput, BooleanInput, useRecordContext } from 'react-admin';
 import GroupItemsManager from './GroupItemsManager';
 
 const GroupEdit = () => {
+  const record = useRecordContext();
   return (
     <Edit>
       <SimpleForm>
@@ -44,7 +40,7 @@ const GroupEdit = () => {
           <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
             管理此群組包含的事件項目
           </p>
-          <GroupItemsManager groupId={1} />
+          <GroupItemsManager groupId={record?.id} />
         </div>
       </SimpleForm>
     </Edit>

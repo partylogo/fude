@@ -19,7 +19,7 @@ const GroupList = () => {
         <TextField source="name" label="群組名稱" />
         <TextField source="description" label="描述" />
         <BooleanField source="enabled" label="啟用狀態" />
-        <UrlField source="video_url" label="推薦影片" />
+        <UrlField source="video_url" label="推薦影片" emptyText="" />
         <EditButton />
         <ShowButton />
         <DeleteButton />

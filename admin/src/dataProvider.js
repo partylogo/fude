@@ -79,9 +79,12 @@ const dataProvider = {
   getOne: async (resource, params) => {
     try {
       const response = await apiClient.get(`/${resource}/${params.id}`);
-      return {
-        data: response.data
-      };
+      let data = response.data;
+      if (resource === 'events') {
+        const first = Array.isArray(data.solar_date) ? (data.solar_date[0] || null) : data.solar_date;
+        data = { ...data, solar_date: first };
+      }
+      return { data };
     } catch (error) {
       throw new Error(`API Error: ${error.message}`);
     }
