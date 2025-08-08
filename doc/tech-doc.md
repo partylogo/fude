@@ -2328,6 +2328,39 @@ async function getCacheHitRate() {
 
 > **Version 1.1 完成標準**：完成雲端後端 API 整合與**企業級複雜日期規則管理系統**，iOS App 可正常顯示雲端資料、設定通知（但無用戶登入）。支援農曆、國曆、節氣、一次性等所有事件類型的自動日期計算與5年預載。對應UI mockup的頁面1、4、5、6、7完成。**開發流程**：本地測試 → 雲端部署。
 
+### 🔧 Phase 2B – API v1 穩定化與 SSOT 收斂（進行中）
+
+目標：修復雲端 Admin 建/編 400/日期不同步問題，並落實單一真相來源（SSOT）在「規則」，日期為衍生資料。
+
+1) 契約收斂（不破壞相容）
+- 寫入（POST/PUT）：僅接受「規則欄位」，忽略 `solar_date`。
+- 規則四選一（依 type）：
+  - deity: `is_lunar=true` + `lunar_month/lunar_day`（`leap_behavior` 選填）
+  - festival: `solar_month/solar_day`
+  - custom: `one_time_date`
+  - solar_term: `solar_term_name`
+- 讀取：v1 回傳規則欄位 + 相容用 `solar_date`（字串：代表最近/當年）。後續提供 v2 僅規則 + `next_occurrence_date`。
+
+2) 後端修復（本階段目標）
+- 驗證（update 模式）：僅對「出現在 payload 且非空」的欄位做驗證；未帶不驗證、不清空。
+- 日期覆寫規則（PUT/POST 同步）：若帶 `solar_month/solar_day` 或 `lunar_*` 或 `one_time_date`，統一由規則覆寫 `solar_date`（現階段過渡用；中期切至 `event_occurrences`）。
+- normalize 輸出：補齊 `solar_month`, `solar_day`, `is_lunar`, `leap_behavior`, `one_time_date`, `solar_term_name` 欄位，對前端一律穩定可見。
+- 錯誤訊息：`type` 驗證訊息補上 `solar_term`。
+
+3) 前端修復（Admin）
+- 表單：只輸出規則欄位；切換類型時清除不屬於該類型的欄位。
+- dataProvider.update/create：在送出前清洗 payload（移除空字串/null 與非該類型欄位）。
+
+4) 測試補齊
+- PUT 帶空值不應觸發無關驗證；
+- PUT 帶 `solar_month/solar_day` 能覆寫 `solar_date`；
+- 四種類型最小成功案例；
+- GET 穩定輸出上述規則欄位；
+- 舊用戶端相容：`solar_date` 為字串。
+
+5) 中期切換（下一步）
+- 依 `admin-date-rule.md` 導入 `event_occurrences` 與排程；`solar_date` 完全轉為相容層，v2 只回傳規則與下一次發生日期。
+
 ---
 
 ## Version 2.0 (新增用戶系統與活動) - Week 5-6
