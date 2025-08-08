@@ -2304,8 +2304,11 @@ async function getCacheHitRate() {
 - [x] 設定雲端 Vercel 專案與環境變數（`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `TZ`, `EXTEND_YEARS`）
 - [x] 調整 Vercel 設定：單一 Serverless 入口 `api/index.js` 與路由 `/api/(.*)`
 - [x] 調整 Repository：在雲端以 Supabase 為資料來源、無環境時 fallback 至 mock/file-cache
+- [x] Vercel 單專案同網域部署配置：
+  - `vercel.json` 同時 build `admin/` 靜態輸出到 `admin/dist` 並提供 `/api` 路由
+  - 靜態路由規則：SPA fallback 到 `/admin/dist/index.html`
 - [ ] 部署 API 到 Vercel 雲端環境
-- [ ] 部署 React Admin 到雲端環境（支援 `VITE_API_BASE_URL`）
+- [ ] 部署 React Admin 到雲端環境（同專案同網域，免 `VITE_API_BASE_URL`）
 - [ ] 修改 iOS App 連接雲端 API（移除 mock data）
 - [ ] 建立 iOS GroupDetailView（簡少年老師推薦詳細頁）
 - [ ] **部署複雜日期規則系統到雲端**：
