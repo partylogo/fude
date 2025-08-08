@@ -1,7 +1,14 @@
 {
   "version": 2,
   "builds": [
-    { "src": "admin/package.json", "use": "@vercel/static-build", "config": { "distDir": "admin/dist" } },
+    {
+      "src": "admin/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "admin/dist",
+        "buildCommand": "cd admin && (pnpm i --frozen-lockfile || pnpm i) && pnpm build"
+      }
+    },
     { "src": "api/index.js", "use": "@vercel/node@latest" }
   ],
   "routes": [
