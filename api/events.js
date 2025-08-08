@@ -129,18 +129,8 @@ const createEvent = async (req, res) => {
     }
 
     // 只要帶了規則欄位，就以規則覆寫衍生日期（忽略外部傳入的 solar_date）
-    // 1) lunar_month/day → 轉為國曆
-    if (req.body.lunar_month && req.body.lunar_day) {
-      const converted = LunarCalendarService.convertToSolar({
-        month: Number(req.body.lunar_month),
-        day: Number(req.body.lunar_day),
-        isLeap: Boolean(req.body.is_leap_month)
-      });
-      if (Array.isArray(converted) && converted.length > 0) {
-        // 先取第一個日期即可（DB 層會存陣列）
-        req.body.solar_date = converted[0];
-      }
-    }
+    // 1) lunar_month/day → 暫不自動轉換（mock 轉換易造成誤導）；保留為空
+    // 後續以 event_occurrences 產出的實際國曆日期為主
 
     // 2) solar_month/solar_day → 用當前年份組 YYYY-MM-DD
     if (req.body.solar_month && req.body.solar_day) {
@@ -194,16 +184,7 @@ const updateEvent = async (req, res) => {
     }
 
     // 與建立同樣的日期自動化邏輯（若送來的是分解欄位或農曆或一次性日期）
-    if (req.body.lunar_month && req.body.lunar_day) {
-      const converted = LunarCalendarService.convertToSolar({
-        month: Number(req.body.lunar_month),
-        day: Number(req.body.lunar_day),
-        isLeap: Boolean(req.body.is_leap_month)
-      });
-      if (Array.isArray(converted) && converted.length > 0) {
-        req.body.solar_date = converted[0];
-      }
-    }
+    // 1) lunar_month/day → 暫不自動轉換（mock 轉換易造成誤導）；保留為空
 
     if (req.body.solar_month && req.body.solar_day) {
       const now = new Date();

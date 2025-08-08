@@ -41,6 +41,7 @@ const EventList = () => {
           if (record.solar_month && record.solar_day) {
             return `${record.solar_month}/${record.solar_day}`;
           }
+          // 若為神明/農曆事件，避免誤導顯示錯誤國曆日期（暫時留空）
           return '';
         }} />
         <FunctionField label="農曆日期" render={record => {
