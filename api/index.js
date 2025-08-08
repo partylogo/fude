@@ -51,5 +51,11 @@ if (systemRouter) {
 }
 
 // Export serverless handler (ensure Vercel executes Express app)
-module.exports = (req, res) => app(req, res);
+module.exports = (req, res) => {
+  // minimal request logging to help debug 500s
+  if (process.env.NODE_ENV === 'production') {
+    console.log(`[api] ${req.method} ${req.url}`);
+  }
+  return app(req, res);
+};
 

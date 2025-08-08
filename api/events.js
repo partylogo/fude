@@ -67,9 +67,8 @@ const eventsHandler = async (req, res) => {
       events: events
     });
   } catch (error) {
-    res.status(500).json({
-      error: 'Internal server error'
-    });
+    console.error('[eventsHandler] error:', error);
+    res.status(500).json({ error: 'Internal server error', code: 'E_EVENTS_LIST' });
   }
 };
 
@@ -88,9 +87,8 @@ const getEvent = async (req, res) => {
 
     res.status(200).json(event);
   } catch (error) {
-    res.status(500).json({
-      error: 'Internal server error'
-    });
+    console.error('[getEvent] error:', error);
+    res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_GET' });
   }
 };
 
@@ -112,9 +110,8 @@ const createEvent = async (req, res) => {
 
     res.status(201).json(newEvent);
   } catch (error) {
-    res.status(500).json({
-      error: 'Internal server error'
-    });
+    console.error('[createEvent] error:', error);
+    res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_CREATE' });
   }
 };
 
@@ -145,9 +142,8 @@ const updateEvent = async (req, res) => {
 
     res.status(200).json(updatedEvent);
   } catch (error) {
-    res.status(500).json({
-      error: 'Internal server error'
-    });
+    console.error('[updateEvent] error:', error);
+    res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_UPDATE' });
   }
 };
 
@@ -178,9 +174,8 @@ const deleteEvent = async (req, res) => {
       id: parseInt(id)
     });
   } catch (error) {
-    res.status(500).json({
-      error: 'Internal server error'
-    });
+    console.error('[deleteEvent] error:', error);
+    res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_DELETE' });
   }
 };
 
