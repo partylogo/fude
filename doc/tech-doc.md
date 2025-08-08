@@ -2307,8 +2307,8 @@ async function getCacheHitRate() {
 - [x] Vercel 單專案同網域部署配置：
   - `vercel.json` 同時 build `admin/` 靜態輸出到 `admin/dist` 並提供 `/api` 路由
   - 靜態路由規則：SPA fallback 到 `/admin/dist/index.html`
-- [ ] 部署 API 到 Vercel 雲端環境
-- [ ] 部署 React Admin 到雲端環境（同專案同網域，免 `VITE_API_BASE_URL`）
+- [x] 部署 API 到 Vercel 雲端環境
+- [x] 部署 React Admin 到雲端環境（同專案同網域，免 `VITE_API_BASE_URL`）
 - [ ] 修改 iOS App 連接雲端 API（移除 mock data）
 - [ ] 建立 iOS GroupDetailView（簡少年老師推薦詳細頁）
 - [ ] **部署複雜日期規則系統到雲端**：
@@ -2333,62 +2333,63 @@ async function getCacheHitRate() {
 目標：修復雲端 Admin 建/編 400/日期不同步問題，並落實單一真相來源（SSOT）在「規則」，日期為衍生資料。
 
 1) 契約收斂（不破壞相容）
-- 寫入（POST/PUT）：僅接受「規則欄位」，忽略 `solar_date`。
-- 規則四選一（依 type）：
+- [x] 寫入（POST/PUT）：僅接受「規則欄位」，忽略 `solar_date`。
+- [x] 規則四選一（依 type）：
   - deity: `is_lunar=true` + `lunar_month/lunar_day`（`leap_behavior` 選填）
   - festival: `solar_month/solar_day`
   - custom: `one_time_date`
   - solar_term: `solar_term_name`
-- 讀取：v1 回傳規則欄位 + 相容用 `solar_date`（字串：代表最近/當年）。後續提供 v2 僅規則 + `next_occurrence_date`。
+- [x] 讀取：v1 回傳規則欄位 + 相容用 `solar_date`（字串：代表最近/當年）。後續提供 v2 僅規則 + `next_occurrence_date`。
 
 2) 後端修復（已完成 + 新增）
-- 驗證（update 模式）：僅對「出現在 payload 且非空」的欄位做驗證；未帶不驗證、不清空。
-- 日期覆寫規則（PUT/POST 同步）：若帶 `solar_month/solar_day` 或 `lunar_*` 或 `one_time_date`，統一由規則覆寫 `solar_date`（現階段過渡用；中期切至 `event_occurrences`）。
-- normalize 輸出：補齊 `solar_month`, `solar_day`, `is_lunar`, `leap_behavior`, `one_time_date`, `solar_term_name` 欄位，對前端一律穩定可見。
-- 錯誤訊息：`type` 驗證訊息補上 `solar_term`。
-- 回應相容：`POST/PUT` 回傳的 `solar_date` 統一為字串（取第一個）。
-- GET 相容（新增）：`GET /api/events` 與 `GET /api/events/:id` 也統一輸出 `solar_date: string|null`（API 對外不再輸出陣列）。
-- Fallback（新增）：凡 Supabase 查詢錯誤，list/getOne 也退回 in‑memory（避免 500）。
+- [x] 驗證（update 模式）：僅對「出現在 payload 且非空」的欄位做驗證；未帶不驗證、不清空。
+- [x] 日期覆寫規則（PUT/POST 同步）：若帶 `solar_month/solar_day` 或 `lunar_*` 或 `one_time_date`，統一由規則覆寫 `solar_date`（現階段過渡用；中期切至 `event_occurrences`）。
+- [ ] normalize 輸出：補齊 `solar_month`, `solar_day`, `is_lunar`, `leap_behavior`, `one_time_date`, `solar_term_name` 欄位，對前端一律穩定可見。
+- [x] 錯誤訊息：`type` 驗證訊息補上 `solar_term`。
+- [x] 回應相容：`POST/PUT` 回傳的 `solar_date` 統一為字串（取第一個）。
+- [x] GET 相容（新增）：`GET /api/events` 與 `GET /api/events/:id` 也統一輸出 `solar_date: string|null`（API 對外不再輸出陣列）。
+- [x] Fallback（新增）：凡 Supabase 查詢錯誤，list/getOne 也退回 in‑memory（避免 500）。
 
 3) 前端修復（Admin，已完成 + 新增）
-- 表單：只輸出規則欄位；切換類型時清除不屬於該類型的欄位。
-- dataProvider.update/create：在送出前清洗 payload（移除空字串/null 與非該類型欄位），並避免傳 `solar_date`。
-- EventShow（新增）：以自訂 `EventShow` 取代 `ShowGuesser`，依規則安全顯示欄位，避免 `toLocaleDateString` 導致的崩潰。
-- 列表日期守衛（新增）：`YYYY-MM-DD` 正則通過時才格式化國曆。
+- [x] 表單：只輸出規則欄位；切換類型時清除不屬於該類型的欄位。
+- [x] dataProvider.update/create：在送出前清洗 payload（移除空字串/null 與非該類型欄位），並避免傳 `solar_date`。
+- [x] EventShow（新增）：以自訂 `EventShow` 取代 `ShowGuesser`，依規則安全顯示欄位，避免 `toLocaleDateString` 導致的崩潰。
+- [x] 列表日期守衛（新增）：`YYYY-MM-DD` 正則通過時才格式化國曆。
 
 4) 其他前端強化（新增）
-- dataProvider.getOne：在後端統一前，先行做 `solar_date` 陣列→字串兼容處理。
-- GroupList：`video_url` 無值保護；錯誤訊息友善化。
-- EventList：強化 `YYYY-MM-DD` 正則守衛，無效字串不轉換。
+- [x] dataProvider.getOne：在後端統一前，先行做 `solar_date` 陣列→字串兼容處理。
+- [x] GroupList：`video_url` 無值保護；錯誤訊息友善化。
+- [x] EventList：強化 `YYYY-MM-DD` 正則守衛，無效字串不轉換。
+- [x] SystemMaintenanceMonitor：以 `VITE_ENABLE_SYSTEM_MONITOR` 控制入口顯示（短期方案）。
 
 5) 後端讀路徑一致化（新增）
-- EventRepository/GroupRepository 的 findAll/findById 等讀路徑，對 Supabase 任意錯誤一律 fallback 至 in‑memory，避免 500。
+- [x] EventRepository/GroupRepository 的 findAll/findById 等讀路徑，對 Supabase 任意錯誤一律 fallback 至 in‑memory，避免 500。
 
 6) 測試補齊（進行中）
-- PUT 帶空值不應觸發無關驗證；
-- PUT 帶 `solar_month/solar_day` 能覆寫 `solar_date`；
-- 四種類型最小成功案例；
-- GET 穩定輸出上述規則欄位；
-- 舊用戶端相容：`solar_date` 為字串。
+- [ ] PUT 帶空值不應觸發無關驗證；
+- [ ] PUT 帶 `solar_month/solar_day` 能覆寫 `solar_date`；
+- [ ] 四種類型最小成功案例；
+- [ ] GET 穩定輸出上述規則欄位；
+- [ ] 舊用戶端相容：`solar_date` 為字串。
 
 7) 中期切換（下一步）
-- 依 `admin-date-rule.md` 導入 `event_occurrences` 與排程；`solar_date` 完全轉為相容層，v2 只回傳規則與下一次發生日期。
+- [ ] 依 `admin-date-rule.md` 導入 `event_occurrences` 與排程；`solar_date` 完全轉為相容層，v2 只回傳規則與下一次發生日期。
 
 ### 🧩 Phase 2B – Admin Groups 全面檢查與修正計劃（新增）
 
 1) 功能修正
-- `GroupEdit` 傳入 `GroupItemsManager` 的 `groupId` 改為使用當前 record id（移除硬編碼 1）。
-- `GroupList` 的 `video_url` 無值保護；錯誤資訊友善化。
+- [x] `GroupEdit` 傳入 `GroupItemsManager` 的 `groupId` 改為使用當前 record id（移除硬編碼 1）。
+- [x] `GroupList` 的 `video_url` 無值保護；錯誤資訊友善化。
 
 2) 後端一致性
-- `GroupRepository` 對 Supabase 任意錯誤一律 fallback（不僅 schema-missing）。
-- `groups/:id/items` 新增/移除錯誤訊息向前端回傳明確原因。
+- [x] `GroupRepository` 對 Supabase 任意錯誤一律 fallback（不僅 schema-missing）。
+- [ ] `groups/:id/items` 新增/移除錯誤訊息向前端回傳明確原因。
 
 3) UX 優化（可選）
-- `GroupItemsManager` 支援搜尋/過濾可添加事件。
+- [x] `GroupItemsManager` 支援搜尋/過濾可添加事件。
 
 4) 測試
-- 覆蓋：群組 id 傳遞正確、添加/移除事件正確回報、無值 URL 顯示安全。
+- [ ] 覆蓋：群組 id 傳遞正確、添加/移除事件正確回報、無值 URL 顯示安全。
 
 ---
 
