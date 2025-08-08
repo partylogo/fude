@@ -45,7 +45,7 @@ final class NotificationServiceTests: XCTestCase {
     @MainActor
     func testAuthorizationStatusUpdate() async {
         // GIVEN: Mock 返回已授權狀態
-        mockNotificationCenter.mockAuthorizationStatus = .authorized
+        mockNotificationCenter.mockAuthorizationStatus = UNAuthorizationStatus.authorized
         
         // WHEN: 檢查權限狀態
         await notificationService.checkAuthorizationStatus()
@@ -60,7 +60,7 @@ final class NotificationServiceTests: XCTestCase {
     @MainActor
     func testRequestAuthorizationWhenNotDetermined() async {
         // GIVEN: 權限狀態為 notDetermined
-        mockNotificationCenter.mockAuthorizationStatus = .notDetermined
+        mockNotificationCenter.mockAuthorizationStatus = UNAuthorizationStatus.notDetermined
         mockNotificationCenter.shouldGrantAuthorization = true
         
         // WHEN: 請求權限
@@ -68,14 +68,14 @@ final class NotificationServiceTests: XCTestCase {
         
         // THEN: 應該呼叫權限請求
         XCTAssertTrue(mockNotificationCenter.didCallRequestAuthorization)
-        XCTAssertEqual(mockNotificationCenter.requestedOptions, [.alert, .sound, .badge])
+        XCTAssertEqual(mockNotificationCenter.requestedOptions, [UNAuthorizationOptions.alert, UNAuthorizationOptions.sound, UNAuthorizationOptions.badge])
     }
     
     /// 測試當權限已授權時不重複請求
     @MainActor
     func testNoRequestWhenAlreadyAuthorized() async {
         // GIVEN: 權限狀態為已授權
-        mockNotificationCenter.mockAuthorizationStatus = .authorized
+        mockNotificationCenter.mockAuthorizationStatus = UNAuthorizationStatus.authorized
         notificationService.authorizationStatus = .authorized
         
         // WHEN: 請求權限
@@ -89,7 +89,7 @@ final class NotificationServiceTests: XCTestCase {
     @MainActor
     func testNoRequestWhenDenied() async {
         // GIVEN: 權限狀態為被拒絕
-        mockNotificationCenter.mockAuthorizationStatus = .denied
+        mockNotificationCenter.mockAuthorizationStatus = UNAuthorizationStatus.denied
         notificationService.authorizationStatus = .denied
         
         // WHEN: 請求權限
@@ -103,7 +103,7 @@ final class NotificationServiceTests: XCTestCase {
     @MainActor
     func testAuthorizationGrantedUpdatesStatus() async {
         // GIVEN: 權限請求會成功
-        mockNotificationCenter.mockAuthorizationStatus = .notDetermined
+        mockNotificationCenter.mockAuthorizationStatus = UNAuthorizationStatus.notDetermined
         mockNotificationCenter.shouldGrantAuthorization = true
         
         // WHEN: 請求權限
@@ -119,7 +119,7 @@ final class NotificationServiceTests: XCTestCase {
     @MainActor
     func testAuthorizationDeniedUpdatesStatus() async {
         // GIVEN: 權限請求會被拒絕
-        mockNotificationCenter.mockAuthorizationStatus = .notDetermined
+        mockNotificationCenter.mockAuthorizationStatus = UNAuthorizationStatus.notDetermined
         mockNotificationCenter.shouldGrantAuthorization = false
         
         // WHEN: 請求權限
@@ -141,6 +141,12 @@ class MockUNUserNotificationCenter: UNUserNotificationCenterProtocol {
     var didCallRequestAuthorization = false
     var requestedOptions: UNAuthorizationOptions = []
     
+    // 新增的屬性用於 NotificationScheduler 測試
+    var pendingRequests: [UNNotificationRequest] = []
+    var addedRequests: [UNNotificationRequest] = []
+    var removeAllPendingNotificationRequestsCalled = false
+    var addRequestCalled = false
+    
     func getNotificationSettings() async -> NotificationSettingsProtocol {
         return MockNotificationSettings(authorizationStatus: mockAuthorizationStatus)
     }
@@ -157,6 +163,21 @@ class MockUNUserNotificationCenter: UNUserNotificationCenterProtocol {
         }
         
         return shouldGrantAuthorization
+    }
+    
+    func add(_ request: UNNotificationRequest) async throws {
+        addRequestCalled = true
+        addedRequests.append(request)
+        pendingRequests.append(request)
+    }
+    
+    func removeAllPendingNotificationRequests() async {
+        removeAllPendingNotificationRequestsCalled = true
+        pendingRequests.removeAll()
+    }
+    
+    func getPendingNotificationRequests() async -> [UNNotificationRequest] {
+        return pendingRequests
     }
 }
 

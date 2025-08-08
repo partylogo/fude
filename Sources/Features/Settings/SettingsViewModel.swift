@@ -39,6 +39,9 @@ class SettingsViewModel: ObservableObject {
     /// 通知設定管理器
     private let settingsManager = NotificationSettingsManager.shared
     
+    /// 通知排程器
+    private let notificationScheduler = NotificationScheduler()
+    
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
@@ -289,6 +292,36 @@ extension SettingsViewModel {
     /// 保存通知設定到本地存儲
     private func saveSettings() {
         settingsManager.saveSettings(notificationSettings)
+        
+        // 重新排程通知
+        Task {
+            await rescheduleNotifications()
+        }
+    }
+    
+    /// 重新排程通知
+    private func rescheduleNotifications() async {
+        print("📅 Rescheduling notifications due to settings change...")
+        print("📅 Current settings:")
+        print("  - enableAll: \(notificationSettings.enableAll)")
+        print("  - customEnabled: \(notificationSettings.customEnabled)")
+        print("  - selectedEventIds: \(notificationSettings.selectedEventIds)")
+        print("  - advanceDays: \(notificationSettings.advanceDays)")
+        print("  - notifyTime: \(notificationSettings.notifyTime)")
+        
+        // 只有在權限允許的情況下才排程通知
+        guard notificationService.canEnableNotifications else {
+            print("📅 No notification permission, clearing all notifications")
+            await notificationScheduler.clearAllScheduledNotifications()
+            return
+        }
+        
+        // 根據新設定重新排程通知
+        await notificationScheduler.scheduleNotifications(for: notificationSettings)
+        
+        // 調試：顯示當前排程的通知數量
+        let pendingCount = await notificationScheduler.getPendingNotificationCount()
+        print("📅 Currently scheduled notifications: \(pendingCount)")
     }
     
     // MARK: - Permission Management

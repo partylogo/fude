@@ -177,6 +177,9 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
 protocol UNUserNotificationCenterProtocol {
     func getNotificationSettings() async -> NotificationSettingsProtocol
     func requestAuthorization(options: UNAuthorizationOptions) async throws -> Bool
+    func add(_ request: UNNotificationRequest) async throws
+    func removeAllPendingNotificationRequests() async
+    func getPendingNotificationRequests() async -> [UNNotificationRequest]
 }
 
 /// Protocol for notification settings
@@ -205,6 +208,33 @@ extension UNUserNotificationCenter: UNUserNotificationCenterProtocol {
                 } else {
                     continuation.resume(returning: granted)
                 }
+            }
+        }
+    }
+    
+    func add(_ request: UNNotificationRequest) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            add(request) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+        }
+    }
+    
+    func removeAllPendingNotificationRequests() async {
+        return await withCheckedContinuation { continuation in
+            removeAllPendingNotificationRequests()
+            continuation.resume(returning: ())
+        }
+    }
+    
+    func getPendingNotificationRequests() async -> [UNNotificationRequest] {
+        return await withCheckedContinuation { continuation in
+            getPendingNotificationRequests { requests in
+                continuation.resume(returning: requests)
             }
         }
     }

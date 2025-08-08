@@ -27,10 +27,10 @@
    ```
    ‑ 看到 `Server running on port 3000` 代表成功。
 2. **(可選) 啟動後台管理系統**
-   ```bash
+```bash
    cd admin
    pnpm dev
-   ```
+```
    ‑ 瀏覽器開啟 <http://localhost:5173> 可視覺化 CRUD。
 
 > 建議在「iTerm2 / Terminal」開兩個分割窗：左邊跑後端、右邊跑前端。

@@ -43,12 +43,21 @@ final class NotificationSettingsManager: ObservableObject {
     /// 保存通知設定到本地存儲
     func saveSettings(_ settings: NotificationSettings) {
         print("💾 Saving notification settings to UserDefaults...")
+        print("💾 Settings to save: enableAll=\(settings.enableAll), customEnabled=\(settings.customEnabled), selectedEventIds=\(settings.selectedEventIds)")
         
         do {
             let data = try JSONEncoder().encode(settings)
             userDefaults.set(data, forKey: Keys.notificationSettings)
             userDefaults.set(true, forKey: Keys.hasDefaultSettings)
-            print("💾 Settings saved successfully")
+            userDefaults.synchronize() // 強制同步到磁盤
+            print("💾 Settings saved successfully and synchronized")
+            
+            // 驗證保存是否成功
+            if let savedData = userDefaults.data(forKey: Keys.notificationSettings) {
+                print("✅ Verification: Settings data exists in UserDefaults (\(savedData.count) bytes)")
+            } else {
+                print("❌ Verification: Settings data NOT found in UserDefaults")
+            }
         } catch {
             print("❌ Failed to save settings: \(error)")
         }

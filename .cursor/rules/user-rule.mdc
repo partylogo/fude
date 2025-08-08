@@ -2,14 +2,10 @@
 alwaysApply: true
 ---
 
+## 當你進行程式開發的時候請跟隨 @instruction.mdc 的原則
+## 因為我是使用 cursor 在開發 app，避免 xcode 產生不必要的問題，修改檔案請遵守 @file-management.mdc
 ## 短語詞庫:當我使用這些短語的時候，請遵循以下的指示回覆
     - ncn 代表 no code now，這時候就先分析討論規劃，不要進行寫 code 或改動
     - amq 代表 ask me question，就代表，如果你還有什麼不確定的，請問我
 
-## Guidelines for DOCUMENTATION
-
-### DOC_UPDATES
-
-- Update relevant documentation in /docs when modifying features
-- Keep README.md in sync with new capabilities
-- Maintain changelog entries in fyi.md
+## 當你完成開發的時候，請即時將進度更新在 @tech-doc.mdc
