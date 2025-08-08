@@ -19,12 +19,16 @@ class GroupRepository {
    */
   async findAll() {
     if (this.supabase) {
-      const { data, error } = await this.supabase
-        .from('groups')
-        .select('*')
-        .order('id', { ascending: true });
-      if (error) throw error;
-      return data || [];
+      try {
+        const { data, error } = await this.supabase
+          .from('groups')
+          .select('*')
+          .order('id', { ascending: true });
+        if (error) throw error;
+        return data || [];
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+      }
     }
     return [...this.groups];
   }
@@ -35,13 +39,17 @@ class GroupRepository {
    */
   async findEnabledGroups() {
     if (this.supabase) {
-      const { data, error } = await this.supabase
-        .from('groups')
-        .select('*')
-        .eq('enabled', true)
-        .order('id', { ascending: true });
-      if (error) throw error;
-      return data || [];
+      try {
+        const { data, error } = await this.supabase
+          .from('groups')
+          .select('*')
+          .eq('enabled', true)
+          .order('id', { ascending: true });
+        if (error) throw error;
+        return data || [];
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+      }
     }
     return this.groups.filter(group => group.enabled);
   }
@@ -53,13 +61,17 @@ class GroupRepository {
    */
   async findById(id) {
     if (this.supabase) {
-      const { data, error } = await this.supabase
-        .from('groups')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (error && error.code !== 'PGRST116') throw error;
-      return data || null;
+      try {
+        const { data, error } = await this.supabase
+          .from('groups')
+          .select('*')
+          .eq('id', id)
+          .single();
+        if (error && error.code !== 'PGRST116') throw error;
+        return data || null;
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+      }
     }
     const group = this.groups.find(g => g.id === id);
     return group || null;
@@ -72,19 +84,23 @@ class GroupRepository {
    */
   async getGroupEvents(groupId) {
     if (this.supabase) {
-      const { data: items, error: errItems } = await this.supabase
-        .from('group_items')
-        .select('event_id')
-        .eq('group_id', groupId);
-      if (errItems) throw errItems;
-      const ids = (items || []).map(i => i.event_id);
-      if (ids.length === 0) return [];
-      const { data: events, error: errEvents } = await this.supabase
-        .from('events')
-        .select('*')
-        .in('id', ids);
-      if (errEvents) throw errEvents;
-      return events || [];
+      try {
+        const { data: items, error: errItems } = await this.supabase
+          .from('group_items')
+          .select('event_id')
+          .eq('group_id', groupId);
+        if (errItems) throw errItems;
+        const ids = (items || []).map(i => i.event_id);
+        if (ids.length === 0) return [];
+        const { data: events, error: errEvents } = await this.supabase
+          .from('events')
+          .select('*')
+          .in('id', ids);
+        if (errEvents) throw errEvents;
+        return events || [];
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+      }
     }
     const eventIds = this.groupItems[groupId] || [];
     return this.events.filter(event => eventIds.includes(event.id));
@@ -114,13 +130,17 @@ class GroupRepository {
    */
   async create(groupData) {
     if (this.supabase) {
-      const { data, error } = await this.supabase
-        .from('groups')
-        .insert({ ...groupData })
-        .select('*')
-        .single();
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await this.supabase
+          .from('groups')
+          .insert({ ...groupData })
+          .select('*')
+          .single();
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+      }
     }
     const newGroup = {
       id: this.nextId++,
@@ -141,14 +161,18 @@ class GroupRepository {
    */
   async update(id, updateData) {
     if (this.supabase) {
-      const { data, error } = await this.supabase
-        .from('groups')
-        .update({ ...updateData })
-        .eq('id', id)
-        .select('*')
-        .single();
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await this.supabase
+          .from('groups')
+          .update({ ...updateData })
+          .eq('id', id)
+          .select('*')
+          .single();
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+      }
     }
     const index = this.groups.findIndex(g => g.id === id);
     if (index === -1) {
@@ -169,12 +193,16 @@ class GroupRepository {
    */
   async delete(id) {
     if (this.supabase) {
-      const { error } = await this.supabase
-        .from('groups')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-      return true;
+      try {
+        const { error } = await this.supabase
+          .from('groups')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+        return true;
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else throw err;
+      }
     }
     const index = this.groups.findIndex(g => g.id === id);
     if (index === -1) {
@@ -193,11 +221,15 @@ class GroupRepository {
    */
   async addEventToGroup(groupId, eventId) {
     if (this.supabase) {
-      const { error } = await this.supabase
-        .from('group_items')
-        .insert({ group_id: groupId, event_id: eventId });
-      if (error) return false;
-      return true;
+      try {
+        const { error } = await this.supabase
+          .from('group_items')
+          .insert({ group_id: groupId, event_id: eventId });
+        if (error) return false;
+        return true;
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else return false;
+      }
     }
     const group = await this.findById(groupId);
     const event = this.events.find(e => e.id === eventId);
@@ -221,13 +253,17 @@ class GroupRepository {
    */
   async removeEventFromGroup(groupId, eventId) {
     if (this.supabase) {
-      const { error } = await this.supabase
-        .from('group_items')
-        .delete()
-        .eq('group_id', groupId)
-        .eq('event_id', eventId);
-      if (error) return false;
-      return true;
+      try {
+        const { error } = await this.supabase
+          .from('group_items')
+          .delete()
+          .eq('group_id', groupId)
+          .eq('event_id', eventId);
+        if (error) return false;
+        return true;
+      } catch (err) {
+        if (isSchemaMissing(err)) this.supabase = null; else return false;
+      }
     }
     if (!this.groupItems[groupId]) return false;
     const index = this.groupItems[groupId].indexOf(eventId);
@@ -235,6 +271,10 @@ class GroupRepository {
     this.groupItems[groupId].splice(index, 1);
     return true;
   }
+}
+
+function isSchemaMissing(err) {
+  return err && (err.code === 'PGRST205' || err.code === '42P01' || /schema cache/i.test(String(err.message)) || /relation .* does not exist/i.test(String(err.message)));
 }
 
 module.exports = GroupRepository;

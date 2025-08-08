@@ -64,12 +64,21 @@ class EventRepository {
    */
   async findAll() {
     if (this.supabase) {
-      const { data, error } = await this.supabase
-        .from('events')
-        .select('*')
-        .order('id', { ascending: true });
-      if (error) throw error;
-      return (data || []).map(normalizeDbEvent);
+      try {
+        const { data, error } = await this.supabase
+          .from('events')
+          .select('*')
+          .order('id', { ascending: true });
+        if (error) throw error;
+        return (data || []).map(normalizeDbEvent);
+      } catch (err) {
+        if (isSchemaMissing(err)) {
+          // Disable supabase for this instance and fallback to in-memory
+          this.supabase = null;
+        } else {
+          throw err;
+        }
+      }
     }
     return [...this.events];
   }
@@ -82,16 +91,20 @@ class EventRepository {
    */
   async findByDateRange(from, to) {
     if (this.supabase) {
-      let query = this.supabase.from('events').select('*');
-      if (from) {
-        query = query.gte('solar_date', from);
+      try {
+        let query = this.supabase.from('events').select('*');
+        if (from) query = query.gte('solar_date', from);
+        if (to) query = query.lte('solar_date', to);
+        const { data, error } = await query;
+        if (error) throw error;
+        return (data || []).map(normalizeDbEvent);
+      } catch (err) {
+        if (isSchemaMissing(err)) {
+          this.supabase = null;
+        } else {
+          throw err;
+        }
       }
-      if (to) {
-        query = query.lte('solar_date', to);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-      return (data || []).map(normalizeDbEvent);
     }
     return this.events.filter(event => {
       const eventDate = new Date(Array.isArray(event.solar_date) ? event.solar_date[0] : event.solar_date);
@@ -120,12 +133,20 @@ class EventRepository {
    */
   async findByType(type) {
     if (this.supabase) {
-      const { data, error } = await this.supabase
-        .from('events')
-        .select('*')
-        .eq('type', type);
-      if (error) throw error;
-      return (data || []).map(normalizeDbEvent);
+      try {
+        const { data, error } = await this.supabase
+          .from('events')
+          .select('*')
+          .eq('type', type);
+        if (error) throw error;
+        return (data || []).map(normalizeDbEvent);
+      } catch (err) {
+        if (isSchemaMissing(err)) {
+          this.supabase = null;
+        } else {
+          throw err;
+        }
+      }
     }
     return this.events.filter(event => event.type === type);
   }
@@ -137,13 +158,21 @@ class EventRepository {
    */
   async findById(id) {
     if (this.supabase) {
-      const { data, error } = await this.supabase
-        .from('events')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (error && error.code !== 'PGRST116') throw error; // not found
-      return data ? normalizeDbEvent(data) : null;
+      try {
+        const { data, error } = await this.supabase
+          .from('events')
+          .select('*')
+          .eq('id', id)
+          .single();
+        if (error && error.code !== 'PGRST116') throw error; // not found
+        return data ? normalizeDbEvent(data) : null;
+      } catch (err) {
+        if (isSchemaMissing(err)) {
+          this.supabase = null;
+        } else {
+          throw err;
+        }
+      }
     }
     const event = this.events.find(e => e.id === id);
     return event || null;
@@ -156,14 +185,22 @@ class EventRepository {
    */
   async create(eventData) {
     if (this.supabase) {
-      const payload = dbPayloadFromEventData(eventData);
-      const { data, error } = await this.supabase
-        .from('events')
-        .insert(payload)
-        .select('*')
-        .single();
-      if (error) throw error;
-      return normalizeDbEvent(data);
+      try {
+        const payload = dbPayloadFromEventData(eventData);
+        const { data, error } = await this.supabase
+          .from('events')
+          .insert(payload)
+          .select('*')
+          .single();
+        if (error) throw error;
+        return normalizeDbEvent(data);
+      } catch (err) {
+        if (isSchemaMissing(err)) {
+          this.supabase = null;
+        } else {
+          throw err;
+        }
+      }
     }
     const newEvent = {
       id: this.nextIdRef(),
@@ -183,15 +220,23 @@ class EventRepository {
    */
   async update(id, updateData) {
     if (this.supabase) {
-      const payload = dbPayloadFromEventData(updateData);
-      const { data, error } = await this.supabase
-        .from('events')
-        .update(payload)
-        .eq('id', id)
-        .select('*')
-        .single();
-      if (error) throw error;
-      return normalizeDbEvent(data);
+      try {
+        const payload = dbPayloadFromEventData(updateData);
+        const { data, error } = await this.supabase
+          .from('events')
+          .update(payload)
+          .eq('id', id)
+          .select('*')
+          .single();
+        if (error) throw error;
+        return normalizeDbEvent(data);
+      } catch (err) {
+        if (isSchemaMissing(err)) {
+          this.supabase = null;
+        } else {
+          throw err;
+        }
+      }
     }
     const index = this.events.findIndex(e => e.id === id);
     if (index === -1) {
@@ -209,12 +254,20 @@ class EventRepository {
    */
   async delete(id) {
     if (this.supabase) {
-      const { error } = await this.supabase
-        .from('events')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-      return true;
+      try {
+        const { error } = await this.supabase
+          .from('events')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+        return true;
+      } catch (err) {
+        if (isSchemaMissing(err)) {
+          this.supabase = null;
+        } else {
+          throw err;
+        }
+      }
     }
     const index = this.events.findIndex(e => e.id === id);
     if (index === -1) {
@@ -251,6 +304,10 @@ function dbPayloadFromEventData(data) {
     payload.solar_date = [payload.solar_date];
   }
   return payload;
+}
+
+function isSchemaMissing(err) {
+  return err && (err.code === 'PGRST205' || err.code === '42P01' || /schema cache/i.test(String(err.message)) || /relation .* does not exist/i.test(String(err.message)));
 }
 
 module.exports = EventRepository;
