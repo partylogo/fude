@@ -40,17 +40,15 @@ const validateEventData = (data, isUpdate = false) => {
     }
   }
 
-  // 必須提供下列之一：
-  // 1) solar_date
-  // 2) lunar_month + lunar_day
-  // 3) solar_month + solar_day
-  // 4) one_time_date
+  // 建立時：必須提供至少一種日期來源；更新時：若有提供則檢查，未提供則放過
   const hasSolar = data.solar_date !== undefined && data.solar_date !== null && String(data.solar_date).trim() !== '';
   const hasLunar = data.lunar_month !== undefined && data.lunar_day !== undefined;
   const hasSolarParts = data.solar_month !== undefined && data.solar_day !== undefined;
   const hasOneTime = data.one_time_date !== undefined && String(data.one_time_date).trim() !== '';
-  if (!hasSolar && !hasLunar && !hasSolarParts && !hasOneTime) {
-    errors.push('Provide one of: solar_date, (lunar_month + lunar_day), (solar_month + solar_day), or one_time_date');
+  if (!isUpdate) {
+    if (!hasSolar && !hasLunar && !hasSolarParts && !hasOneTime) {
+      errors.push('Provide one of: solar_date, (lunar_month + lunar_day), (solar_month + solar_day), or one_time_date');
+    }
   }
 
   return errors;
@@ -176,6 +174,30 @@ const updateEvent = async (req, res) => {
       return res.status(400).json({
         error: 'Validation failed: ' + errors.join(', ')
       });
+    }
+
+    // 與建立同樣的日期自動化邏輯（若送來的是分解欄位或農曆或一次性日期）
+    if (!req.body.solar_date && req.body.lunar_month && req.body.lunar_day) {
+      const converted = LunarCalendarService.convertToSolar({
+        month: Number(req.body.lunar_month),
+        day: Number(req.body.lunar_day),
+        isLeap: Boolean(req.body.is_leap_month)
+      });
+      if (Array.isArray(converted) && converted.length > 0) {
+        req.body.solar_date = converted[0];
+      }
+    }
+
+    if (!req.body.solar_date && req.body.solar_month && req.body.solar_day) {
+      const now = new Date();
+      const y = now.getUTCFullYear();
+      const mm = String(Number(req.body.solar_month)).padStart(2, '0');
+      const dd = String(Number(req.body.solar_day)).padStart(2, '0');
+      req.body.solar_date = `${y}-${mm}-${dd}`;
+    }
+
+    if (!req.body.solar_date && req.body.one_time_date) {
+      req.body.solar_date = req.body.one_time_date;
     }
 
     // 更新事件
