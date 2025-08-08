@@ -1,4 +1,4 @@
-// Vercel Serverless Entry
+// Vercel Serverless Entry (Node.js)
 const express = require('express');
 const app = express();
 
@@ -50,5 +50,6 @@ if (systemRouter) {
   app.use('/api', systemRouter);
 }
 
-module.exports = app;
+// Export serverless handler (ensure Vercel executes Express app)
+module.exports = (req, res) => app(req, res);
 
