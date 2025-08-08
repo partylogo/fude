@@ -19,6 +19,7 @@
 3. 選擇地區 (建議：Singapore 或 Tokyo，延遲較低)
 4. 等待專案初始化完成
 
+
 **完成後提供給我：**
 ```
 ✅ Supabase Project URL: https://your-project-id.supabase.co
@@ -54,7 +55,7 @@
 ```env
 # Supabase 連接
 SUPABASE_URL=https://your-project-id.supabase.co
-SUPABASE_SERVICE_KEY=your_service_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_key_here
 
 # 應用設定
 NODE_ENV=production
@@ -67,7 +68,7 @@ ALLOWED_ORIGINS=https://your-admin-domain.vercel.app,https://your-api-domain.ver
 
 **React Admin 需要的環境變數：**
 ```env
-VITE_API_URL=https://your-api-domain.vercel.app
+VITE_API_BASE_URL=https://your-api-domain.vercel.app/api
 VITE_APP_TITLE=Folklore Admin
 ```
 
@@ -105,7 +106,9 @@ VITE_APP_TITLE=Folklore Admin
 
 #### Phase 2: 後端 API 部署
 1. **環境變數設定**
+   - 在 Vercel 專案中設定 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `TZ`, `EXTEND_YEARS`
 2. **部署到 Vercel/Railway**
+   - `vercel` 會讀取 `vercel.json`，透過單一入口 `api/index.js` 提供所有 API 路由
 3. **API 連線測試**
 
 #### Phase 3: React Admin 部署

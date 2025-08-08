@@ -1,7 +1,8 @@
 // Data Provider - 連接本地 API
 import axios from 'axios';
 
-const API_URL = '/api';
+// 支援雲端部署：優先讀取環境變數，否則相對路徑 /api
+const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // 創建 axios 實例
 const apiClient = axios.create({

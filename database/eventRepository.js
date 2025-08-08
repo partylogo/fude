@@ -3,9 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const CACHE_PATH = path.join(__dirname, '..', 'data', 'eventsCache.json');
 const mockEvents = require('../data/mockEvents');
+const getSupabaseClient = require('./supabaseClient');
 
 class EventRepository {
   constructor() {
+    // 使用 Supabase（若環境提供），否則 fallback 到 mock + file cache
+    this.supabase = getSupabaseClient();
     // 使用 mock data，之後可以替換為真實資料庫連接
     // 使用 module-level 共享陣列，確保跨請求持久
     if (process.env.NODE_ENV === 'test') {
@@ -58,6 +61,14 @@ class EventRepository {
    * @returns {Promise<Array>} 事件陣列
    */
   async findAll() {
+    if (this.supabase) {
+      const { data, error } = await this.supabase
+        .from('events')
+        .select('*')
+        .order('id', { ascending: true });
+      if (error) throw error;
+      return (data || []).map(normalizeDbEvent);
+    }
     return [...this.events];
   }
 
@@ -68,6 +79,18 @@ class EventRepository {
    * @returns {Promise<Array>} 過濾後的事件陣列
    */
   async findByDateRange(from, to) {
+    if (this.supabase) {
+      let query = this.supabase.from('events').select('*');
+      if (from) {
+        query = query.gte('solar_date', from);
+      }
+      if (to) {
+        query = query.lte('solar_date', to);
+      }
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data || []).map(normalizeDbEvent);
+    }
     return this.events.filter(event => {
       const eventDate = new Date(Array.isArray(event.solar_date) ? event.solar_date[0] : event.solar_date);
 
@@ -94,6 +117,14 @@ class EventRepository {
    * @returns {Promise<Array>} 過濾後的事件陣列
    */
   async findByType(type) {
+    if (this.supabase) {
+      const { data, error } = await this.supabase
+        .from('events')
+        .select('*')
+        .eq('type', type);
+      if (error) throw error;
+      return (data || []).map(normalizeDbEvent);
+    }
     return this.events.filter(event => event.type === type);
   }
 
@@ -103,6 +134,15 @@ class EventRepository {
    * @returns {Promise<Object|null>} 事件物件或 null
    */
   async findById(id) {
+    if (this.supabase) {
+      const { data, error } = await this.supabase
+        .from('events')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error && error.code !== 'PGRST116') throw error; // not found
+      return data ? normalizeDbEvent(data) : null;
+    }
     const event = this.events.find(e => e.id === id);
     return event || null;
   }
@@ -113,12 +153,21 @@ class EventRepository {
    * @returns {Promise<Object>} 建立的事件物件
    */
   async create(eventData) {
+    if (this.supabase) {
+      const payload = dbPayloadFromEventData(eventData);
+      const { data, error } = await this.supabase
+        .from('events')
+        .insert(payload)
+        .select('*')
+        .single();
+      if (error) throw error;
+      return normalizeDbEvent(data);
+    }
     const newEvent = {
       id: this.nextIdRef(),
       ...eventData,
       solar_date: Array.isArray(eventData.solar_date) ? eventData.solar_date : [eventData.solar_date]
     };
-
     this.events.push(newEvent);
     this.persist();
     return { ...newEvent };
@@ -131,11 +180,21 @@ class EventRepository {
    * @returns {Promise<Object|null>} 更新的事件物件或 null
    */
   async update(id, updateData) {
+    if (this.supabase) {
+      const payload = dbPayloadFromEventData(updateData);
+      const { data, error } = await this.supabase
+        .from('events')
+        .update(payload)
+        .eq('id', id)
+        .select('*')
+        .single();
+      if (error) throw error;
+      return normalizeDbEvent(data);
+    }
     const index = this.events.findIndex(e => e.id === id);
     if (index === -1) {
       return null;
     }
-
     this.events[index] = { ...this.events[index], ...updateData };
     this.persist();
     return { ...this.events[index] };
@@ -147,15 +206,49 @@ class EventRepository {
    * @returns {Promise<boolean>} 是否成功刪除
    */
   async delete(id) {
+    if (this.supabase) {
+      const { error } = await this.supabase
+        .from('events')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    }
     const index = this.events.findIndex(e => e.id === id);
     if (index === -1) {
       return false;
     }
-
     this.events.splice(index, 1);
     this.persist();
     return true;
   }
+}
+
+// Helpers
+function normalizeDbEvent(row) {
+  return {
+    id: row.id,
+    type: row.type,
+    title: row.title,
+    description: row.description,
+    lunar_month: row.lunar_month ?? null,
+    lunar_day: row.lunar_day ?? null,
+    is_leap_month: row.is_leap_month ?? false,
+    solar_date: Array.isArray(row.solar_date) ? row.solar_date : (row.solar_date ? [row.solar_date] : []),
+    cover_url: row.cover_url ?? null,
+    deity_role: row.deity_role ?? null,
+    worship_notes: row.worship_notes ?? null,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+function dbPayloadFromEventData(data) {
+  const payload = { ...data };
+  if (payload.solar_date && !Array.isArray(payload.solar_date)) {
+    payload.solar_date = [payload.solar_date];
+  }
+  return payload;
 }
 
 module.exports = EventRepository;

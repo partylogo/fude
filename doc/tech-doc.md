@@ -2300,10 +2300,12 @@ async function getCacheHitRate() {
 - **擴展性強**：支援所有事件類型，統一管理框架
 
 ### Phase 2B: 雲端部署與後端 API 建置 (Week 4)
-- [ ] 建立雲端 Supabase 專案並執行 schema migration
-- [ ] 設定雲端 Vercel 專案與環境變數
+- [x] 建立雲端 Supabase 專案並執行 schema migration
+- [x] 設定雲端 Vercel 專案與環境變數（`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `TZ`, `EXTEND_YEARS`）
+- [x] 調整 Vercel 設定：單一 Serverless 入口 `api/index.js` 與路由 `/api/(.*)`
+- [x] 調整 Repository：在雲端以 Supabase 為資料來源、無環境時 fallback 至 mock/file-cache
 - [ ] 部署 API 到 Vercel 雲端環境
-- [ ] 部署 React Admin 到雲端環境
+- [ ] 部署 React Admin 到雲端環境（支援 `VITE_API_BASE_URL`）
 - [ ] 修改 iOS App 連接雲端 API（移除 mock data）
 - [ ] 建立 iOS GroupDetailView（簡少年老師推薦詳細頁）
 - [ ] **部署複雜日期規則系統到雲端**：

@@ -11,7 +11,8 @@
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
-    "supabase:reset": "supabase db reset"
+    "supabase:reset": "supabase db reset",
+    "vercel:env": "vercel env pull .env.local"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
