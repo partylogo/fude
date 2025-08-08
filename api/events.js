@@ -16,7 +16,7 @@ const validateEventData = (data, isUpdate = false) => {
   if (!isUpdate || data.type !== undefined) {
     const validTypes = ['deity', 'festival', 'custom', 'solar_term'];
     if (!data.type || !validTypes.includes(data.type)) {
-      errors.push('type must be one of: deity, festival, custom');
+      errors.push('type must be one of: deity, festival, custom, solar_term');
     }
   }
 
@@ -26,14 +26,14 @@ const validateEventData = (data, isUpdate = false) => {
     }
   }
 
-  if (data.lunar_month !== undefined) {
+  if (data.lunar_month !== undefined && data.lunar_month !== null && String(data.lunar_month) !== '') {
     const month = parseInt(data.lunar_month);
     if (isNaN(month) || month < 1 || month > 12) {
       errors.push('lunar_month must be between 1 and 12');
     }
   }
 
-  if (data.lunar_day !== undefined) {
+  if (data.lunar_day !== undefined && data.lunar_day !== null && String(data.lunar_day) !== '') {
     const day = parseInt(data.lunar_day);
     if (isNaN(day) || day < 1 || day > 30) {
       errors.push('lunar_day must be between 1 and 30');
@@ -42,9 +42,9 @@ const validateEventData = (data, isUpdate = false) => {
 
   // 建立時：必須提供至少一種日期來源；更新時：若有提供則檢查，未提供則放過
   const hasSolar = data.solar_date !== undefined && data.solar_date !== null && String(data.solar_date).trim() !== '';
-  const hasLunar = data.lunar_month !== undefined && data.lunar_day !== undefined;
-  const hasSolarParts = data.solar_month !== undefined && data.solar_day !== undefined;
-  const hasOneTime = data.one_time_date !== undefined && String(data.one_time_date).trim() !== '';
+  const hasLunar = data.lunar_month !== undefined && data.lunar_day !== undefined && String(data.lunar_month) !== '' && String(data.lunar_day) !== '';
+  const hasSolarParts = data.solar_month !== undefined && data.solar_day !== undefined && String(data.solar_month) !== '' && String(data.solar_day) !== '';
+  const hasOneTime = data.one_time_date !== undefined && data.one_time_date !== null && String(data.one_time_date).trim() !== '';
   if (!isUpdate) {
     if (!hasSolar && !hasLunar && !hasSolarParts && !hasOneTime) {
       errors.push('Provide one of: solar_date, (lunar_month + lunar_day), (solar_month + solar_day), or one_time_date');

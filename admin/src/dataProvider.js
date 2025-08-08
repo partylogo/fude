@@ -90,7 +90,23 @@ const dataProvider = {
   // 建立資源
   create: async (resource, params) => {
     try {
-      const response = await apiClient.post(`/${resource}`, params.data);
+      let data = { ...params.data };
+      const type = data.type;
+      const isEmpty = (v) => v === undefined || v === null || v === '';
+      Object.keys(data).forEach((k) => { if (isEmpty(data[k])) delete data[k]; });
+      if (resource === 'events') {
+        if (type === 'festival') {
+          delete data.lunar_month; delete data.lunar_day; delete data.is_leap_month; delete data.leap_behavior; delete data.one_time_date; delete data.solar_term_name;
+        } else if (type === 'deity') {
+          delete data.solar_month; delete data.solar_day; delete data.one_time_date; delete data.solar_term_name;
+        } else if (type === 'custom') {
+          delete data.solar_month; delete data.solar_day; delete data.lunar_month; delete data.lunar_day; delete data.solar_term_name;
+        } else if (type === 'solar_term') {
+          delete data.solar_month; delete data.solar_day; delete data.lunar_month; delete data.lunar_day; delete data.one_time_date;
+        }
+        delete data.solar_date;
+      }
+      const response = await apiClient.post(`/${resource}`, data);
       return {
         data: response.data
       };
@@ -102,7 +118,27 @@ const dataProvider = {
   // 更新資源
   update: async (resource, params) => {
     try {
-      const response = await apiClient.put(`/${resource}/${params.id}`, params.data);
+      let data = { ...params.data };
+      // 清洗：移除空字串或 null 的鍵，並移除不屬於該類型的欄位
+      const type = data.type;
+      const isEmpty = (v) => v === undefined || v === null || v === '';
+      Object.keys(data).forEach((k) => {
+        if (isEmpty(data[k])) delete data[k];
+      });
+      if (resource === 'events') {
+        if (type === 'festival') {
+          delete data.lunar_month; delete data.lunar_day; delete data.is_leap_month; delete data.leap_behavior; delete data.one_time_date; delete data.solar_term_name;
+        } else if (type === 'deity') {
+          delete data.solar_month; delete data.solar_day; delete data.one_time_date; delete data.solar_term_name;
+        } else if (type === 'custom') {
+          delete data.solar_month; delete data.solar_day; delete data.lunar_month; delete data.lunar_day; delete data.solar_term_name;
+        } else if (type === 'solar_term') {
+          delete data.solar_month; delete data.solar_day; delete data.lunar_month; delete data.lunar_day; delete data.one_time_date;
+        }
+        // 不讓前端主動寫入 solar_date（由後端規則推導）
+        delete data.solar_date;
+      }
+      const response = await apiClient.put(`/${resource}/${params.id}`, data);
       return {
         data: response.data
       };
