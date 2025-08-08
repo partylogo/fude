@@ -27,5 +27,9 @@
     "vite": "^5.0.0",
     "vitest": "^1.2.0"
   },
-  "type": "module"
+  "type": "module",
+  "vercel-build": {
+    "buildCommand": "pnpm build",
+    "outputDirectory": "dist"
+  }
 }
