@@ -5,6 +5,8 @@ const GroupItemsManager = ({ groupId }) => {
   const [currentItems, setCurrentItems] = useState({ deities: [], festivals: [] });
   const [availableEvents, setAvailableEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMutating, setIsMutating] = useState(false);
+  const [search, setSearch] = useState('');
   const [error, setError] = useState('');
 
   // 載入當前群組項目
@@ -12,7 +14,9 @@ const GroupItemsManager = ({ groupId }) => {
     try {
       const response = await fetch(`/api/groups/${groupId}/items`);
       if (!response.ok) {
-        throw new Error('載入失敗');
+        let msg = '載入失敗';
+        try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
+        throw new Error(msg);
       }
       const data = await response.json();
       setCurrentItems(data);
@@ -26,7 +30,9 @@ const GroupItemsManager = ({ groupId }) => {
     try {
       const response = await fetch('/api/events');
       if (!response.ok) {
-        throw new Error('載入失敗');
+        let msg = '載入失敗';
+        try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
+        throw new Error(msg);
       }
       const data = await response.json();
       setAvailableEvents(data.events || []);
@@ -49,6 +55,8 @@ const GroupItemsManager = ({ groupId }) => {
 
   // 添加事件到群組
   const addEventToGroup = async (eventId) => {
+    if (isMutating) return;
+    setIsMutating(true);
     try {
       const response = await fetch(`/api/groups/${groupId}/items`, {
         method: 'POST',
@@ -59,31 +67,41 @@ const GroupItemsManager = ({ groupId }) => {
       });
 
       if (!response.ok) {
-        throw new Error('添加失敗');
+        let msg = '添加失敗';
+        try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
+        throw new Error(msg);
       }
 
       // 重新載入當前項目
       await loadCurrentItems();
     } catch (err) {
       setError('添加事件失敗：' + err.message);
+    } finally {
+      setIsMutating(false);
     }
   };
 
   // 從群組移除事件
   const removeEventFromGroup = async (eventId) => {
+    if (isMutating) return;
+    setIsMutating(true);
     try {
       const response = await fetch(`/api/groups/${groupId}/items/${eventId}`, {
         method: 'DELETE'
       });
 
       if (!response.ok) {
-        throw new Error('移除失敗');
+        let msg = '移除失敗';
+        try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
+        throw new Error(msg);
       }
 
       // 重新載入當前項目
       await loadCurrentItems();
     } catch (err) {
       setError('移除事件失敗：' + err.message);
+    } finally {
+      setIsMutating(false);
     }
   };
 
@@ -93,7 +111,16 @@ const GroupItemsManager = ({ groupId }) => {
       ...currentItems.deities.map(e => e.id),
       ...currentItems.festivals.map(e => e.id)
     ];
-    return availableEvents.filter(event => !addedEventIds.includes(event.id));
+    return availableEvents
+      .filter(event => !addedEventIds.includes(event.id))
+      .filter(event => {
+        if (!search) return true;
+        const q = search.toLowerCase();
+        return (
+          String(event.title || '').toLowerCase().includes(q) ||
+          String(event.type || '').toLowerCase().includes(q)
+        );
+      });
   };
 
   if (isLoading) {
@@ -210,6 +237,21 @@ const GroupItemsManager = ({ groupId }) => {
       {/* 添加新事件 */}
       <div data-testid="add-items-section">
         <h4 style={{ color: '#333', marginBottom: '16px' }}>添加事件到群組</h4>
+        <div style={{ marginBottom: '12px' }}>
+          <input
+            data-testid="search-input"
+            type="text"
+            placeholder="搜尋事件名稱或類型"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }}
+          />
+        </div>
         <div data-testid="available-events">
           {getAvailableEventsToAdd().length === 0 ? (
             <p style={{ color: '#666', fontSize: '14px' }}>所有事件都已添加到群組中</p>
@@ -229,6 +271,7 @@ const GroupItemsManager = ({ groupId }) => {
                   <button
                     data-testid={`add-event-${event.id}`}
                     onClick={() => addEventToGroup(event.id)}
+                    disabled={isMutating}
                     style={{
                       marginLeft: '8px',
                       padding: '4px 8px',

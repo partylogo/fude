@@ -1,5 +1,6 @@
 // Data Provider - 連接本地 API
 import axios from 'axios';
+import { HttpError } from 'react-admin';
 
 // 支援雲端部署：優先讀取環境變數，否則相對路徑 /api
 const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -71,7 +72,10 @@ const dataProvider = {
         total
       };
     } catch (error) {
-      throw new Error(`API Error: ${error.message}`);
+      const status = error?.response?.status || 500;
+      const message = error?.response?.data?.message || error.message || 'Unknown error';
+      const body = error?.response?.data;
+      throw new HttpError(message, status, body);
     }
   },
 
@@ -86,7 +90,10 @@ const dataProvider = {
       }
       return { data };
     } catch (error) {
-      throw new Error(`API Error: ${error.message}`);
+      const status = error?.response?.status || 500;
+      const message = error?.response?.data?.message || error.message || 'Unknown error';
+      const body = error?.response?.data;
+      throw new HttpError(message, status, body);
     }
   },
 
@@ -114,7 +121,10 @@ const dataProvider = {
         data: response.data
       };
     } catch (error) {
-      throw new Error(`API Error: ${error.message}`);
+      const status = error?.response?.status || 500;
+      const message = error?.response?.data?.message || error.message || 'Unknown error';
+      const body = error?.response?.data;
+      throw new HttpError(message, status, body);
     }
   },
 
@@ -146,7 +156,10 @@ const dataProvider = {
         data: response.data
       };
     } catch (error) {
-      throw new Error(`API Error: ${error.message}`);
+      const status = error?.response?.status || 500;
+      const message = error?.response?.data?.message || error.message || 'Unknown error';
+      const body = error?.response?.data;
+      throw new HttpError(message, status, body);
     }
   },
 
@@ -158,7 +171,10 @@ const dataProvider = {
         data: response.data
       };
     } catch (error) {
-      throw new Error(`API Error: ${error.message}`);
+      const status = error?.response?.status || 500;
+      const message = error?.response?.data?.message || error.message || 'Unknown error';
+      const body = error?.response?.data;
+      throw new HttpError(message, status, body);
     }
   },
 
@@ -173,7 +189,10 @@ const dataProvider = {
         data: responses.map(response => response.data)
       };
     } catch (error) {
-      throw new Error(`API Error: ${error.message}`);
+      const status = error?.response?.status || 500;
+      const message = error?.response?.data?.message || error.message || 'Unknown error';
+      const body = error?.response?.data;
+      throw new HttpError(message, status, body);
     }
   },
 

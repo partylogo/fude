@@ -3,6 +3,7 @@
 // Dynamic fields based on event type with validation
 
 import React, { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 import { useRecordContext } from 'react-admin';
 import {
   SimpleForm,
@@ -110,12 +111,32 @@ export default function SmartEventForm(props) {
     { id: 'both', name: '平閏皆有' }
   ];
 
-  // Handle type change to show/hide dynamic fields
-  const handleTypeChange = (event) => {
-    const next = event.target.value;
-    setEventType(next);
-    // 清空不屬於該型別的欄位，避免殘留
-    const form = props?.formRef?.current || undefined;
+  // 內嵌型別選擇（置於 SimpleForm 之內，取得 RHF context）
+  const TypeSelect = ({ value, onSet }) => {
+    const form = useFormContext();
+    const handleChange = (event) => {
+      const next = event.target.value;
+      onSet(next);
+      const clear = (fields) => fields.forEach((name) => {
+        form.clearErrors(name);
+        form.setValue(name, undefined, { shouldValidate: false, shouldDirty: true });
+      });
+      if (next === 'festival') clear(['lunar_month', 'lunar_day', 'is_leap_month', 'leap_behavior', 'one_time_date', 'solar_term_name']);
+      else if (next === 'deity') clear(['solar_month', 'solar_day', 'one_time_date', 'solar_term_name']);
+      else if (next === 'custom') clear(['lunar_month', 'lunar_day', 'is_leap_month', 'leap_behavior', 'solar_month', 'solar_day', 'solar_term_name']);
+      else if (next === 'solar_term') clear(['lunar_month', 'lunar_day', 'is_leap_month', 'leap_behavior', 'solar_month', 'solar_day', 'one_time_date']);
+    };
+    return (
+      <SelectInput 
+        source="type" 
+        label="事件類型" 
+        choices={typeChoices}
+        validate={validateType}
+        onChange={handleChange}
+        defaultValue={value}
+        placeholder="請選擇事件類型"
+      />
+    );
   };
 
   return (
@@ -129,14 +150,7 @@ export default function SmartEventForm(props) {
         placeholder="請輸入事件名稱"
       />
       
-      <SelectInput 
-        source="type" 
-        label="事件類型" 
-        choices={typeChoices}
-        validate={validateType}
-        onChange={handleTypeChange}
-        placeholder="請選擇事件類型"
-      />
+      <TypeSelect value={eventType} onSet={setEventType} />
       
       <TextInput 
         source="description" 
