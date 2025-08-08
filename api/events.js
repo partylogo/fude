@@ -45,10 +45,21 @@ const validateEventData = (data, isUpdate = false) => {
   const hasLunar = data.lunar_month !== undefined && data.lunar_day !== undefined && String(data.lunar_month) !== '' && String(data.lunar_day) !== '';
   const hasSolarParts = data.solar_month !== undefined && data.solar_day !== undefined && String(data.solar_month) !== '' && String(data.solar_day) !== '';
   const hasOneTime = data.one_time_date !== undefined && data.one_time_date !== null && String(data.one_time_date).trim() !== '';
+  const isSolarTerm = data.type === 'solar_term';
+  const hasSolarTerm = data.solar_term_name !== undefined && String(data.solar_term_name).trim() !== '';
   if (!isUpdate) {
-    if (!hasSolar && !hasLunar && !hasSolarParts && !hasOneTime) {
+    if (isSolarTerm) {
+      if (!hasSolarTerm) {
+        errors.push('solar_term_name is required for type=solar_term');
+      }
+    } else if (!hasSolar && !hasLunar && !hasSolarParts && !hasOneTime) {
       errors.push('Provide one of: solar_date, (lunar_month + lunar_day), (solar_month + solar_day), or one_time_date');
     }
+  }
+
+  // 若送來 solar_term_name 但為空字串
+  if (data.solar_term_name !== undefined && String(data.solar_term_name).trim() === '') {
+    errors.push('solar_term_name cannot be empty');
   }
 
   return errors;

@@ -183,6 +183,7 @@ export default function SmartEventForm(props) {
           source="solar_term_name" 
           label="節氣選擇" 
           choices={getSolarTermChoices()}
+          validate={[required('節氣為必選')]}
           placeholder="請選擇節氣"
         />
       )}
