@@ -2341,17 +2341,18 @@ async function getCacheHitRate() {
   - solar_term: `solar_term_name`
 - 讀取：v1 回傳規則欄位 + 相容用 `solar_date`（字串：代表最近/當年）。後續提供 v2 僅規則 + `next_occurrence_date`。
 
-2) 後端修復（本階段目標）
+2) 後端修復（已完成）
 - 驗證（update 模式）：僅對「出現在 payload 且非空」的欄位做驗證；未帶不驗證、不清空。
 - 日期覆寫規則（PUT/POST 同步）：若帶 `solar_month/solar_day` 或 `lunar_*` 或 `one_time_date`，統一由規則覆寫 `solar_date`（現階段過渡用；中期切至 `event_occurrences`）。
 - normalize 輸出：補齊 `solar_month`, `solar_day`, `is_lunar`, `leap_behavior`, `one_time_date`, `solar_term_name` 欄位，對前端一律穩定可見。
 - 錯誤訊息：`type` 驗證訊息補上 `solar_term`。
+- 回應相容：`POST/PUT` 回傳的 `solar_date` 統一為字串（取第一個）。
 
-3) 前端修復（Admin）
+3) 前端修復（Admin，已完成）
 - 表單：只輸出規則欄位；切換類型時清除不屬於該類型的欄位。
-- dataProvider.update/create：在送出前清洗 payload（移除空字串/null 與非該類型欄位）。
+- dataProvider.update/create：在送出前清洗 payload（移除空字串/null 與非該類型欄位），並避免傳 `solar_date`。
 
-4) 測試補齊
+4) 測試補齊（進行中）
 - PUT 帶空值不應觸發無關驗證；
 - PUT 帶 `solar_month/solar_day` 能覆寫 `solar_date`；
 - 四種類型最小成功案例；
