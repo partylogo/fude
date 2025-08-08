@@ -5,8 +5,8 @@
       "src": "admin/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "admin/dist",
-        "buildCommand": "cd admin && (pnpm i --frozen-lockfile || pnpm i) && pnpm build"
+        "distDir": "dist",
+        "buildCommand": "(pnpm i --frozen-lockfile || pnpm i) && pnpm build"
       }
     },
     { "src": "api/index.js", "use": "@vercel/node@latest" }
@@ -14,6 +14,6 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index.js" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/admin/dist/index.html" }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
