@@ -117,8 +117,9 @@ const createEvent = async (req, res) => {
       });
     }
 
-    // 若未提供 solar_date，但有 lunar_month/day，嘗試轉為國曆
-    if (!req.body.solar_date && req.body.lunar_month && req.body.lunar_day) {
+    // 只要帶了規則欄位，就以規則覆寫衍生日期（忽略外部傳入的 solar_date）
+    // 1) lunar_month/day → 轉為國曆
+    if (req.body.lunar_month && req.body.lunar_day) {
       const converted = LunarCalendarService.convertToSolar({
         month: Number(req.body.lunar_month),
         day: Number(req.body.lunar_day),
@@ -130,8 +131,8 @@ const createEvent = async (req, res) => {
       }
     }
 
-    // 若有提供 solar_month/solar_day，組合成 YYYY-MM-DD（用當前年份）
-    if (!req.body.solar_date && req.body.solar_month && req.body.solar_day) {
+    // 2) solar_month/solar_day → 用當前年份組 YYYY-MM-DD
+    if (req.body.solar_month && req.body.solar_day) {
       const now = new Date();
       const y = now.getUTCFullYear();
       const mm = String(Number(req.body.solar_month)).padStart(2, '0');
@@ -139,15 +140,20 @@ const createEvent = async (req, res) => {
       req.body.solar_date = `${y}-${mm}-${dd}`;
     }
 
-    // 若提供 one_time_date，直接使用為 solar_date
-    if (!req.body.solar_date && req.body.one_time_date) {
+    // 3) one_time_date → 直接使用為 solar_date
+    if (req.body.one_time_date) {
       req.body.solar_date = req.body.one_time_date;
     }
 
     // 建立事件
     const newEvent = await repository.create(req.body);
 
-    res.status(201).json(newEvent);
+    // 對外相容：solar_date 輸出字串（取第一個）
+    const out = { ...newEvent };
+    if (Array.isArray(out.solar_date)) {
+      out.solar_date = out.solar_date[0] || null;
+    }
+    res.status(201).json(out);
   } catch (error) {
     console.error('[createEvent] error:', error);
     res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_CREATE' });
@@ -177,7 +183,7 @@ const updateEvent = async (req, res) => {
     }
 
     // 與建立同樣的日期自動化邏輯（若送來的是分解欄位或農曆或一次性日期）
-    if (!req.body.solar_date && req.body.lunar_month && req.body.lunar_day) {
+    if (req.body.lunar_month && req.body.lunar_day) {
       const converted = LunarCalendarService.convertToSolar({
         month: Number(req.body.lunar_month),
         day: Number(req.body.lunar_day),
@@ -188,7 +194,7 @@ const updateEvent = async (req, res) => {
       }
     }
 
-    if (!req.body.solar_date && req.body.solar_month && req.body.solar_day) {
+    if (req.body.solar_month && req.body.solar_day) {
       const now = new Date();
       const y = now.getUTCFullYear();
       const mm = String(Number(req.body.solar_month)).padStart(2, '0');
@@ -196,14 +202,18 @@ const updateEvent = async (req, res) => {
       req.body.solar_date = `${y}-${mm}-${dd}`;
     }
 
-    if (!req.body.solar_date && req.body.one_time_date) {
+    if (req.body.one_time_date) {
       req.body.solar_date = req.body.one_time_date;
     }
 
     // 更新事件
     const updatedEvent = await repository.update(parseInt(id), req.body);
 
-    res.status(200).json(updatedEvent);
+    const out = { ...updatedEvent };
+    if (Array.isArray(out.solar_date)) {
+      out.solar_date = out.solar_date[0] || null;
+    }
+    res.status(200).json(out);
   } catch (error) {
     console.error('[updateEvent] error:', error);
     res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_UPDATE' });
