@@ -4,6 +4,7 @@ const path = require('path');
 const CACHE_PATH = path.join(__dirname, '..', 'data', 'eventsCache.json');
 const mockEvents = require('../data/mockEvents');
 const getSupabaseClient = require('./supabaseClient');
+const IS_SERVERLESS = !!process.env.VERCEL || process.env.NOW_BUILDER === '1';
 
 class EventRepository {
   constructor() {
@@ -30,13 +31,14 @@ class EventRepository {
         }
         global.__eventsStore = cached && Array.isArray(cached) && cached.length ? cached : [...mockEvents];
         global.__nextEventId = Math.max(0, ...global.__eventsStore.map(e => e.id)) + 1;
-
-        // 在啟動時同步寫入快取，確保檔案存在
-        try {
-          fs.mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
-          fs.writeFileSync(CACHE_PATH, JSON.stringify(global.__eventsStore, null, 2));
-        } catch (err) {
-          console.error('[EventRepository] 寫入快取失敗:', err);
+        // Serverless 環境禁止寫入檔案系統
+        if (!IS_SERVERLESS) {
+          try {
+            fs.mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
+            fs.writeFileSync(CACHE_PATH, JSON.stringify(global.__eventsStore, null, 2));
+          } catch (err) {
+            console.error('[EventRepository] 寫入快取失敗:', err);
+          }
         }
       }
       this.events = global.__eventsStore;
@@ -48,7 +50,7 @@ class EventRepository {
    * 將目前 events 寫入 JSON 快取（僅非測試環境）
    */
   persist() {
-    if (process.env.NODE_ENV === 'test') return;
+    if (process.env.NODE_ENV === 'test' || IS_SERVERLESS) return;
     try {
       fs.writeFileSync(CACHE_PATH, JSON.stringify(this.events, null, 2));
     } catch (err) {

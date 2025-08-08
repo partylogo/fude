@@ -4,6 +4,9 @@ const app = express();
 
 app.use(express.json());
 
+// Basic health & debug
+app.get('/api/health', (_req, res) => res.json({ ok: true }));
+
 // Import route handlers
 const { eventsHandler, getEvent, createEvent, updateEvent, deleteEvent } = require('./events');
 const lunarHandler = require('./lunar');

@@ -10,6 +10,8 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // 防止某些瀏覽器/內容阻擋器把 /events 認成追蹤器時阻擋
+  withCredentials: false,
 });
 
 const dataProvider = {
