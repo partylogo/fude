@@ -40,11 +40,17 @@ const validateEventData = (data, isUpdate = false) => {
     }
   }
 
-  // 必須提供 solar_date 或者 (lunar_month + lunar_day)
+  // 必須提供下列之一：
+  // 1) solar_date
+  // 2) lunar_month + lunar_day
+  // 3) solar_month + solar_day
+  // 4) one_time_date
   const hasSolar = data.solar_date !== undefined && data.solar_date !== null && String(data.solar_date).trim() !== '';
   const hasLunar = data.lunar_month !== undefined && data.lunar_day !== undefined;
-  if (!hasSolar && !hasLunar) {
-    errors.push('Either solar_date (YYYY-MM-DD) or lunar_month + lunar_day is required');
+  const hasSolarParts = data.solar_month !== undefined && data.solar_day !== undefined;
+  const hasOneTime = data.one_time_date !== undefined && String(data.one_time_date).trim() !== '';
+  if (!hasSolar && !hasLunar && !hasSolarParts && !hasOneTime) {
+    errors.push('Provide one of: solar_date, (lunar_month + lunar_day), (solar_month + solar_day), or one_time_date');
   }
 
   return errors;
@@ -124,6 +130,20 @@ const createEvent = async (req, res) => {
         // 先取第一個日期即可（DB 層會存陣列）
         req.body.solar_date = converted[0];
       }
+    }
+
+    // 若有提供 solar_month/solar_day，組合成 YYYY-MM-DD（用當前年份）
+    if (!req.body.solar_date && req.body.solar_month && req.body.solar_day) {
+      const now = new Date();
+      const y = now.getUTCFullYear();
+      const mm = String(Number(req.body.solar_month)).padStart(2, '0');
+      const dd = String(Number(req.body.solar_day)).padStart(2, '0');
+      req.body.solar_date = `${y}-${mm}-${dd}`;
+    }
+
+    // 若提供 one_time_date，直接使用為 solar_date
+    if (!req.body.solar_date && req.body.one_time_date) {
+      req.body.solar_date = req.body.one_time_date;
     }
 
     // 建立事件
