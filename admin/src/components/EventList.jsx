@@ -31,18 +31,24 @@ const EventList = () => {
         />
         <TextField source="description" label="描述" />
         <FunctionField label="國曆日期" render={record => {
-          if (Array.isArray(record.solar_date) && record.solar_date.length) {
-            const dateStr = record.solar_date[0];
-            return dateStr ? new Date(dateStr).toLocaleDateString('zh-TW') : '';
+          // 以陣列第一個或字串輸出國曆日期，否則以月/日組合顯示
+          const first = Array.isArray(record.solar_date)
+            ? (record.solar_date[0] || '')
+            : (record.solar_date || '');
+          if (first) {
+            try { return new Date(first).toLocaleDateString('zh-TW'); } catch (_e) {}
           }
-          // fallback for festival fixed month/day
           if (record.solar_month && record.solar_day) {
             return `${record.solar_month}/${record.solar_day}`;
           }
           return '';
         }} />
-        <TextField source="lunar_month" label="農曆月" />
-        <TextField source="lunar_day" label="農曆日" />
+        <FunctionField label="農曆日期" render={record => {
+          if (record.lunar_month && record.lunar_day) {
+            return `${record.lunar_month}/${record.lunar_day}`;
+          }
+          return '';
+        }} />
         <EditButton />
         <ShowButton />
         <DeleteButton />
