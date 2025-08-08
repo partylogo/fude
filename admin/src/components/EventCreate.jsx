@@ -8,7 +8,7 @@ import LunarConverter from './LunarConverter';
 
 const EventCreate = () => {
   return (
-    <Create>
+    <Create redirect="list">
       <SmartEventForm />
       
       {/* 農曆轉換工具 */}

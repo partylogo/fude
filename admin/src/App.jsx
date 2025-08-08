@@ -37,7 +37,7 @@ const App = () => {
         create={GroupCreate}
         show={ShowGuesser} 
       />
-      {import.meta.env.VITE_ENABLE_SYSTEM_MONITOR === 'true' && (
+      {import.meta.env.VITE_ENABLE_SYSTEM_MONITOR !== 'false' && (
         <Resource 
           name="system" 
           list={SystemDashboard}
