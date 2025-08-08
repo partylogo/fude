@@ -27,7 +27,7 @@ const App = () => {
         list={EventList} 
         edit={EventEdit} 
         create={EventCreate}
-        show={ShowGuesser} 
+        show={ShowGuesser}
       />
       <Resource 
         name="groups" 

@@ -195,11 +195,9 @@ class EventRepository {
         if (error) throw error;
         return normalizeDbEvent(data);
       } catch (err) {
-        if (isSchemaMissing(err)) {
-          this.supabase = null;
-        } else {
-          throw err;
-        }
+        console.error('[EventRepository.create] supabase error, falling back to memory:', err);
+        // 無論何種錯誤皆回退至 in-memory，以保障 API 可用性（部署早期）
+        this.supabase = null;
       }
     }
     const newEvent = {
@@ -231,11 +229,8 @@ class EventRepository {
         if (error) throw error;
         return normalizeDbEvent(data);
       } catch (err) {
-        if (isSchemaMissing(err)) {
-          this.supabase = null;
-        } else {
-          throw err;
-        }
+        console.error('[EventRepository.update] supabase error, falling back to memory:', err);
+        this.supabase = null;
       }
     }
     const index = this.events.findIndex(e => e.id === id);
@@ -314,7 +309,13 @@ function dbPayloadFromEventData(data) {
 }
 
 function isSchemaMissing(err) {
-  return err && (err.code === 'PGRST205' || err.code === '42P01' || /schema cache/i.test(String(err.message)) || /relation .* does not exist/i.test(String(err.message)));
+  return err && (
+    err.code === 'PGRST205' ||
+    err.code === '42P01' ||
+    /schema cache/i.test(String(err.message)) ||
+    /relation .* does not exist/i.test(String(err.message)) ||
+    /column .* does not exist/i.test(String(err.message))
+  );
 }
 
 module.exports = EventRepository;
