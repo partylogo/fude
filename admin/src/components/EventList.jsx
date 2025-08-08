@@ -36,7 +36,7 @@ const EventList = () => {
             ? (record.solar_date[0] || '')
             : (record.solar_date || '');
           if (typeof first === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(first)) {
-            try { return new Date(first).toLocaleDateString('zh-TW'); } catch (_e) {}
+            try { const d = new Date(first); if (!isNaN(d.getTime())) return d.toLocaleDateString('zh-TW'); } catch (_e) {}
           }
           if (record.solar_month && record.solar_day) {
             return `${record.solar_month}/${record.solar_day}`;

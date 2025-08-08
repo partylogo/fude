@@ -184,10 +184,15 @@ class EventRepository {
         this.supabase = null;
       }
     }
+    const normalizedSolar = (() => {
+      const sd = eventData.solar_date;
+      if (!sd) return [];
+      return Array.isArray(sd) ? sd.filter(Boolean) : [sd];
+    })();
     const newEvent = {
       id: this.nextIdRef(),
       ...eventData,
-      solar_date: Array.isArray(eventData.solar_date) ? eventData.solar_date : [eventData.solar_date]
+      solar_date: normalizedSolar
     };
     this.events.push(newEvent);
     this.persist();

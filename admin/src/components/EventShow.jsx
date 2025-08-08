@@ -6,7 +6,8 @@ function formatGregorian(record) {
   const value = Array.isArray(record?.solar_date) ? record.solar_date[0] : record?.solar_date;
   if (typeof value !== 'string') return '';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return '';
-  try { return new Date(value).toLocaleDateString('zh-TW'); } catch (_e) { return ''; }
+  try { const d = new Date(value); if (!isNaN(d.getTime())) return d.toLocaleDateString('zh-TW'); } catch (_e) {}
+  return '';
 }
 
 const EventShowContent = () => {
