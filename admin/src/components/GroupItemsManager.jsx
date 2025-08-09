@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 
 const GroupItemsManager = ({ groupId }) => {
+  console.log('🔧 GroupItemsManager rendered with groupId:', groupId);
+  
   const [currentItems, setCurrentItems] = useState({ deities: [], festivals: [] });
   const [availableEvents, setAvailableEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,21 +70,25 @@ const GroupItemsManager = ({ groupId }) => {
   };
 
   useEffect(() => {
-    console.log(`[GroupItemsManager] useEffect 觸發, groupId: ${groupId}`);
+    console.log('=== GroupItemsManager useEffect ===');
+    console.log('groupId:', groupId);
+    console.log('typeof groupId:', typeof groupId);
+    
     const loadData = async () => {
-      console.log(`[GroupItemsManager] 開始載入資料, setIsLoading(true)`);
+      console.log('開始載入資料...');
       setIsLoading(true);
       await Promise.all([loadCurrentItems(), loadAvailableEvents()]);
-      console.log(`[GroupItemsManager] 載入完成, setIsLoading(false)`);
       setIsLoading(false);
+      console.log('載入完成');
     };
     
     if (groupId) {
-      console.log(`[GroupItemsManager] groupId 存在，開始載入資料`);
+      console.log('groupId 有效，開始載入');
       loadData();
     } else {
-      console.log(`[GroupItemsManager] groupId 不存在，跳過載入`);
+      console.log('groupId 無效，跳過載入');
     }
+    console.log('===================================');
   }, [groupId]);
 
   // 添加事件到群組

@@ -9,9 +9,14 @@ const GroupEditForm = () => {
   const { id } = useParams(); // 從 URL 參數取得 ID
   const groupId = record?.id || id; // 使用 record.id 或 URL 參數
   
-  console.log(`[GroupEdit] record:`, record);
-  console.log(`[GroupEdit] URL params id:`, id);
-  console.log(`[GroupEdit] 最終使用的 groupId:`, groupId);
+  // 強制輸出日誌到 console
+  React.useEffect(() => {
+    console.log('=== GroupEdit Debug Info ===');
+    console.log('record:', record);
+    console.log('URL params id:', id);
+    console.log('最終使用的 groupId:', groupId);
+    console.log('=============================');
+  }, [record, id, groupId]);
   
   return (
     <SimpleForm>
