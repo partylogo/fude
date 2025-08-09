@@ -10,6 +10,7 @@ const GroupItemsManager = ({ groupId }) => {
   const [isMutating, setIsMutating] = useState(false);
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // 載入當前群組項目
   const loadCurrentItems = async () => {
@@ -95,7 +96,16 @@ const GroupItemsManager = ({ groupId }) => {
   const addEventToGroup = async (eventId) => {
     if (isMutating) return;
     setIsMutating(true);
+    setError(''); // 清除之前的錯誤
+    setSuccessMessage(''); // 清除之前的成功訊息
+    
+    // 找到事件名稱用於顯示
+    const event = availableEvents.find(e => e.id === eventId);
+    const eventName = event?.title || `事件 ${eventId}`;
+    
     try {
+      console.log(`[GroupItemsManager] 正在添加事件 ${eventName} (ID: ${eventId}) 到群組 ${groupId}`);
+      
       const response = await fetch(`/api/groups/${groupId}/items`, {
         method: 'POST',
         headers: {
@@ -111,9 +121,19 @@ const GroupItemsManager = ({ groupId }) => {
         throw new Error(msg);
       }
 
+      console.log(`[GroupItemsManager] 成功添加事件 ${eventName}`);
+      
       // 重新載入當前項目
       await loadCurrentItems();
+      
+      // 顯示成功訊息
+      setSuccessMessage(`成功添加事件「${eventName}」到群組`);
+      
+      // 3秒後清除成功訊息
+      setTimeout(() => setSuccessMessage(''), 3000);
+      
     } catch (err) {
+      console.error(`[GroupItemsManager] 添加事件失敗:`, err);
       setError('添加事件失敗：' + err.message);
     } finally {
       setIsMutating(false);
@@ -123,8 +143,28 @@ const GroupItemsManager = ({ groupId }) => {
   // 從群組移除事件
   const removeEventFromGroup = async (eventId) => {
     if (isMutating) return;
+    
+    // 找到要移除的事件資訊
+    const allEvents = [
+      ...currentItems.deities,
+      ...currentItems.festivals,
+      ...currentItems.customEvents,
+      ...currentItems.solarTerms
+    ];
+    const event = allEvents.find(e => e.id === eventId);
+    const eventName = event?.title || `事件 ${eventId}`;
+    
+    // 確認對話框
+    const confirmed = window.confirm(`確定要從群組中移除事件「${eventName}」嗎？\n\n這個操作會立即生效。`);
+    if (!confirmed) return;
+    
     setIsMutating(true);
+    setError(''); // 清除之前的錯誤
+    setSuccessMessage(''); // 清除之前的成功訊息
+    
     try {
+      console.log(`[GroupItemsManager] 正在移除事件 ${eventName} (ID: ${eventId}) 從群組 ${groupId}`);
+      
       const response = await fetch(`/api/groups/${groupId}/items/${eventId}`, {
         method: 'DELETE',
         headers: {
@@ -139,9 +179,19 @@ const GroupItemsManager = ({ groupId }) => {
         throw new Error(msg);
       }
 
+      console.log(`[GroupItemsManager] 成功移除事件 ${eventName}`);
+      
       // 重新載入當前項目
       await loadCurrentItems();
+      
+      // 顯示成功訊息
+      setSuccessMessage(`成功從群組移除事件「${eventName}」`);
+      
+      // 3秒後清除成功訊息
+      setTimeout(() => setSuccessMessage(''), 3000);
+      
     } catch (err) {
+      console.error(`[GroupItemsManager] 移除事件失敗:`, err);
       setError('移除事件失敗：' + err.message);
     } finally {
       setIsMutating(false);
@@ -182,20 +232,68 @@ const GroupItemsManager = ({ groupId }) => {
 
   if (error) {
     return (
-      <div data-testid="error-message" style={{ 
-        padding: '12px', 
-        backgroundColor: '#ffebee', 
-        border: '1px solid #ffcdd2',
-        borderRadius: '4px',
-        color: '#d32f2f'
-      }}>
-        {error}
+      <div>
+        <div data-testid="error-message" style={{ 
+          padding: '12px', 
+          backgroundColor: '#ffebee', 
+          border: '1px solid #ffcdd2',
+          borderRadius: '4px',
+          color: '#d32f2f',
+          marginBottom: '16px'
+        }}>
+          {error}
+        </div>
+        <button 
+          onClick={() => {
+            setError('');
+            loadCurrentItems();
+            loadAvailableEvents();
+          }}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#1976d2',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          重新載入
+        </button>
       </div>
     );
   }
 
   return (
     <div data-testid="group-items-manager">
+      {/* 成功訊息 */}
+      {successMessage && (
+        <div data-testid="success-message" style={{ 
+          padding: '12px', 
+          backgroundColor: '#e8f5e8', 
+          border: '1px solid #c8e6c9',
+          borderRadius: '4px',
+          color: '#2e7d32',
+          marginBottom: '16px'
+        }}>
+          {successMessage}
+        </div>
+      )}
+
+      {/* 錯誤訊息 */}
+      {error && (
+        <div data-testid="error-message" style={{ 
+          padding: '12px', 
+          backgroundColor: '#ffebee', 
+          border: '1px solid #ffcdd2',
+          borderRadius: '4px',
+          color: '#d32f2f',
+          marginBottom: '16px'
+        }}>
+          {error}
+        </div>
+      )}
+
       {/* 當前群組項目 */}
       <div data-testid="current-items-section" style={{ marginBottom: '24px' }}>
         <h4 style={{ color: '#333', marginBottom: '16px' }}>當前群組事件</h4>
