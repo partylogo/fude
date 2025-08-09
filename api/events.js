@@ -206,6 +206,24 @@ const createEvent = async (req, res) => {
       req.body.solar_date = req.body.one_time_date;
     }
 
+    // 4) solar_term 事件 → 使用今年的節氣日期作為 solar_date（相容性）
+    if (req.body.type === 'solar_term' && req.body.solar_term_name) {
+      const solarTermDates = {
+        '立春': '02-04', '雨水': '02-19', '驚蟄': '03-06', '春分': '03-21',
+        '清明': '04-05', '穀雨': '04-20', '立夏': '05-06', '小滿': '05-21',
+        '芒種': '06-06', '夏至': '06-21', '小暑': '07-07', '大暑': '07-23',
+        '立秋': '08-08', '處暑': '08-23', '白露': '09-08', '秋分': '09-23',
+        '寒露': '10-08', '霜降': '10-23', '立冬': '11-07', '小雪': '11-22',
+        '大雪': '12-07', '冬至': '12-22', '小寒': '01-06', '大寒': '01-20'
+      };
+      
+      const termDate = solarTermDates[req.body.solar_term_name];
+      if (termDate) {
+        const currentYear = new Date().getFullYear();
+        req.body.solar_date = `${currentYear}-${termDate}`;
+      }
+    }
+
     // 建立事件
     let newEvent;
     try {
@@ -271,6 +289,24 @@ const updateEvent = async (req, res) => {
 
     if (req.body.one_time_date) {
       req.body.solar_date = req.body.one_time_date;
+    }
+
+    // solar_term 事件邏輯（同創建）
+    if (req.body.type === 'solar_term' && req.body.solar_term_name) {
+      const solarTermDates = {
+        '立春': '02-04', '雨水': '02-19', '驚蟄': '03-06', '春分': '03-21',
+        '清明': '04-05', '穀雨': '04-20', '立夏': '05-06', '小滿': '05-21',
+        '芒種': '06-06', '夏至': '06-21', '小暑': '07-07', '大暑': '07-23',
+        '立秋': '08-08', '處暑': '08-23', '白露': '09-08', '秋分': '09-23',
+        '寒露': '10-08', '霜降': '10-23', '立冬': '11-07', '小雪': '11-22',
+        '大雪': '12-07', '冬至': '12-22', '小寒': '01-06', '大寒': '01-20'
+      };
+      
+      const termDate = solarTermDates[req.body.solar_term_name];
+      if (termDate) {
+        const currentYear = new Date().getFullYear();
+        req.body.solar_date = `${currentYear}-${termDate}`;
+      }
     }
 
     // 更新事件
