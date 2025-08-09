@@ -10,6 +10,7 @@ const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'api-version': 'v2', // 使用 v2 API 獲取 next_occurrence_date
   },
   // 防止某些瀏覽器/內容阻擋器把 /events 認成追蹤器時阻擋
   withCredentials: false,
@@ -53,11 +54,8 @@ const dataProvider = {
       // 處理不同的 API 回應格式
       let data, total;
       if (resource === 'events' && response.data.events) {
-        data = response.data.events.map(evt => ({
-          ...evt,
-          // ensure solar_date is string for DateField
-          solar_date: Array.isArray(evt.solar_date) ? evt.solar_date[0] : evt.solar_date,
-        }));
+        // API v2 提供 next_occurrence_date，不再需要轉換 solar_date
+        data = response.data.events;
         total = data.length;
       } else if (resource === 'groups' && response.data.groups) {
         data = response.data.groups;
@@ -83,12 +81,8 @@ const dataProvider = {
   getOne: async (resource, params) => {
     try {
       const response = await apiClient.get(`/${resource}/${params.id}`);
-      let data = response.data;
-      if (resource === 'events') {
-        const first = Array.isArray(data.solar_date) ? (data.solar_date[0] || null) : data.solar_date;
-        data = { ...data, solar_date: first };
-      }
-      return { data };
+      // API v2 直接提供所需格式，不需要轉換 solar_date
+      return { data: response.data };
     } catch (error) {
       const status = error?.response?.status || 500;
       const message = error?.response?.data?.message || error.message || 'Unknown error';

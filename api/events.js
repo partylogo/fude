@@ -2,6 +2,57 @@
 const EventRepository = require('../database/eventRepository');
 const EventsService = require('../services/eventsService');
 const LunarCalendarService = require('../services/lunarCalendarService');
+const OccurrenceGenerationService = require('../services/occurrenceGenerationService');
+const { sendError, sendValidationError, sendSupabaseError, sendInternalError } = require('../utils/errorHandler');
+
+// Phase 2: Occurrence 生成服務實例
+const occurrenceService = new OccurrenceGenerationService();
+
+/**
+ * Phase 2: 增強事件輸出格式
+ * 支援 v1 相容和 v2 新格式
+ * @param {Object} event - 原始事件物件
+ * @param {Object} options - 輸出選項 {version: 'v1'|'v2', includeNext: boolean}
+ * @returns {Promise<Object>} 格式化的事件物件
+ */
+async function enhanceEventOutput(event, options = {}) {
+  const { version = 'v1', includeNext = true } = options;
+  const enhanced = { ...event };
+
+  try {
+    // v1 相容輸出：維持 solar_date 為字串（首筆）
+    if (version === 'v1') {
+      if (Array.isArray(enhanced.solar_date)) {
+        enhanced.solar_date = enhanced.solar_date[0] || null;
+      }
+    }
+
+    // v2 輸出：加入 next_occurrence_date
+    if (version === 'v2' && includeNext) {
+      const nextOccurrence = await occurrenceService.getNextOccurrence(event.id);
+      enhanced.next_occurrence_date = nextOccurrence ? nextOccurrence.occurrence_date : null;
+      enhanced.next_occurrence_is_leap = nextOccurrence ? nextOccurrence.is_leap_month : null;
+      
+      // v2 也保留規則欄位供前端使用
+      enhanced.rule_fields = {
+        is_lunar: enhanced.is_lunar,
+        lunar_month: enhanced.lunar_month,
+        lunar_day: enhanced.lunar_day,
+        is_leap_month: enhanced.is_leap_month,
+        leap_behavior: enhanced.leap_behavior,
+        solar_month: enhanced.solar_month,
+        solar_day: enhanced.solar_day,
+        one_time_date: enhanced.one_time_date,
+        solar_term_name: enhanced.solar_term_name
+      };
+    }
+  } catch (error) {
+    console.error('[enhanceEventOutput] Error enhancing event output:', error);
+    // 失敗時返回原始事件，不影響主要功能
+  }
+
+  return enhanced;
+}
 
 // 驗證事件資料
 const validateEventData = (data, isUpdate = false) => {
@@ -73,9 +124,7 @@ const eventsHandler = async (req, res) => {
 
     // 驗證日期格式
     if (!EventsService.isValidDateString(from) || !EventsService.isValidDateString(to)) {
-      return res.status(400).json({
-        error: 'Invalid date format. Use YYYY-MM-DD format.'
-      });
+      return sendValidationError(res, ['Invalid date format. Use YYYY-MM-DD format.'], 'INVALID_DATE_FORMAT');
     }
 
     // 使用 repository 取得資料
@@ -86,17 +135,23 @@ const eventsHandler = async (req, res) => {
       events = await repository.findAll();
     }
 
-    // 對外相容：solar_date 統一字串
-    const normalized = (events || []).map(e => ({
-      ...e,
-      solar_date: Array.isArray(e.solar_date) ? (e.solar_date[0] || null) : (e.solar_date ?? null)
-    }));
+    // Phase 2: 根據 API 版本返回增強輸出
+    const apiVersion = req.headers['api-version'] || 'v1';
+    const enhancedEvents = [];
+    
+    for (const event of (events || [])) {
+      const enhanced = await enhanceEventOutput(event, { 
+        version: apiVersion,
+        includeNext: false // 列表不包含 next_occurrence，避免過多查詢
+      });
+      enhancedEvents.push(enhanced);
+    }
+    
     // 標註資料來源（debug）：supabase 或 memory
     res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
-    res.status(200).json({ events: normalized });
+    res.status(200).json({ events: enhancedEvents });
   } catch (error) {
-    console.error('[eventsHandler] error:', error);
-    res.status(500).json({ error: 'Internal server error', code: 'E_EVENTS_LIST' });
+    return sendInternalError(res, error, 'E_EVENTS_LIST');
   }
 };
 
@@ -108,18 +163,17 @@ const getEvent = async (req, res) => {
 
     const event = await repository.findById(parseInt(id));
     if (!event) {
-      return res.status(404).json({
-        error: 'Event not found'
-      });
+      return sendError(res, 404, 'Event not found', null, 'EVENT_NOT_FOUND');
     }
 
-    const out = { ...event };
-    if (Array.isArray(out.solar_date)) out.solar_date = out.solar_date[0] || null;
+    // Phase 2: 根據 API 版本返回增強輸出
+    const apiVersion = req.headers['api-version'] || 'v1';
+    const enhancedEvent = await enhanceEventOutput(event, { version: apiVersion });
+    
     res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
-    res.status(200).json(out);
+    res.status(200).json(enhancedEvent);
   } catch (error) {
-    console.error('[getEvent] error:', error);
-    res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_GET' });
+    return sendInternalError(res, error, 'E_EVENT_GET');
   }
 };
 
@@ -131,9 +185,7 @@ const createEvent = async (req, res) => {
     // 驗證資料
     const errors = validateEventData(req.body);
     if (errors.length > 0) {
-      return res.status(400).json({
-        error: 'Validation failed: ' + errors.join(', ')
-      });
+      return sendValidationError(res, errors, 'E_EVENT_VALIDATION');
     }
 
     // 只要帶了規則欄位，就以規則覆寫衍生日期（忽略外部傳入的 solar_date）
@@ -155,18 +207,36 @@ const createEvent = async (req, res) => {
     }
 
     // 建立事件
-    const newEvent = await repository.create(req.body);
-
-    // 對外相容：solar_date 輸出字串（取第一個）
-    const out = { ...newEvent };
-    if (Array.isArray(out.solar_date)) {
-      out.solar_date = out.solar_date[0] || null;
+    let newEvent;
+    try {
+      newEvent = await repository.create(req.body);
+    } catch (err) {
+      // Phase 1: 處理白名單錯誤
+      if (err.code === 'INVALID_FIELDS') {
+        return sendValidationError(res, [err.message], 'E_INVALID_FIELDS');
+      }
+      throw err; // 重新拋出其他錯誤
     }
+
+    // Phase 2: 自動生成 occurrences（支援的類型）
+    if (['festival', 'custom'].includes(newEvent.type)) {
+      try {
+        console.log(`[createEvent] Generating occurrences for ${newEvent.type} event ${newEvent.id}`);
+        await occurrenceService.generateOccurrences(newEvent);
+      } catch (occError) {
+        console.error(`[createEvent] Failed to generate occurrences:`, occError);
+        // 不影響事件創建，只記錄錯誤
+      }
+    }
+
+    // Phase 2: 根據 API 版本返回增強輸出
+    const apiVersion = req.headers['api-version'] || 'v1';
+    const enhancedEvent = await enhanceEventOutput(newEvent, { version: apiVersion });
+    
     res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
-    res.status(201).json(out);
+    res.status(201).json(enhancedEvent);
   } catch (error) {
-    console.error('[createEvent] error:', error);
-    res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_CREATE' });
+    return sendInternalError(res, error, 'E_EVENT_CREATE');
   }
 };
 
@@ -179,17 +249,13 @@ const updateEvent = async (req, res) => {
     // 檢查事件是否存在
     const existingEvent = await repository.findById(parseInt(id));
     if (!existingEvent) {
-      return res.status(404).json({
-        error: 'Event not found'
-      });
+      return sendError(res, 404, 'Event not found', null, 'EVENT_NOT_FOUND');
     }
 
     // 驗證更新資料
     const errors = validateEventData(req.body, true);
     if (errors.length > 0) {
-      return res.status(400).json({
-        error: 'Validation failed: ' + errors.join(', ')
-      });
+      return sendValidationError(res, errors, 'E_EVENT_UPDATE_VALIDATION');
     }
 
     // 與建立同樣的日期自動化邏輯（若送來的是分解欄位或農曆或一次性日期）
@@ -208,17 +274,40 @@ const updateEvent = async (req, res) => {
     }
 
     // 更新事件
-    const updatedEvent = await repository.update(parseInt(id), req.body);
-
-    const out = { ...updatedEvent };
-    if (Array.isArray(out.solar_date)) {
-      out.solar_date = out.solar_date[0] || null;
+    let updatedEvent;
+    try {
+      updatedEvent = await repository.update(parseInt(id), req.body);
+    } catch (err) {
+      // Phase 1: 處理白名單錯誤
+      if (err.code === 'INVALID_FIELDS') {
+        return sendValidationError(res, [err.message], 'E_INVALID_FIELDS');
+      }
+      throw err; // 重新拋出其他錯誤
     }
+
+    // Phase 2: 重新生成 occurrences（如果規則欄位有變化）
+    const ruleFields = ['solar_month', 'solar_day', 'one_time_date', 'lunar_month', 'lunar_day', 'leap_behavior'];
+    const hasRuleChanges = ruleFields.some(field => req.body[field] !== undefined);
+    
+    if (['festival', 'custom'].includes(updatedEvent.type) && hasRuleChanges) {
+      try {
+        console.log(`[updateEvent] Regenerating occurrences for updated ${updatedEvent.type} event ${updatedEvent.id}`);
+        // 強制重新生成
+        await occurrenceService.generateOccurrences(updatedEvent, { force: true });
+      } catch (occError) {
+        console.error(`[updateEvent] Failed to regenerate occurrences:`, occError);
+        // 不影響事件更新，只記錄錯誤
+      }
+    }
+
+    // Phase 2: 根據 API 版本返回增強輸出
+    const apiVersion = req.headers['api-version'] || 'v1';
+    const enhancedEvent = await enhanceEventOutput(updatedEvent, { version: apiVersion });
+    
     res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
-    res.status(200).json(out);
+    res.status(200).json(enhancedEvent);
   } catch (error) {
-    console.error('[updateEvent] error:', error);
-    res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_UPDATE' });
+    return sendInternalError(res, error, 'E_EVENT_UPDATE');
   }
 };
 
@@ -231,17 +320,21 @@ const deleteEvent = async (req, res) => {
     // 檢查事件是否存在
     const existingEvent = await repository.findById(parseInt(id));
     if (!existingEvent) {
-      return res.status(404).json({
-        error: 'Event not found'
-      });
+      return sendError(res, 404, 'Event not found', null, 'EVENT_NOT_FOUND');
     }
 
     // 刪除事件
     const success = await repository.delete(parseInt(id));
     if (!success) {
-      return res.status(500).json({
-        error: 'Failed to delete event'
-      });
+      return sendError(res, 500, 'Failed to delete event', null, 'E_EVENT_DELETE_FAILED');
+    }
+
+    // Phase 2: 清理相關的 occurrences
+    try {
+      await occurrenceService.clearOccurrences(parseInt(id));
+    } catch (occError) {
+      console.error(`[deleteEvent] Failed to clear occurrences for event ${id}:`, occError);
+      // 不影響事件刪除，只記錄錯誤
     }
 
     res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
@@ -250,8 +343,7 @@ const deleteEvent = async (req, res) => {
       id: parseInt(id)
     });
   } catch (error) {
-    console.error('[deleteEvent] error:', error);
-    res.status(500).json({ error: 'Internal server error', code: 'E_EVENT_DELETE' });
+    return sendInternalError(res, error, 'E_EVENT_DELETE');
   }
 };
 

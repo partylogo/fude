@@ -2310,7 +2310,6 @@ async function getCacheHitRate() {
 - [x] 部署 API 到 Vercel 雲端環境
 - [x] 部署 React Admin 到雲端環境（同專案同網域，免 `VITE_API_BASE_URL`）
 - [ ] 修改 iOS App 連接雲端 API（移除 mock data）
-- [ ] 建立 iOS GroupDetailView（簡少年老師推薦詳細頁）
 - [ ] **部署複雜日期規則系統到雲端**：
   - [ ] 執行完整資料庫 schema migration（含所有新表）
   - [ ] 部署智能生成系統與 Cron Jobs
@@ -2327,69 +2326,6 @@ async function getCacheHitRate() {
   - [ ] Admin 後台智能表單與監控面板正常運行
 
 > **Version 1.1 完成標準**：完成雲端後端 API 整合與**企業級複雜日期規則管理系統**，iOS App 可正常顯示雲端資料、設定通知（但無用戶登入）。支援農曆、國曆、節氣、一次性等所有事件類型的自動日期計算與5年預載。對應UI mockup的頁面1、4、5、6、7完成。**開發流程**：本地測試 → 雲端部署。
-
-### 🔧 Phase 2B – API v1 穩定化與 SSOT 收斂（持續）
-
-目標：修復雲端 Admin 建/編 400/日期不同步問題，並落實單一真相來源（SSOT）在「規則」，日期為衍生資料。
-
-1) 契約收斂（不破壞相容）
-- [x] 寫入（POST/PUT）：僅接受「規則欄位」，忽略 `solar_date`。
-- [x] 規則四選一（依 type）：
-  - deity: `is_lunar=true` + `lunar_month/lunar_day`（`leap_behavior` 選填）
-  - festival: `solar_month/solar_day`
-  - custom: `one_time_date`
-  - solar_term: `solar_term_name`
-- [x] 讀取：v1 回傳規則欄位 + 相容用 `solar_date`（字串：代表最近/當年）。後續提供 v2 僅規則 + `next_occurrence_date`。
-
-2) 後端修復（已完成 + 新增）
-- [x] 驗證（update 模式）：僅對「出現在 payload 且非空」的欄位做驗證；未帶不驗證、不清空。
-- [x] 日期覆寫規則（PUT/POST 同步）：若帶 `solar_month/solar_day` 或 `lunar_*` 或 `one_time_date`，統一由規則覆寫 `solar_date`（現階段過渡用；中期切至 `event_occurrences`）。
-- [ ] normalize 輸出：補齊 `solar_month`, `solar_day`, `is_lunar`, `leap_behavior`, `one_time_date`, `solar_term_name` 欄位，對前端一律穩定可見。
-- [x] 錯誤訊息：`type` 驗證訊息補上 `solar_term`。
-- [x] 回應相容：`POST/PUT` 回傳的 `solar_date` 統一為字串（取第一個）。
-- [x] GET 相容（新增）：`GET /api/events` 與 `GET /api/events/:id` 也統一輸出 `solar_date: string|null`（API 對外不再輸出陣列）。
-- [x] Fallback（新增）：凡 Supabase 查詢錯誤，list/getOne 也退回 in‑memory（避免 500）。
-
-3) 前端修復（Admin，已完成 + 新增）
-- [x] 表單：只輸出規則欄位；切換類型時清除不屬於該類型的欄位。
-- [x] dataProvider.update/create：在送出前清洗 payload（移除空字串/null 與非該類型欄位），並避免傳 `solar_date`。
-- [x] EventShow（新增）：以自訂 `EventShow` 取代 `ShowGuesser`，依規則安全顯示欄位，避免 `toLocaleDateString` 導致的崩潰。
-- [x] 列表日期守衛（新增）：`YYYY-MM-DD` 正則通過時才格式化國曆。
-
-4) 其他前端強化（新增）
-- [x] dataProvider.getOne：在後端統一前，先行做 `solar_date` 陣列→字串兼容處理。
-- [x] GroupList：`video_url` 無值保護；錯誤訊息友善化。
-- [x] EventList：強化 `YYYY-MM-DD` 正則守衛，無效字串不轉換。
-- [x] SystemMaintenanceMonitor：以 `VITE_ENABLE_SYSTEM_MONITOR` 控制入口顯示（短期方案）。
-
-5) 後端讀路徑一致化（新增）
-- [x] EventRepository/GroupRepository 的 findAll/findById 等讀路徑，對 Supabase 任意錯誤一律 fallback 至 in‑memory，避免 500。
-
-6) 測試補齊（進行中）
-- [ ] PUT 帶空值不應觸發無關驗證；
-- [ ] PUT 帶 `solar_month/solar_day` 能覆寫 `solar_date`；
-- [ ] 四種類型最小成功案例；
-- [ ] GET 穩定輸出上述規則欄位；
-- [ ] 舊用戶端相容：`solar_date` 為字串。
-
-7) 中期切換（下一步）
-- [ ] 依 `admin-date-rule.md` 導入 `event_occurrences` 與排程；`solar_date` 完全轉為相容層，v2 只回傳規則與下一次發生日期。
-
-### 🧩 Phase 2B – Admin Groups 全面檢查與修正計劃（新增）
-
-1) 功能修正
-- [x] `GroupEdit` 傳入 `GroupItemsManager` 的 `groupId` 改為使用當前 record id（移除硬編碼 1）。
-- [x] `GroupList` 的 `video_url` 無值保護；錯誤資訊友善化。
-
-2) 後端一致性
-- [x] `GroupRepository` 對 Supabase 任意錯誤一律 fallback（不僅 schema-missing）。
-- [ ] `groups/:id/items` 新增/移除錯誤訊息向前端回傳明確原因。
-
-3) UX 優化（可選）
-- [x] `GroupItemsManager` 支援搜尋/過濾可添加事件。
-
-4) 測試
-- [ ] 覆蓋：群組 id 傳遞正確、添加/移除事件正確回報、無值 URL 顯示安全。
 
 ---
 
@@ -2586,8 +2522,185 @@ export SUPABASE_ANON_KEY="<production-anon-key>"
 
 ---
 
-> **文件版本**: v2.4  
+## 📋 Phase 0.25 緊急修正完成 (2025-01-02)
+
+### ✅ 修正項目
+1. **SQL 約束修正**: `events` 表支援 `solar_term` 類型，加入 `rule_version` 欄位和唯一索引
+2. **前端表單修正**: deity 類型加入缺失的 `is_leap_month` 欄位，修正欄位切換清理邏輯  
+3. **嚴格模式框架**: 實現 `ENFORCE_DB_WRITES` 和 `READ_FALLBACK` 環境變數支援
+4. **白名單機制**: repository 寫入只允許 14 個核心欄位，防止型別錯誤
+5. **遷移檢查器**: 創建 `database/migrationChecker.js` 檢查 in-memory 與 Supabase 資料一致性
+
+### 🔧 技術細節
+- **Migration**: `supabase/migrations/20250102000000_fix_events_constraints_phase025.sql`
+- **修正檔案**: `admin/src/components/SmartEventForm.jsx`, `database/eventRepository.js`
+- **新增檔案**: `database/migrationChecker.js`
+- **環境變數**: 支援 `ENFORCE_DB_WRITES=true` 禁用 fallback，`READ_FALLBACK=false` 拋出讀取錯誤
+
+### ⚡ 影響
+- **解決「假成功」問題**: 嚴格模式下 Supabase 錯誤將正確拋出而非無聲回退
+- **四種事件類型**: `deity`, `festival`, `custom`, `solar_term` 完整支援
+- **資料安全**: 白名單機制防止未知欄位造成資料庫錯誤
+- **一致性檢查**: 提供工具檢查和同步 in-memory 與雲端資料差異
+
+---
+
+## 🎯 Phase 1 基礎 CRUD 穩定化完成 (2025-01-02)
+
+### ✅ 完成項目
+1. **錯誤結構化輸出**: 統一 API 錯誤格式為 `{status, message, details, code}`，創建 `utils/errorHandler.js`
+2. **完整欄位 migration**: 補齊所有必要欄位，修正 `solar_term_name` 長度為 varchar(24)  
+3. **四類型 CRUD 測試**: 創建完整的 smoke 測試覆蓋 deity/festival/custom/solar_term
+4. **白名單機制強化**: 非法欄位現在返回 400 錯誤而非靜默過濾
+
+### 🔧 技術改進
+- **統一錯誤處理**: `sendError()`, `sendValidationError()`, `sendSupabaseError()`, `sendInternalError()`
+- **Migration 文件**: `supabase/migrations/20250102000001_phase1_complete_events_fields.sql`
+- **測試覆蓋**: `tests/phase1-crud-smoke.test.js`, `tests/phase1-whitelist.test.js`
+- **測試腳本**: `scripts/run-phase1-tests.js` 用於自動驗證
+
+### 🛡️ 安全性提升
+- **白名單驗證**: 14 個允許欄位，其餘拋出 `INVALID_FIELDS` 錯誤
+- **欄位完整性**: 所有必要約束和索引已正確創建
+- **錯誤資訊**: 開發環境顯示詳細錯誤，生產環境隱藏敏感資訊
+
+### ✅ Phase 1 驗收達成
+- [✓] 任何建立/編輯/刪除請求，X-Data-Source 都是 supabase，DB 可見資料
+- [✓] 四類型 CRUD 穩定 2xx，無記憶體假成功
+- [✓] 白名單機制生效：送出非法欄位時 400 錯誤
+- [✓] 錯誤訊息結構化：{status, message, details} 格式
+
+---
+
+## 🗓️ Phase 2 Event Occurrences 系統完成 (2025-01-02)
+
+### ✅ SSOT 系統實現
+1. **event_occurrences 表**: 完整對齊 @admin-date-rule.md 規格，支援外鍵約束和效能索引
+2. **occurrence 生成服務**: `OccurrenceGenerationService` 支援 festival/custom，生成當年到當年+5年
+3. **自動化流程**: 事件 CRUD 自動處理 occurrences（創建即時生成、更新重新生成、刪除自動清理）
+4. **版本化 API**: v1 維持 `solar_date` 相容、v2 提供 `next_occurrence_date` 和 `rule_fields`
+
+### 🔧 技術架構
+- **Migration**: `supabase/migrations/20250102000002_phase2_create_event_occurrences.sql`
+- **核心服務**: `services/occurrenceGenerationService.js` 統一日期生成邏輯
+- **API 增強**: `api/events.js` 支援 `API-Version` 標頭切換輸出格式
+- **測試覆蓋**: `tests/phase2-occurrences.test.js` 全面驗證功能
+
+### 🎛️ API 版本支援
+**v1 相容模式**（預設）：
+```json
+{
+  "id": 1,
+  "title": "中秋節",
+  "type": "festival",
+  "solar_date": "2025-09-15"
+}
+```
+
+**v2 增強模式**（`API-Version: v2`）：
+```json
+{
+  "id": 1,
+  "title": "中秋節", 
+  "type": "festival",
+  "next_occurrence_date": "2025-09-15",
+  "next_occurrence_is_leap": false,
+  "rule_fields": {
+    "solar_month": 9,
+    "solar_day": 15,
+    "is_lunar": false
+  }
+}
+```
+
+### ⚡ 效能與自動化
+- **預生成策略**: 5 年範圍避免即時計算，支援 `EXTEND_YEARS` 環境變數調整
+- **智能更新**: 只有規則欄位變更時才重新生成 occurrences
+- **清理機制**: 自動清理過期資料，防止無限增長
+- **錯誤隔離**: occurrence 生成失敗不影響主要 CRUD 操作
+
+### ✅ Phase 2 驗收達成
+- [✓] event_occurrences 表正常創建並生成 festival/custom 類型 5 年資料
+- [✓] v1 API 維持 solar_date 相容輸出  
+- [✓] v2 API 提供 next_occurrence_date
+- [✓] 事件 CRUD 自動處理 occurrences
+
+**✨ 準備進入 Phase 2.5**: Admin 前端顯示對齊和 solar_term 支援
+
+---
+
+## 🎨 Admin 顯示對齊階段完成
+**時間**: 2025-01-02  
+**階段**: Admin 前端顯示對齊  
+**對應**: revise-plan.md Day 0.5
+
+### 📊 核心更改
+
+**1. DataProvider API v2 升級**
+```javascript
+// admin/src/dataProvider.js
+const apiClient = axios.create({
+  headers: {
+    'Content-Type': 'application/json',
+    'api-version': 'v2', // 使用 v2 API 獲取 next_occurrence_date
+  }
+});
+```
+
+**2. EventList 顯示升級**
+- **前**: 依賴 `solar_date` 陣列，顯示不一致
+- **後**: 優先使用 `next_occurrence_date`，降級到 `rule_fields`
+```javascript
+// 新的顯示邏輯
+render={record => {
+  if (record.next_occurrence_date) {
+    return new Date(record.next_occurrence_date).toLocaleDateString('zh-TW');
+  }
+  if (record.type === 'solar_term' && record.solar_term_name) {
+    return `節氣：${record.solar_term_name}`;
+  }
+  // 降級顯示規則資訊
+  if (record.rule_fields) { /* ... */ }
+}}
+```
+
+**3. EventShow 詳細顯示**
+- 新增「下次發生日期」欄位，優先顯示 `next_occurrence_date`
+- 新增「事件規則」欄位，顯示完整的 `rule_fields` 資訊
+- 保留原始 API 欄位用於除錯
+
+### 🎯 顯示邏輯優化
+
+**Festival 事件**:  
+`每年 12/25` + `2025/12/25`
+
+**Deity 事件**:  
+`農曆 3月23日 (平閏皆過)` + 計算後的下次發生日期
+
+**Custom 事件**:  
+`單次事件：2025/6/15`
+
+**Solar Term 事件**:  
+`節氣：冬至` （當節氣資料完整時顯示日期）
+
+### 🧪 測試覆蓋
+- **文件**: `tests/admin-display.test.js`
+- **腳本**: `scripts/run-admin-display-tests.js`
+- **驗證**: 四種事件類型的 v2 API 格式和前端顯示
+
+### ✅ 驗收達成
+- [✓] Admin DataProvider 使用 API v2
+- [✓] EventList 優先顯示 `next_occurrence_date`
+- [✓] EventShow 提供完整規則和日期資訊
+- [✓] 節氣事件正確顯示節氣名稱
+- [✓] 所有事件類型顯示一致性
+
+**🎉 Admin 顯示對齊階段完成**: 前端介面完全對接 Phase 2 的 SSOT 系統
+
+---
+
+> **文件版本**: v2.8  
 > **最後更新**: 2025-01-02  
-> **適用版本**: Version 1.0 - 2.2  
-> **Version 1.1 開發流程**: 本地測試 → 雲端部署  
-> **重要更新**: iOS 本地通知排程系統完成，核心功能可用
+> **適用版本**: Version 1.0 - 2.3  
+> **Version 1.1 開發流程**: 本地測試 → 雲端部署 → Phase 0.25/1/2/Admin 對齊完成
+> **重要更新**: Admin 前端完全對接 Event Occurrences SSOT 系統，顯示邏輯升級

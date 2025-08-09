@@ -183,6 +183,17 @@ export default function SmartEventForm(props) {
             max={30}
             placeholder="請輸入農曆日期 (1-30)"
           />
+
+          <SelectInput 
+            source="is_leap_month" 
+            label="是否閏月" 
+            choices={[
+              { id: false, name: '平月' },
+              { id: true, name: '閏月' }
+            ]}
+            defaultValue={false}
+            placeholder="請選擇是否為閏月"
+          />
           
           <SelectInput 
             source="leap_behavior" 

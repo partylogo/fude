@@ -6,10 +6,19 @@ const mockEvents = require('../data/mockEvents');
 const getSupabaseClient = require('./supabaseClient');
 const IS_SERVERLESS = !!process.env.VERCEL || process.env.NOW_BUILDER === '1';
 
+// Phase 0.25: 嚴格模式環境變數
+const ENFORCE_DB_WRITES = process.env.ENFORCE_DB_WRITES === 'true';
+const READ_FALLBACK = process.env.READ_FALLBACK !== 'false'; // 預設開啟
+
 class EventRepository {
   constructor() {
     // 使用 Supabase（若環境提供），否則 fallback 到 mock + file cache
     this.supabase = getSupabaseClient();
+    
+    // Phase 0.25: 嚴格模式檢查
+    if (!this.supabase && ENFORCE_DB_WRITES) {
+      throw new Error('Database connection required in strict mode (ENFORCE_DB_WRITES=true)');
+    }
     // 使用 mock data，之後可以替換為真實資料庫連接
     // 使用 module-level 共享陣列，確保跨請求持久
     if (process.env.NODE_ENV === 'test') {
@@ -72,7 +81,15 @@ class EventRepository {
         if (error) throw error;
         return (data || []).map(normalizeDbEvent);
       } catch (err) {
+        console.error('[EventRepository.findAll] supabase error:', err);
+        
+        // Phase 0.25: 嚴格模式下不允許 fallback  
+        if (!READ_FALLBACK) {
+          throw new Error(`Supabase read operation failed: ${err.message}`);
+        }
+        
         // 任何 supabase 錯誤一律回退，避免 500 阻斷 Admin
+        console.warn('[EventRepository.findAll] falling back to memory storage');
         this.supabase = null;
       }
     }
@@ -179,8 +196,15 @@ class EventRepository {
         if (error) throw error;
         return normalizeDbEvent(data);
       } catch (err) {
-        console.error('[EventRepository.create] supabase error, falling back to memory:', err);
+        console.error('[EventRepository.create] supabase error:', err);
+        
+        // Phase 0.25: 嚴格模式下不允許 fallback
+        if (!READ_FALLBACK) {
+          throw new Error(`Supabase create operation failed: ${err.message}`);
+        }
+        
         // 無論何種錯誤皆回退至 in-memory，以保障 API 可用性（部署早期）
+        console.warn('[EventRepository.create] falling back to memory storage');
         this.supabase = null;
       }
     }
@@ -218,7 +242,14 @@ class EventRepository {
         if (error) throw error;
         return normalizeDbEvent(data);
       } catch (err) {
-        console.error('[EventRepository.update] supabase error, falling back to memory:', err);
+        console.error('[EventRepository.update] supabase error:', err);
+        
+        // Phase 0.25: 嚴格模式下不允許 fallback
+        if (!READ_FALLBACK) {
+          throw new Error(`Supabase update operation failed: ${err.message}`);
+        }
+        
+        console.warn('[EventRepository.update] falling back to memory storage');
         this.supabase = null;
       }
     }
@@ -246,6 +277,14 @@ class EventRepository {
         if (error) throw error;
         return true;
       } catch (err) {
+        console.error('[EventRepository.delete] supabase error:', err);
+        
+        // Phase 0.25: 嚴格模式下不允許 fallback
+        if (!READ_FALLBACK) {
+          throw new Error(`Supabase delete operation failed: ${err.message}`);
+        }
+        
+        console.warn('[EventRepository.delete] falling back to memory storage');
         this.supabase = null;
       }
     }
@@ -285,11 +324,47 @@ function normalizeDbEvent(row) {
   };
 }
 
+// Phase 0.25: 白名單機制 - 只允許特定欄位寫入 Supabase
+const DB_ALLOWED_FIELDS = [
+  'title', 'type', 'description', 'is_lunar', 'lunar_month', 'lunar_day', 
+  'is_leap_month', 'leap_behavior', 'solar_month', 'solar_day', 
+  'one_time_date', 'solar_term_name', 'solar_date', 'rule_version'
+];
+
 function dbPayloadFromEventData(data) {
-  const payload = { ...data };
+  // Phase 1: 白名單驗證 - 檢查是否有非法欄位
+  const invalidFields = [];
+  Object.keys(data).forEach(field => {
+    if (!DB_ALLOWED_FIELDS.includes(field)) {
+      invalidFields.push(field);
+    }
+  });
+  
+  if (invalidFields.length > 0) {
+    const error = new Error(`Invalid fields not allowed: ${invalidFields.join(', ')}`);
+    error.code = 'INVALID_FIELDS';
+    error.invalidFields = invalidFields;
+    throw error;
+  }
+  
+  // 白名單過濾：只保留允許的欄位
+  const payload = {};
+  DB_ALLOWED_FIELDS.forEach(field => {
+    if (data[field] !== undefined) {
+      payload[field] = data[field];
+    }
+  });
+  
+  // 特殊處理：確保 solar_date 為陣列格式
   if (payload.solar_date && !Array.isArray(payload.solar_date)) {
     payload.solar_date = [payload.solar_date];
   }
+  
+  // 預設值設定
+  if (payload.rule_version === undefined) {
+    payload.rule_version = 1;
+  }
+  
   return payload;
 }
 
