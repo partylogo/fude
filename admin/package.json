@@ -14,7 +14,9 @@
     "ra-data-json-server": "^4.16.0",
     "react": "^18.2.0",
     "react-admin": "^4.16.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^5.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.2.0",
@@ -22,14 +24,8 @@
     "@testing-library/user-event": "^14.5.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^4.2.0",
     "jsdom": "^26.1.0",
-    "vite": "^5.0.0",
     "vitest": "^1.2.0"
   },
-  "type": "module",
-  "vercel-build": {
-    "buildCommand": "pnpm build",
-    "outputDirectory": "dist"
-  }
+  "type": "module"
 }
