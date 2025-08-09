@@ -2778,6 +2778,49 @@ if (req.body.type === 'solar_term' && req.body.solar_term_name) {
 
 ---
 
+## 🔧 事件更新白名單機制改善
+**時間**: 2025-01-02  
+**錯誤**: `Invalid fields not allowed: id, created_at, updated_at, next_occurrence_date, next_occurrence_is_leap, rule_fields`  
+**根因**: Admin 前端使用 API v2 後接收增強欄位，更新時發送不允許的欄位
+
+### 🎯 問題分析
+**更新流程問題**:
+1. 前端 Admin 使用 `api-version: v2`
+2. 接收增強欄位：`next_occurrence_date`, `rule_fields` 等
+3. 更新事件時將所有欄位發送回後端
+4. 後端白名單機制拋出 `INVALID_FIELDS` 錯誤
+
+**不允許的欄位**:
+- `id, created_at, updated_at` - 資料庫管理欄位
+- `next_occurrence_date, next_occurrence_is_leap` - API 計算欄位
+- `rule_fields` - API 增強欄位
+
+### ✅ 修正方案
+**改善白名單機制** - 從嚴格拒絕改為寬容過濾：
+```javascript
+// database/eventRepository.js - dbPayloadFromEventData
+// 修改前: 拋出錯誤
+if (invalidFields.length > 0) {
+  throw new Error(`Invalid fields not allowed: ${invalidFields.join(', ')}`);
+}
+
+// 修改後: 過濾並記錄警告
+if (invalidFields.length > 0) {
+  console.warn(`Filtered out invalid fields: ${invalidFields.join(', ')}`);
+  // 不拋出錯誤，繼續處理
+}
+```
+
+### 🎯 改善效果
+- ✅ **更寬容**: 自動過濾無效欄位，不中斷操作
+- ✅ **更穩定**: 避免因前端發送額外欄位而失敗
+- ✅ **更安全**: 仍然保護資料庫，只寫入允許的欄位
+- ✅ **可除錯**: 記錄被過濾的欄位用於診斷
+
+**🎉 事件更新完全修正**: 創建、更新、顯示、白名單保護全面正常
+
+---
+
 > **文件版本**: v2.8  
 > **最後更新**: 2025-01-02  
 > **適用版本**: Version 1.0 - 2.3  
