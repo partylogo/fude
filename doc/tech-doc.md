@@ -2821,6 +2821,69 @@ if (invalidFields.length > 0) {
 
 ---
 
+## 🚀 Vercel 部署錯誤修正
+**時間**: 2025-01-02  
+**錯誤**: `sh: line 1: vite: command not found`  
+**根因**: 構建工具在 devDependencies，生產部署時未安裝
+
+### 🎯 問題分析
+**部署失敗流程**:
+1. Vercel 執行 `cd admin && npm ci && npm run build`
+2. `npm ci` 在生產環境不安裝 `devDependencies`
+3. `vite build` 找不到 `vite` 命令
+4. 構建失敗，錯誤碼 127 (command not found)
+
+**monorepo 結構挑戰**:
+- 根目錄：後端 API (`package.json`)
+- `admin/` 目錄：前端 Admin (`admin/package.json`)
+- Vercel 需要同時處理兩個專案
+
+### ✅ 修正方案
+**1. 依賴調整**:
+```json
+// admin/package.json - 將構建工具移到 dependencies
+"dependencies": {
+  "vite": "^5.0.0",
+  "@vitejs/plugin-react": "^4.2.0"
+  // ... 其他依賴
+}
+```
+
+**2. Vercel 配置改善**:
+```json
+// vercel.json - 支援 monorepo 結構
+{
+  "builds": [
+    { "src": "api/index.js", "use": "@vercel/node" },
+    { 
+      "src": "admin/package.json", 
+      "use": "@vercel/static-build",
+      "config": { "distDir": "admin/dist" }
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/admin/dist/index.html" }
+  ]
+}
+```
+
+### 🎯 部署架構
+- **後端**: `@vercel/node` 處理 `/api/*` 路由
+- **前端**: `@vercel/static-build` 構建 React Admin
+- **路由**: API 優先，靜態檔案降級，SPA 支援
+
+### ✅ 驗證結果
+- [✓] 構建工具正確安裝
+- [✓] 前後端同時部署成功
+- [✓] 路由配置正確分流
+- [✓] monorepo 結構完全支援
+
+**🎉 Vercel 部署完全修正**: 前後端一體化部署成功
+
+---
+
 > **文件版本**: v2.8  
 > **最後更新**: 2025-01-02  
 > **適用版本**: Version 1.0 - 2.3  
