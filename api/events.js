@@ -142,7 +142,7 @@ const eventsHandler = async (req, res) => {
     for (const event of (events || [])) {
       const enhanced = await enhanceEventOutput(event, { 
         version: apiVersion,
-        includeNext: false // 列表不包含 next_occurrence，避免過多查詢
+        includeNext: apiVersion === 'v2' // v2 API 包含 next_occurrence_date
       });
       enhancedEvents.push(enhanced);
     }

@@ -7,7 +7,13 @@ function formatNextOccurrence(record) {
   if (record?.next_occurrence_date) {
     try { 
       const d = new Date(record.next_occurrence_date); 
-      if (!isNaN(d.getTime())) return d.toLocaleDateString('zh-TW'); 
+      if (!isNaN(d.getTime())) {
+        // 格式化日期，包含年份
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+      }
     } catch (_e) {}
   }
   return '';
@@ -52,7 +58,12 @@ const EventShowContent = () => {
           if (rf.one_time_date) {
             try {
               const d = new Date(rf.one_time_date);
-              if (!isNaN(d.getTime())) parts.push(`單次事件：${d.toLocaleDateString('zh-TW')}`);
+              if (!isNaN(d.getTime())) {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                parts.push(`單次事件：${year}/${month}/${day}`);
+              }
             } catch (_e) {}
           }
           
