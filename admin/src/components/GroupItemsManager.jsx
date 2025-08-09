@@ -12,7 +12,12 @@ const GroupItemsManager = ({ groupId }) => {
   // 載入當前群組項目
   const loadCurrentItems = async () => {
     try {
-      const response = await fetch(`/api/groups/${groupId}/items`);
+      const response = await fetch(`/api/groups/${groupId}/items`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'api-version': 'v2'
+        }
+      });
       if (!response.ok) {
         let msg = '載入失敗';
         try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
@@ -28,7 +33,12 @@ const GroupItemsManager = ({ groupId }) => {
   // 載入所有可用事件
   const loadAvailableEvents = async () => {
     try {
-      const response = await fetch('/api/events');
+      const response = await fetch('/api/events', {
+        headers: {
+          'Content-Type': 'application/json',
+          'api-version': 'v2'
+        }
+      });
       if (!response.ok) {
         let msg = '載入失敗';
         try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
@@ -61,7 +71,8 @@ const GroupItemsManager = ({ groupId }) => {
       const response = await fetch(`/api/groups/${groupId}/items`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'api-version': 'v2'
         },
         body: JSON.stringify({ event_id: eventId })
       });
@@ -87,7 +98,11 @@ const GroupItemsManager = ({ groupId }) => {
     setIsMutating(true);
     try {
       const response = await fetch(`/api/groups/${groupId}/items/${eventId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-version': 'v2'
+        }
       });
 
       if (!response.ok) {
