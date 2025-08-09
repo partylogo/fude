@@ -31,8 +31,9 @@ try {
 const { debugHandler } = require('./debug');
 app.get('/api/debug', debugHandler);
 
-// Regenerate occurrences route
+// Regenerate occurrences route  
 const { regenerateHandler } = require('./regenerate');
+app.get('/api/regenerate', regenerateHandler);
 app.post('/api/regenerate', regenerateHandler);
 
 // Routes
