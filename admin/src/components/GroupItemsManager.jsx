@@ -11,21 +11,37 @@ const GroupItemsManager = ({ groupId }) => {
 
   // 載入當前群組項目
   const loadCurrentItems = async () => {
+    console.log(`[GroupItemsManager] 開始載入群組 ${groupId} 的項目`);
     try {
-      const response = await fetch(`/api/groups/${groupId}/items`, {
+      const url = `/api/groups/${groupId}/items`;
+      console.log(`[GroupItemsManager] 發送請求到: ${url}`);
+      
+      const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
           'api-version': 'v2'
         }
       });
+      
+      console.log(`[GroupItemsManager] 回應狀態: ${response.status}`);
+      
       if (!response.ok) {
         let msg = '載入失敗';
-        try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
+        try { 
+          const j = await response.json(); 
+          msg = j?.message || msg;
+          console.log(`[GroupItemsManager] 錯誤回應:`, j);
+        } catch(_) {
+          console.log(`[GroupItemsManager] 無法解析錯誤回應`);
+        }
         throw new Error(msg);
       }
+      
       const data = await response.json();
+      console.log(`[GroupItemsManager] 成功載入資料:`, data);
       setCurrentItems(data);
     } catch (err) {
+      console.error(`[GroupItemsManager] 載入失敗:`, err);
       setError('載入群組項目失敗：' + err.message);
     }
   };
@@ -52,14 +68,20 @@ const GroupItemsManager = ({ groupId }) => {
   };
 
   useEffect(() => {
+    console.log(`[GroupItemsManager] useEffect 觸發, groupId: ${groupId}`);
     const loadData = async () => {
+      console.log(`[GroupItemsManager] 開始載入資料, setIsLoading(true)`);
       setIsLoading(true);
       await Promise.all([loadCurrentItems(), loadAvailableEvents()]);
+      console.log(`[GroupItemsManager] 載入完成, setIsLoading(false)`);
       setIsLoading(false);
     };
     
     if (groupId) {
+      console.log(`[GroupItemsManager] groupId 存在，開始載入資料`);
       loadData();
+    } else {
+      console.log(`[GroupItemsManager] groupId 不存在，跳過載入`);
     }
   }, [groupId]);
 
