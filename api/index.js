@@ -27,6 +27,10 @@ try {
   systemRouter = require('./system');
 } catch (_e) {}
 
+// Debug route
+const { debugHandler } = require('./debug');
+app.get('/api/debug', debugHandler);
+
 // Routes
 app.get('/api/events', eventsHandler);
 app.post('/api/events', createEvent);
