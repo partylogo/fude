@@ -63,9 +63,8 @@ class OccurrenceGenerationService {
         occurrences.push(...this.generateCustomOccurrences(event, startYear, endYear));
         break;
       case 'solar_term':
-        // Phase 2 暫不支援，留待 Phase 1.5
-        console.log(`[OccurrenceGeneration] solar_term type not supported in Phase 2`);
-        return [];
+        occurrences.push(...await this.generateSolarTermOccurrences(event, startYear, endYear));
+        break;
       case 'deity':
         // Phase 2 暫不支援，留待 Phase 2 後期
         console.log(`[OccurrenceGeneration] deity type not supported in Phase 2`);
@@ -159,6 +158,52 @@ class OccurrenceGenerationService {
         occurrence_date: event.one_time_date,
         year: eventYear,
         is_leap_month: false,
+        rule_version: event.rule_version || 1,
+        generated_at: new Date().toISOString()
+      });
+    }
+
+    return occurrences;
+  }
+
+  /**
+   * 生成節氣類型的 occurrences
+   * @param {Object} event - 事件物件
+   * @param {number} startYear - 開始年份
+   * @param {number} endYear - 結束年份
+   * @returns {Array} occurrences 陣列
+   */
+  async generateSolarTermOccurrences(event, startYear, endYear) {
+    const occurrences = [];
+
+    if (!event.solar_term_name) {
+      console.warn(`[OccurrenceGeneration] solar_term event ${event.id} missing solar_term_name`);
+      return occurrences;
+    }
+
+    // 基本的節氣日期對應（簡化版，之後可從 solar_terms 表查詢）
+    const solarTermDates = {
+      '立春': '02-04', '雨水': '02-19', '驚蟄': '03-06', '春分': '03-21',
+      '清明': '04-05', '穀雨': '04-20', '立夏': '05-06', '小滿': '05-21',
+      '芒種': '06-06', '夏至': '06-21', '小暑': '07-07', '大暑': '07-23',
+      '立秋': '08-08', '處暑': '08-23', '白露': '09-08', '秋分': '09-23',
+      '寒露': '10-08', '霜降': '10-23', '立冬': '11-07', '小雪': '11-22',
+      '大雪': '12-07', '冬至': '12-22', '小寒': '01-06', '大寒': '01-20'
+    };
+
+    const termDate = solarTermDates[event.solar_term_name];
+    if (!termDate) {
+      console.warn(`[OccurrenceGeneration] Unknown solar term: ${event.solar_term_name}`);
+      return occurrences;
+    }
+
+    // 為每一年生成節氣日期
+    for (let year = startYear; year <= endYear; year++) {
+      occurrences.push({
+        event_id: event.id,
+        occurrence_date: `${year}-${termDate}`,
+        year: year,
+        is_leap_month: false, // 節氣事件不涉及農曆閏月
         rule_version: event.rule_version || 1,
         generated_at: new Date().toISOString()
       });

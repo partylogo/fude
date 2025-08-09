@@ -2699,6 +2699,47 @@ render={record => {
 
 ---
 
+## 🔧 Solar Term 事件支援修正
+**時間**: 2025-01-02  
+**問題**: 節氣事件創建成功但無資料  
+**原因**: 環境變數未設定 + solar_term 類型未支援
+
+### 🎯 修正內容
+
+**1. 環境變數問題診斷**
+- 問題：`ENFORCE_DB_WRITES` 和 `READ_FALLBACK` 未設定
+- 影響：導致 Supabase 連接失敗時"假成功"
+- 解決：創建 `environment-setup.md` 指導雲端環境變數設定
+
+**2. Solar Term 事件支援**
+- 問題：`OccurrenceGenerationService` 不支援 `solar_term` 類型
+- 修正：
+```javascript
+// services/occurrenceGenerationService.js
+case 'solar_term':
+  occurrences.push(...await this.generateSolarTermOccurrences(event, startYear, endYear));
+  break;
+```
+
+**3. 新增 generateSolarTermOccurrences 方法**
+- 基礎24節氣日期對應
+- 為每年生成固定節氣日期
+- 支援未來升級到 `solar_terms` 表查詢
+
+**4. API 事件處理升級**
+- 創建和更新事件都支援 `solar_term` 類型
+- `solar_term_name` 變更時重新生成 occurrences
+
+### ✅ 修正驗證
+- [✓] Solar term 事件可正常創建
+- [✓] 生成 event_occurrences 資料
+- [✓] API v2 返回 next_occurrence_date
+- [✓] Admin 前端正確顯示節氣名稱
+
+**🔧 環境設定要求**: Vercel 必須設定 `ENFORCE_DB_WRITES=true` 和 `READ_FALLBACK=false`
+
+---
+
 > **文件版本**: v2.8  
 > **最後更新**: 2025-01-02  
 > **適用版本**: Version 1.0 - 2.3  

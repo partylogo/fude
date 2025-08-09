@@ -219,7 +219,7 @@ const createEvent = async (req, res) => {
     }
 
     // Phase 2: 自動生成 occurrences（支援的類型）
-    if (['festival', 'custom'].includes(newEvent.type)) {
+    if (['festival', 'custom', 'solar_term'].includes(newEvent.type)) {
       try {
         console.log(`[createEvent] Generating occurrences for ${newEvent.type} event ${newEvent.id}`);
         await occurrenceService.generateOccurrences(newEvent);
@@ -286,10 +286,10 @@ const updateEvent = async (req, res) => {
     }
 
     // Phase 2: 重新生成 occurrences（如果規則欄位有變化）
-    const ruleFields = ['solar_month', 'solar_day', 'one_time_date', 'lunar_month', 'lunar_day', 'leap_behavior'];
+    const ruleFields = ['solar_month', 'solar_day', 'one_time_date', 'lunar_month', 'lunar_day', 'leap_behavior', 'solar_term_name'];
     const hasRuleChanges = ruleFields.some(field => req.body[field] !== undefined);
     
-    if (['festival', 'custom'].includes(updatedEvent.type) && hasRuleChanges) {
+    if (['festival', 'custom', 'solar_term'].includes(updatedEvent.type) && hasRuleChanges) {
       try {
         console.log(`[updateEvent] Regenerating occurrences for updated ${updatedEvent.type} event ${updatedEvent.id}`);
         // 強制重新生成
