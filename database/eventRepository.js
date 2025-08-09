@@ -332,8 +332,18 @@ const DB_ALLOWED_FIELDS = [
 ];
 
 function dbPayloadFromEventData(data) {
-  // Phase 1: 白名單驗證 - 檢查是否有非法欄位
+  // Phase 1: 白名單過濾 - 自動過濾無效欄位（更寬容的方式）
   const invalidFields = [];
+  const payload = {};
+  
+  // 只保留允許的欄位
+  DB_ALLOWED_FIELDS.forEach(field => {
+    if (data[field] !== undefined) {
+      payload[field] = data[field];
+    }
+  });
+  
+  // 記錄被過濾掉的欄位（用於除錯，但不拋出錯誤）
   Object.keys(data).forEach(field => {
     if (!DB_ALLOWED_FIELDS.includes(field)) {
       invalidFields.push(field);
@@ -341,19 +351,9 @@ function dbPayloadFromEventData(data) {
   });
   
   if (invalidFields.length > 0) {
-    const error = new Error(`Invalid fields not allowed: ${invalidFields.join(', ')}`);
-    error.code = 'INVALID_FIELDS';
-    error.invalidFields = invalidFields;
-    throw error;
+    console.warn(`[dbPayloadFromEventData] Filtered out invalid fields: ${invalidFields.join(', ')}`);
+    // 不再拋出錯誤，只記錄警告
   }
-  
-  // 白名單過濾：只保留允許的欄位
-  const payload = {};
-  DB_ALLOWED_FIELDS.forEach(field => {
-    if (data[field] !== undefined) {
-      payload[field] = data[field];
-    }
-  });
   
   // 特殊處理：確保 solar_date 為陣列格式
   if (payload.solar_date && !Array.isArray(payload.solar_date)) {

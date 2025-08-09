@@ -224,17 +224,8 @@ const createEvent = async (req, res) => {
       }
     }
 
-    // 建立事件
-    let newEvent;
-    try {
-      newEvent = await repository.create(req.body);
-    } catch (err) {
-      // Phase 1: 處理白名單錯誤
-      if (err.code === 'INVALID_FIELDS') {
-        return sendValidationError(res, [err.message], 'E_INVALID_FIELDS');
-      }
-      throw err; // 重新拋出其他錯誤
-    }
+    // 建立事件（白名單現在自動過濾，不會拋出錯誤）
+    const newEvent = await repository.create(req.body);
 
     // Phase 2: 自動生成 occurrences（支援的類型）
     if (['festival', 'custom', 'solar_term'].includes(newEvent.type)) {
@@ -309,17 +300,8 @@ const updateEvent = async (req, res) => {
       }
     }
 
-    // 更新事件
-    let updatedEvent;
-    try {
-      updatedEvent = await repository.update(parseInt(id), req.body);
-    } catch (err) {
-      // Phase 1: 處理白名單錯誤
-      if (err.code === 'INVALID_FIELDS') {
-        return sendValidationError(res, [err.message], 'E_INVALID_FIELDS');
-      }
-      throw err; // 重新拋出其他錯誤
-    }
+    // 更新事件（白名單現在自動過濾，不會拋出錯誤）
+    const updatedEvent = await repository.update(parseInt(id), req.body);
 
     // Phase 2: 重新生成 occurrences（如果規則欄位有變化）
     const ruleFields = ['solar_month', 'solar_day', 'one_time_date', 'lunar_month', 'lunar_day', 'leap_behavior', 'solar_term_name'];
