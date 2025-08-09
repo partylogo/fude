@@ -2740,6 +2740,44 @@ case 'solar_term':
 
 ---
 
+## 🚨 Solar Term NOT NULL 約束問題修正
+**時間**: 2025-01-02  
+**錯誤**: `null value in column "solar_date" violates not-null constraint`  
+**根因**: solar_term 事件沒有生成必要的 solar_date 值
+
+### 🎯 根本問題
+- 資料庫 `solar_date` 欄位設定為 `NOT NULL`
+- `solar_term` 事件類型原本不需要 `solar_date`
+- 導致創建時違反資料庫約束
+
+### ✅ 修正方案
+**API 邏輯增強**:
+```javascript
+// api/events.js - 為 solar_term 事件自動生成 solar_date
+if (req.body.type === 'solar_term' && req.body.solar_term_name) {
+  const solarTermDates = {
+    '冬至': '12-22', '春分': '03-21', '夏至': '06-21', '秋分': '09-23'
+    // ... 完整24節氣對應
+  };
+  const termDate = solarTermDates[req.body.solar_term_name];
+  req.body.solar_date = `${currentYear}-${termDate}`;
+}
+```
+
+### 🛠️ 診斷工具
+- 新增 `/api/debug` 端點檢查系統狀態
+- 完整診斷環境變數、資料庫連接、表結構
+
+### ✅ 驗證結果
+- [✓] Solar term 事件成功創建
+- [✓] 自動生成對應年份的 solar_date
+- [✓] 保持資料庫約束完整性
+- [✓] event_occurrences 正確生成
+
+**🎉 Solar Term 事件完全修正**: 創建、更新、顯示全流程正常
+
+---
+
 > **文件版本**: v2.8  
 > **最後更新**: 2025-01-02  
 > **適用版本**: Version 1.0 - 2.3  
