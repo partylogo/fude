@@ -29,6 +29,7 @@ import {
   CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
 import axios from 'axios';
+import APIEndpointTester from './APIEndpointTester';
 
 export default function SystemMaintenanceMonitor() {
   const [loading, setLoading] = useState(true);
@@ -182,6 +183,11 @@ export default function SystemMaintenanceMonitor() {
       </Typography>
 
       <Grid container spacing={3}>
+        {/* API 端點診斷工具 */}
+        <Grid item xs={12}>
+          <APIEndpointTester />
+        </Grid>
+
         {/* Extension Status Card */}
         <Grid item xs={12} md={6}>
           <Card>

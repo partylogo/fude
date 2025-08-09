@@ -120,12 +120,16 @@ class GroupRepository {
       
       const deities = events.filter(event => event.type === 'deity');
       const festivals = events.filter(event => event.type === 'festival');
+      const customEvents = events.filter(event => event.type === 'custom');
+      const solarTerms = events.filter(event => event.type === 'solar_term');
       
-      console.log(`[GroupRepository] Grouped events: ${deities.length} deities, ${festivals.length} festivals`);
+      console.log(`[GroupRepository] Grouped events: ${deities.length} deities, ${festivals.length} festivals, ${customEvents.length} custom, ${solarTerms.length} solar_terms`);
       
       return {
         deities,
-        festivals
+        festivals,
+        customEvents,
+        solarTerms
       };
     } catch (error) {
       console.error(`[GroupRepository] Error getting grouped events for group ${groupId}:`, error);
@@ -133,7 +137,9 @@ class GroupRepository {
       // 返回空的結果而不是拋出錯誤
       return {
         deities: [],
-        festivals: []
+        festivals: [],
+        customEvents: [],
+        solarTerms: []
       };
     }
   }

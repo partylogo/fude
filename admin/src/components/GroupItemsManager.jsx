@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 const GroupItemsManager = ({ groupId }) => {
   console.log('🔧 GroupItemsManager rendered with groupId:', groupId);
   
-  const [currentItems, setCurrentItems] = useState({ deities: [], festivals: [] });
+  const [currentItems, setCurrentItems] = useState({ deities: [], festivals: [], customEvents: [], solarTerms: [] });
   const [availableEvents, setAvailableEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
@@ -31,7 +31,7 @@ const GroupItemsManager = ({ groupId }) => {
         let msg = '載入失敗';
         try { 
           const j = await response.json(); 
-          msg = j?.message || msg;
+          msg = j?.error || j?.message || msg;
           console.log(`[GroupItemsManager] 錯誤回應:`, j);
         } catch(_) {
           console.log(`[GroupItemsManager] 無法解析錯誤回應`);
@@ -59,7 +59,7 @@ const GroupItemsManager = ({ groupId }) => {
       });
       if (!response.ok) {
         let msg = '載入失敗';
-        try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
+        try { const j = await response.json(); msg = j?.error || j?.message || msg; } catch(_) {}
         throw new Error(msg);
       }
       const data = await response.json();
@@ -107,7 +107,7 @@ const GroupItemsManager = ({ groupId }) => {
 
       if (!response.ok) {
         let msg = '添加失敗';
-        try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
+        try { const j = await response.json(); msg = j?.error || j?.message || msg; } catch(_) {}
         throw new Error(msg);
       }
 
@@ -135,7 +135,7 @@ const GroupItemsManager = ({ groupId }) => {
 
       if (!response.ok) {
         let msg = '移除失敗';
-        try { const j = await response.json(); msg = j?.message || msg; } catch(_) {}
+        try { const j = await response.json(); msg = j?.error || j?.message || msg; } catch(_) {}
         throw new Error(msg);
       }
 
@@ -152,7 +152,9 @@ const GroupItemsManager = ({ groupId }) => {
   const getAvailableEventsToAdd = () => {
     const addedEventIds = [
       ...currentItems.deities.map(e => e.id),
-      ...currentItems.festivals.map(e => e.id)
+      ...currentItems.festivals.map(e => e.id),
+      ...currentItems.customEvents.map(e => e.id),
+      ...currentItems.solarTerms.map(e => e.id)
     ];
     return availableEvents
       .filter(event => !addedEventIds.includes(event.id))
@@ -275,6 +277,84 @@ const GroupItemsManager = ({ groupId }) => {
             </div>
           )}
         </div>
+
+        {/* 自訂事件 */}
+        <div data-testid="custom-events-section" style={{ marginBottom: '16px' }}>
+          <h5 style={{ color: '#1976d2', marginBottom: '8px' }}>自訂事件</h5>
+          {currentItems.customEvents.length === 0 ? (
+            <p style={{ color: '#666', fontSize: '14px' }}>尚無自訂事件</p>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {currentItems.customEvents.map(event => (
+                <div key={event.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '8px 12px',
+                  backgroundColor: '#fff3e0',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}>
+                  <span>{event.title}</span>
+                  <button
+                    data-testid={`remove-event-${event.id}`}
+                    onClick={() => removeEventFromGroup(event.id)}
+                    style={{
+                      marginLeft: '8px',
+                      padding: '2px 6px',
+                      backgroundColor: '#f44336',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 節氣事件 */}
+        <div data-testid="solar-terms-section">
+          <h5 style={{ color: '#1976d2', marginBottom: '8px' }}>節氣事件</h5>
+          {currentItems.solarTerms.length === 0 ? (
+            <p style={{ color: '#666', fontSize: '14px' }}>尚無節氣事件</p>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {currentItems.solarTerms.map(event => (
+                <div key={event.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '8px 12px',
+                  backgroundColor: '#e8f5e8',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}>
+                  <span>{event.title}</span>
+                  <button
+                    data-testid={`remove-event-${event.id}`}
+                    onClick={() => removeEventFromGroup(event.id)}
+                    style={{
+                      marginLeft: '8px',
+                      padding: '2px 6px',
+                      backgroundColor: '#f44336',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 添加新事件 */}
@@ -310,7 +390,12 @@ const GroupItemsManager = ({ groupId }) => {
                   borderRadius: '4px',
                   fontSize: '14px'
                 }}>
-                  <span>{event.title} ({event.type === 'deity' ? '神明節日' : event.type === 'festival' ? '民俗節慶' : '自訂事件'})</span>
+                  <span>{event.title} ({
+                    event.type === 'deity' ? '神明節日' : 
+                    event.type === 'festival' ? '民俗節慶' : 
+                    event.type === 'custom' ? '自訂事件' :
+                    event.type === 'solar_term' ? '節氣事件' : '其他'
+                  })</span>
                   <button
                     data-testid={`add-event-${event.id}`}
                     onClick={() => addEventToGroup(event.id)}
