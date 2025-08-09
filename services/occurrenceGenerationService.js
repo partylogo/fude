@@ -183,10 +183,10 @@ class OccurrenceGenerationService {
 
     // 基本的節氣日期對應（簡化版，之後可從 solar_terms 表查詢）
     const solarTermDates = {
-      '立春': '02-04', '雨水': '02-19', '驚蟄': '03-06', '春分': '03-21',
-      '清明': '04-05', '穀雨': '04-20', '立夏': '05-06', '小滿': '05-21',
+      '立春': '02-04', '雨水': '02-19', '驚蟄': '03-06', '春分': '03-20',
+      '清明': '04-05', '穀雨': '04-20', '立夏': '05-05', '小滿': '05-21',
       '芒種': '06-06', '夏至': '06-21', '小暑': '07-07', '大暑': '07-23',
-      '立秋': '08-08', '處暑': '08-23', '白露': '09-08', '秋分': '09-23',
+      '立秋': '08-07', '處暑': '08-23', '白露': '09-08', '秋分': '09-23',
       '寒露': '10-08', '霜降': '10-23', '立冬': '11-07', '小雪': '11-22',
       '大雪': '12-07', '冬至': '12-22', '小寒': '01-06', '大寒': '01-20'
     };
@@ -197,12 +197,20 @@ class OccurrenceGenerationService {
       return occurrences;
     }
 
-    // 為每一年生成節氣日期
+    // 為每一年生成節氣日期，但考量節氣的特殊性：小寒、大寒是下一年的
     for (let year = startYear; year <= endYear; year++) {
+      let actualYear = year;
+      let actualDate = termDate;
+      
+      // 小寒和大寒屬於下一年
+      if (event.solar_term_name === '小寒' || event.solar_term_name === '大寒') {
+        actualYear = year + 1;
+      }
+      
       occurrences.push({
         event_id: event.id,
-        occurrence_date: `${year}-${termDate}`,
-        year: year,
+        occurrence_date: `${actualYear}-${actualDate}`,
+        year: year, // 保持原始 year 作為索引
         is_leap_month: false, // 節氣事件不涉及農曆閏月
         rule_version: event.rule_version || 1,
         generated_at: new Date().toISOString()

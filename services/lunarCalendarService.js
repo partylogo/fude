@@ -1,4 +1,9 @@
-// 農曆轉換服務
+// 兼容性包裝器 - 無縫遷移到新農曆系統
+// 自動生成於: 2025-08-09T06:44:40.299Z
+
+const ModernLunarCalendarService = require('./modernLunarCalendarService');
+
+// 保持向後兼容的 API
 class LunarCalendarService {
   /**
    * 驗證農曆日期輸入
@@ -6,25 +11,7 @@ class LunarCalendarService {
    * @returns {Object} 驗證結果
    */
   static validateLunarDate(lunar) {
-    if (!lunar || typeof lunar !== 'object') {
-      return { isValid: false, error: 'Invalid lunar date input' };
-    }
-
-    const { month, day, year, isLeap } = lunar;
-
-    if (!month || !day) {
-      return { isValid: false, error: 'Month and day are required' };
-    }
-
-    if (month < 1 || month > 12) {
-      return { isValid: false, error: 'Month must be between 1 and 12' };
-    }
-
-    if (day < 1 || day > 30) {
-      return { isValid: false, error: 'Day must be between 1 and 30' };
-    }
-
-    return { isValid: true };
+    return ModernLunarCalendarService.validateLunarDate(lunar);
   }
 
   /**
@@ -33,28 +20,26 @@ class LunarCalendarService {
    * @returns {Array<string>} 對應的國曆日期陣列
    */
   static convertToSolar(lunar) {
-    // 目前使用 mock 資料，後續可整合真實的農曆轉換演算法
-    const { month, day, year = 2025, isLeap = false } = lunar;
+    // 注意: 這現在是異步操作，但為了向後兼容保持同步介面
+    const service = new ModernLunarCalendarService();
     
-    // 常見農曆節日對照表 (mock data)
-    const lunarToSolarMap = {
-      '3-23': ['2025-04-20'], // 媽祖聖誕
-      '1-1': ['2025-01-29'],  // 農曆新年
-      '1-15': ['2025-02-12'], // 元宵節
-      '3-15': ['2025-04-12'], // 財神爺生日
-    };
-
-    const key = `${month}-${day}`;
-    
-    if (lunarToSolarMap[key]) {
-      return lunarToSolarMap[key];
+    // 使用同步降級方案保持兼容性
+    try {
+      return service.fallbackConversion(lunar);
+    } catch (error) {
+      console.error('[LunarWrapper] Fallback conversion failed:', error);
+      return [];
     }
+  }
 
-    // 簡單的模擬轉換 - 實際應用需要完整的農曆演算法
-    const baseDate = new Date(year, month - 1, day);
-    const solarDate = new Date(baseDate.getTime() + (30 * 24 * 60 * 60 * 1000)); // 大約加30天
-    
-    return [solarDate.toISOString().split('T')[0]];
+  /**
+   * 異步轉換方法（推薦使用）
+   * @param {Object} lunar - 農曆日期物件
+   * @returns {Promise<Array<string>>} 對應的國曆日期陣列
+   */
+  static async convertToSolarAsync(lunar) {
+    const service = new ModernLunarCalendarService();
+    return await service.convertToSolarAsync(lunar);
   }
 
   /**
@@ -63,16 +48,7 @@ class LunarCalendarService {
    * @returns {string} 格式化的農曆日期字串
    */
   static formatLunarDate(lunar) {
-    const { month, day, isLeap = false } = lunar;
-    const leapPrefix = isLeap ? '閏' : '';
-    const monthNames = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
-    const dayNames = [
-      '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
-      '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
-      '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'
-    ];
-    
-    return `農曆${leapPrefix}${monthNames[month - 1]}月${dayNames[day - 1]}`;
+    return ModernLunarCalendarService.formatLunarDate(lunar);
   }
 }
 
