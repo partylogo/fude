@@ -113,15 +113,29 @@ class GroupRepository {
    * @returns {Promise<Object>} 分組後的事件物件 {deities: [], festivals: []}
    */
   async getGroupEventsByType(groupId) {
-    const events = await this.getGroupEvents(groupId);
-    
-    const deities = events.filter(event => event.type === 'deity');
-    const festivals = events.filter(event => event.type === 'festival');
-    
-    return {
-      deities,
-      festivals
-    };
+    try {
+      console.log(`[GroupRepository] Getting events for group ${groupId}`);
+      const events = await this.getGroupEvents(groupId);
+      console.log(`[GroupRepository] Found ${events.length} events for group ${groupId}`);
+      
+      const deities = events.filter(event => event.type === 'deity');
+      const festivals = events.filter(event => event.type === 'festival');
+      
+      console.log(`[GroupRepository] Grouped events: ${deities.length} deities, ${festivals.length} festivals`);
+      
+      return {
+        deities,
+        festivals
+      };
+    } catch (error) {
+      console.error(`[GroupRepository] Error getting grouped events for group ${groupId}:`, error);
+      
+      // 返回空的結果而不是拋出錯誤
+      return {
+        deities: [],
+        festivals: []
+      };
+    }
   }
 
   /**

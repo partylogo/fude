@@ -76,26 +76,36 @@ const groupItemsHandler = async (req, res) => {
     // 驗證群組 ID
     const validation = GroupsService.validateGroupId(req.params.id);
     if (!validation.isValid) {
+      console.error('[groupItemsHandler] Invalid group ID:', req.params.id);
       return res.status(400).json({
         error: validation.error
       });
     }
 
+    console.log(`[groupItemsHandler] Getting items for group ${validation.id}`);
+
     // 檢查群組是否存在
     const group = await repository.findById(validation.id);
     if (!group) {
+      console.error(`[groupItemsHandler] Group ${validation.id} not found`);
       return res.status(404).json({
         error: 'Group not found'
       });
     }
 
+    console.log(`[groupItemsHandler] Found group: ${group.name}`);
+
     // 取得群組事件並分類
     const groupedEvents = await repository.getGroupEventsByType(validation.id);
-
+    
+    console.log(`[groupItemsHandler] Returning grouped events:`, groupedEvents);
+    
     res.status(200).json(groupedEvents);
   } catch (error) {
+    console.error('[groupItemsHandler] Error:', error);
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
+      message: error.message
     });
   }
 };
