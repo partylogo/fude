@@ -19,7 +19,12 @@ const EventShowContent = () => {
       <TextField source="title" label="事件名稱" />
       <TextField source="type" label="類型" />
       <TextField source="description" label="描述" />
-      <FunctionField label="國曆日期" render={formatGregorian} />
+      <FunctionField label="國曆/節氣" render={(r) => {
+        const g = formatGregorian(r);
+        if (g) return g;
+        if (r?.type === 'solar_term' && r?.solar_term_name) return `節氣：${r.solar_term_name}`;
+        return '';
+      }} />
       <FunctionField label="農曆日期" render={(r) => (r?.lunar_month && r?.lunar_day ? `${r.lunar_month}/${r.lunar_day}` : '')} />
       <TextField source="solar_term_name" label="節氣" />
     </SimpleShowLayout>

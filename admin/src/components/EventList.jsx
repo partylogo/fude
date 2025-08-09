@@ -20,7 +20,7 @@ const EventList = () => {
   ];
 
   return (
-    <List>
+    <List sort={{ field: 'id', order: 'DESC' }}>
       <Datagrid>
         <TextField source="id" label="ID" />
         <TextField source="title" label="事件名稱" />
@@ -30,7 +30,7 @@ const EventList = () => {
           choices={typeChoices}
         />
         <TextField source="description" label="描述" />
-        <FunctionField label="國曆日期" render={record => {
+        <FunctionField label="國曆日期/節氣" render={record => {
           // 以陣列第一個或字串輸出國曆日期，否則以月/日組合顯示
           const first = Array.isArray(record.solar_date)
             ? (record.solar_date[0] || '')
@@ -40,6 +40,9 @@ const EventList = () => {
           }
           if (record.solar_month && record.solar_day) {
             return `${record.solar_month}/${record.solar_day}`;
+          }
+          if (record.type === 'solar_term' && record.solar_term_name) {
+            return `節氣：${record.solar_term_name}`;
           }
           // 若為神明/農曆事件，避免誤導顯示錯誤國曆日期（暫時留空）
           return '';
