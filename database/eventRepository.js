@@ -270,11 +270,28 @@ class EventRepository {
   async delete(id) {
     if (this.supabase) {
       try {
+        // 先刪除相關的 event_occurrences 記錄
+        console.log(`[EventRepository.delete] Deleting occurrences for event ${id}`);
+        const { error: occurrenceError } = await this.supabase
+          .from('event_occurrences')
+          .delete()
+          .eq('event_id', id);
+        
+        if (occurrenceError) {
+          console.warn(`[EventRepository.delete] Failed to delete occurrences: ${occurrenceError.message}`);
+          // 不拋出錯誤，因為 occurrence 可能不存在
+        }
+        
+        // 再刪除事件本身
+        console.log(`[EventRepository.delete] Deleting event ${id}`);
         const { error } = await this.supabase
           .from('events')
           .delete()
           .eq('id', id);
+          
         if (error) throw error;
+        
+        console.log(`[EventRepository.delete] Successfully deleted event ${id}`);
         return true;
       } catch (err) {
         console.error('[EventRepository.delete] supabase error:', err);

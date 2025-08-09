@@ -349,19 +349,23 @@ const deleteEvent = async (req, res) => {
       return sendError(res, 404, 'Event not found', null, 'EVENT_NOT_FOUND');
     }
 
+    // Phase 2: 先清理相關的 occurrences（在刪除事件之前）
+    try {
+      console.log(`[deleteEvent] Clearing occurrences for event ${id}`);
+      await occurrenceService.clearOccurrences(parseInt(id));
+      console.log(`[deleteEvent] Successfully cleared occurrences for event ${id}`);
+    } catch (occError) {
+      console.error(`[deleteEvent] Failed to clear occurrences for event ${id}:`, occError);
+      // 繼續刪除事件，因為 repository 層也會處理這個問題
+    }
+
     // 刪除事件
+    console.log(`[deleteEvent] Deleting event ${id}`);
     const success = await repository.delete(parseInt(id));
     if (!success) {
       return sendError(res, 500, 'Failed to delete event', null, 'E_EVENT_DELETE_FAILED');
     }
-
-    // Phase 2: 清理相關的 occurrences
-    try {
-      await occurrenceService.clearOccurrences(parseInt(id));
-    } catch (occError) {
-      console.error(`[deleteEvent] Failed to clear occurrences for event ${id}:`, occError);
-      // 不影響事件刪除，只記錄錯誤
-    }
+    console.log(`[deleteEvent] Successfully deleted event ${id}`);
 
     res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
     res.status(200).json({
