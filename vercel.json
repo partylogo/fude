@@ -1,12 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "npm install && cd admin && npm install && npm run build",
-  "outputDirectory": "admin/dist",
-  "functions": {
-    "api/index.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index.js" },
     { "handle": "filesystem" },
