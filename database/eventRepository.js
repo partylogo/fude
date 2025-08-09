@@ -246,11 +246,7 @@ class EventRepository {
         if (error) throw error;
         return true;
       } catch (err) {
-        if (isSchemaMissing(err)) {
-          this.supabase = null;
-        } else {
-          throw err;
-        }
+        this.supabase = null;
       }
     }
     const index = this.events.findIndex(e => e.id === id);

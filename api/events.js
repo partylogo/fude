@@ -91,6 +91,8 @@ const eventsHandler = async (req, res) => {
       ...e,
       solar_date: Array.isArray(e.solar_date) ? (e.solar_date[0] || null) : (e.solar_date ?? null)
     }));
+    // 標註資料來源（debug）：supabase 或 memory
+    res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
     res.status(200).json({ events: normalized });
   } catch (error) {
     console.error('[eventsHandler] error:', error);
@@ -113,6 +115,7 @@ const getEvent = async (req, res) => {
 
     const out = { ...event };
     if (Array.isArray(out.solar_date)) out.solar_date = out.solar_date[0] || null;
+    res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
     res.status(200).json(out);
   } catch (error) {
     console.error('[getEvent] error:', error);
@@ -159,6 +162,7 @@ const createEvent = async (req, res) => {
     if (Array.isArray(out.solar_date)) {
       out.solar_date = out.solar_date[0] || null;
     }
+    res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
     res.status(201).json(out);
   } catch (error) {
     console.error('[createEvent] error:', error);
@@ -210,6 +214,7 @@ const updateEvent = async (req, res) => {
     if (Array.isArray(out.solar_date)) {
       out.solar_date = out.solar_date[0] || null;
     }
+    res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
     res.status(200).json(out);
   } catch (error) {
     console.error('[updateEvent] error:', error);
@@ -239,6 +244,7 @@ const deleteEvent = async (req, res) => {
       });
     }
 
+    res.set('X-Data-Source', repository && repository.supabase ? 'supabase' : 'memory');
     res.status(200).json({
       message: 'Event deleted successfully',
       id: parseInt(id)
